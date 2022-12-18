@@ -21,7 +21,8 @@ const Home: NextPage = ({ users }: any) => {
 	);
 };
 
-export async function getStaticProps() {
+export async function getServerSideProps() {
+	// console.log(client);
 	const { data } = await client.query({
 		query: gql`
 			query Users {
