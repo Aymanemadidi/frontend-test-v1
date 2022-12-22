@@ -3,6 +3,7 @@ import Head from "next/head";
 import Image from "next/image";
 import { gql } from "@apollo/client";
 import client from "../apollo-client";
+import bell from "../public/bell.svg";
 
 const Home: NextPage = ({ users }: any) => {
 	return (
@@ -13,6 +14,7 @@ const Home: NextPage = ({ users }: any) => {
 						<div>{user.email}</div>
 						<div>{user._id}</div>
 						<div>{user.role}</div>
+						<Image src={bell} alt="next" width={20} height={20} />
 						<hr />
 					</div>
 				);
