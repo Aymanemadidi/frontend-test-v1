@@ -52,8 +52,8 @@ export default function Layout({ children }: React.PropsWithChildren) {
 	const [checked, setChecked] = useState(false);
 	const [opened, setOpened] = useState(true);
 	const [toggle, setToggle] = useState(false);
-	const [numMessages, setNumMessages] = useState(0);
-	const [numNotif, setNumNotif] = useState(0);
+	const [numMessages, setNumMessages] = useState(3);
+	const [numNotif, setNumNotif] = useState(2);
 	const [width, setWidth] = useState(0);
 	const title = opened ? "Close navigation" : "Open navigation";
 	//#676C86
@@ -82,7 +82,7 @@ export default function Layout({ children }: React.PropsWithChildren) {
 						hiddenBreakpoint="sm"
 						// hidden={!opened}
 						// width={{ sm: 250 }}
-						className={`flex gap-[20px] ${
+						className={`flex ${
 							opened ? "w-[250px]" : "w-[60px]"
 						} transition-[width] duration-1000`}
 						// sx={{ display: "flex", gap: "20px" }}
@@ -140,8 +140,8 @@ export default function Layout({ children }: React.PropsWithChildren) {
 				}
 				header={
 					<Header
-						height={width > 1024 ? "90" : "150"}
-						className="h-[150px] lg:h-[90px]"
+						height={width > 1024 ? "73" : "150"}
+						className="h-[150px] lg:h-[73px]"
 						p="lg"
 						sx={(theme) => ({
 							backgroundColor: theme.colors.white,
@@ -152,7 +152,7 @@ export default function Layout({ children }: React.PropsWithChildren) {
 							style={{
 								display: "flex",
 								// alignItems: "center",
-								// justifyContent: "center",
+								justifyContent: "center",
 								height: "100%",
 								width: "100%",
 								gap: "10px",
@@ -163,6 +163,7 @@ export default function Layout({ children }: React.PropsWithChildren) {
 							<div className="flex justify-between">
 								<div className="flex">
 									<Burger
+										className="mt-2"
 										opened={opened}
 										onClick={() => setOpened((o) => !o)}
 										title={title}
@@ -192,24 +193,24 @@ export default function Layout({ children }: React.PropsWithChildren) {
 										{/* <p className="md:hidden">S-P</p> */}
 									</Link>
 									<Image
-										className=" hidden xl:block bg-none ml-5"
+										className="hidden mt-3 xl:block bg-none ml-5 translate-y-[-8px]"
 										alt="burger"
 										color={theme.colors.gray[3]}
 										src={lineIcon}
 										height={33}
 									/>
 								</div>
-								<div className="hidden lg:flex">
+								<div className="hidden lg:flex mt-1">
 									<div className="">
 										<input
-											className=" bg-[#f1f1f1] py-3 w-[300px] rounded-3xl px-4 text-black"
+											className=" bg-[#f1f1f1] py-3 w-[600px] rounded-3xl px-4 text-black"
 											type="text"
 											placeholder="Rechercher référence, mots clés ... "
 										/>
 									</div>
 									<button onClick={() => console.log("click")}>
 										<Image
-											className="bg-none translate-x-[-35px] translate-y-[-5px]"
+											className="bg-none translate-x-[-35px] translate-y-[-2px]"
 											alt="burger"
 											color={theme.colors.gray[3]}
 											src={searchIcon}
@@ -252,12 +253,12 @@ export default function Layout({ children }: React.PropsWithChildren) {
 												alt="burger"
 												color={theme.colors.gray[3]}
 												src={bell}
-												height={33}
+												height={27}
 											/>
 											<div
 												className={`${
 													numNotif === 0 ? "hidden" : ""
-												}  text-sm bg-red-500 text-white rounded-[50%] text-center w-[20px] h-[20px] font-semibold translate-x-[-15px] translate-y-[5px]`}
+												}  text-sm bg-red-500 text-white rounded-[50%] text-center w-[20px] h-[20px] font-semibold translate-x-[-12px] translate-y-[5px]`}
 											>
 												{numNotif}
 											</div>
@@ -268,7 +269,7 @@ export default function Layout({ children }: React.PropsWithChildren) {
 												alt="burger"
 												color={theme.colors.gray[3]}
 												src={messageIcon}
-												height={27}
+												height={20}
 											/>
 											<div
 												className={`${
@@ -298,10 +299,12 @@ export default function Layout({ children }: React.PropsWithChildren) {
 												alt="burger"
 												color={theme.colors.gray[3]}
 												src={profileIcon}
-												height={33}
+												height={27}
 											/>
 											<div className="hidden md:block text-black">
-												<span className="font-medium">Edgar Girerd</span>
+												<span className="font-medium text-sm">
+													Edgar Girerd
+												</span>
 												<br />
 												<span className="text-xs">Vendeur professionnel</span>
 											</div>
@@ -324,7 +327,7 @@ export default function Layout({ children }: React.PropsWithChildren) {
 													<Switch
 														size="xl"
 														color={"green"}
-														height={50}
+														height={20}
 														onClick={() => setToggle(!toggle)}
 														onLabel={
 															<Image
@@ -332,7 +335,7 @@ export default function Layout({ children }: React.PropsWithChildren) {
 																alt="burger"
 																color={theme.colors.gray[3]}
 																src={buyerIcon}
-																height={23}
+																height={20}
 															/>
 														}
 														offLabel={
@@ -341,7 +344,7 @@ export default function Layout({ children }: React.PropsWithChildren) {
 																alt="burger"
 																color={theme.colors.gray[3]}
 																src={sellerIcon}
-																height={23}
+																height={20}
 															/>
 														}
 													/>
