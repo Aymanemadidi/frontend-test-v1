@@ -46,6 +46,7 @@ import { NavItem, SelectedNavItem } from "./NavItem";
 import Badge from "@mui/material/Badge";
 
 import { motion } from "framer-motion";
+import { gql, useQuery } from "@apollo/client";
 
 export default function Layout({ children }: React.PropsWithChildren) {
 	const theme = useMantineTheme();
@@ -55,19 +56,48 @@ export default function Layout({ children }: React.PropsWithChildren) {
 	const [numMessages, setNumMessages] = useState(3);
 	const [numNotif, setNumNotif] = useState(2);
 	const [width, setWidth] = useState(0);
+	const [user, setUser] = useState<any>({});
 	const title = opened ? "Close navigation" : "Open navigation";
+	const [_id, setId] = useState<any>("");
+
 	//#676C86
 	useEffect(() => {
 		// make sure your function is being called in client side only
 		if (typeof window !== "undefined") {
 			setWidth(window.innerWidth);
+			setId(window.localStorage.getItem("id"));
+			console.log("fromLocal: ", _id);
 		}
 	}, []);
 
+	const GET_USER = gql`
+		query user($_id: String!) {
+			user(_id: $_id) {
+				firstName
+				lastName
+				role
+			}
+		}
+	`;
+
+	const { error, loading, data } = useQuery(GET_USER, {
+		onCompleted: setUser,
+		fetchPolicy: "no-cache",
+		variables: { _id },
+	});
+
+	if (loading) {
+		return <div>loading...</div>;
+	}
+	if (error) {
+		return <div>error</div>;
+	}
+
+	console.log(user);
 	return (
 		<div className="font-Montserrat">
 			<Head>
-				<title>Oregon Humane Adoptable Dogs</title>
+				<title>Spare Place</title>
 
 				<meta name="viewport" content="initial-scale=1.0, width=device-width" />
 			</Head>
@@ -303,10 +333,10 @@ export default function Layout({ children }: React.PropsWithChildren) {
 											/>
 											<div className="hidden md:block text-black">
 												<span className="font-medium text-sm">
-													Edgar Girerd
+													{`${user.user.firstName} ${user.user.lastName}`}
 												</span>
 												<br />
-												<span className="text-xs">Vendeur professionnel</span>
+												<span className="text-sm">{user.user.role}</span>
 											</div>
 											<Image
 												className="bg-none"
@@ -454,6 +484,12 @@ export default function Layout({ children }: React.PropsWithChildren) {
 		</div>
 	);
 }
+
+// export async function getServerSideProps() {
+// 	return {
+// 		props: {},
+// 	};
+// }
 
 /* background-color: red; color: white; text-align: center;
 										width: 17px; height: 20px; border: none; border-radius: 50%;

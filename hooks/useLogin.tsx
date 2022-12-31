@@ -5,20 +5,18 @@ export interface LoginUserInput {
 	password: string;
 }
 
-interface Tokens {
-	access_token: string;
-	refresh_token: string;
+interface LoggedUserOutput {
+	_id: string;
 }
 
 const LOGIN = gql`
 	mutation loginUser($loginUserInput: LoginUserInput!) {
 		loginUser(loginUserInput: $loginUserInput) {
-			access_token
-			refresh_token
+			_id
 		}
 	}
 `;
 
 export const useLoginUser = () => {
-	return useMutation<Tokens, any>(LOGIN);
+	return useMutation(LOGIN);
 };

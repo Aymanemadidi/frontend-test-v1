@@ -44,8 +44,8 @@ function Login() {
 	const router = useRouter();
 
 	async function handleSubmit(values: any) {
-		console.log(values);
-		const tokens = await loginUser({
+		// console.log(values);
+		const { data } = await loginUser({
 			variables: {
 				loginUserInput: {
 					email: values.email,
@@ -53,7 +53,8 @@ function Login() {
 				},
 			},
 		});
-		console.log(tokens);
+		console.log(data.loginUser._id);
+		localStorage.setItem("id", data.loginUser._id);
 		router.push("/all-sellers");
 	}
 
