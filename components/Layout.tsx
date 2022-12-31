@@ -50,7 +50,7 @@ import { motion } from "framer-motion";
 export default function Layout({ children }: React.PropsWithChildren) {
 	const theme = useMantineTheme();
 	const [checked, setChecked] = useState(false);
-	const [opened, setOpened] = useState(true);
+	const [opened, setOpened] = useState(false);
 	const [toggle, setToggle] = useState(false);
 	const [numMessages, setNumMessages] = useState(3);
 	const [numNotif, setNumNotif] = useState(2);
@@ -253,7 +253,7 @@ export default function Layout({ children }: React.PropsWithChildren) {
 												alt="burger"
 												color={theme.colors.gray[3]}
 												src={bell}
-												height={27}
+												height={25}
 											/>
 											<div
 												className={`${

@@ -16,18 +16,14 @@ import { DropzoneButton } from "../components/DropZone";
 import { nationalities } from "../helpers/countries";
 import PhoneInput from "react-phone-input-2";
 import "react-phone-input-2/lib/material.css";
-import { CreateSellerInput, useCreateSeller } from "../hooks/useCreateSeller";
+import { CreateBuyerInput, useCreateBuyer } from "../hooks/useCreateBuyer";
 
 interface Seller {
 	nomEntreprise: string;
 	numeroSiret: number;
-	groupe: string;
-	codeNAF: string;
 	codePostal: string;
 	ville: string;
-	departement: string;
 	pays: string;
-	IBAN: string;
 	numFixe: number;
 	numPortable: number;
 	website: string;
@@ -36,21 +32,16 @@ interface Seller {
 	email: string;
 	pseudo: string;
 	password: string;
-	// adresse: "",
 }
 
 const d = new Date();
 
-const initialValues: CreateSellerInput = {
+const initialValues: CreateBuyerInput = {
 	nomEntreprise: "",
 	numeroSiret: "",
-	groupe: "",
-	codeNAF: "",
 	codePostal: "",
 	ville: "",
-	departement: "",
 	pays: "",
-	IBAN: "",
 	numFixe: "",
 	numPortable: "",
 	dateOfBirth: "",
@@ -61,7 +52,6 @@ const initialValues: CreateSellerInput = {
 	email: "",
 	pseudo: "",
 	password: "",
-	adress: "",
 	countryOfResidence: "",
 };
 
@@ -92,36 +82,31 @@ function Demo() {
 	);
 
 	const [fixTel, setFixTel] = useState(0);
-	const [obj, setObj] = useState<CreateSellerInput>(initialValues);
-	const [createSeller] = useCreateSeller();
+	const [obj, setObj] = useState<CreateBuyerInput>(initialValues);
+	const [createBuyer] = useCreateBuyer();
 
-	async function handleSubmit(values: CreateSellerInput) {
+	async function handleSubmit(values: CreateBuyerInput) {
 		console.log(values);
-		const tokens = await createSeller({
+		const tokens = await createBuyer({
 			variables: {
-				createSellerInput: {
+				createBuyerInput: {
 					nomEntreprise: values.nomEntreprise,
 					lastName: values.nom,
 					numeroSiret: Number(values.numeroSiret),
-					groupe: values.groupe,
-					codeNAF: values.codeNAF,
-					codePostal: values.codePostal,
-					ville: values.ville,
-					role: "Seller",
-					IBAN: values.IBAN,
+					role: "Buyer",
 					dateOfBirth: values.dateOfBirth,
 					nationality: values.nationality,
-					adresse: values.adress,
+					codePostal: values.codePostal,
+					ville: values.ville,
+					pays: values.countryOfResidence,
 					countryOfResidency: values.countryOfResidence,
-					departement: values.departement,
 					mobileNumber: Number(values.numPortable),
 					fixNumber: Number(values.numFixe),
 					firstName: values.prenom,
 					email: values.email,
-					pseudo: values.nomEntreprise,
 					password: values.password,
+					pseudo: values.pseudo,
 					website: values.website,
-					pays: values.pays,
 				},
 			},
 		});
@@ -132,24 +117,19 @@ function Demo() {
 		initialValues: {
 			nomEntreprise: "",
 			numeroSiret: "",
-			groupe: "",
-			codeNAF: "",
 			codePostal: "",
-			ville: "",
-			departement: "",
-			pays: "",
-			IBAN: "",
 			numFixe: "",
 			numPortable: "",
 			dateOfBirth: "",
 			nationality: "",
 			website: "",
+			ville: "",
+			pays: "",
 			prenom: "",
 			nom: "",
 			email: "",
-			pseudo: "",
 			password: "",
-			adress: "",
+			pseudo: "",
 			countryOfResidence: "",
 		},
 
@@ -167,7 +147,7 @@ function Demo() {
 				// onSubmit={form.onSubmit(console.log)}
 				className="flex flex-col justify-center ml-[15%] w-full mt-3"
 			>
-				<div>Inscription Vendeur</div>
+				<div>Inscription Acheteur</div>
 				{/* <div className="flex justify-center bg-slate-200 w-4/5 rounded-2xl"> */}
 				<div className="flex flex-col items-start justify-start pb-[25px] pt-[20px] bg-slate-100 w-4/5 rounded-2xl shadow-2xl">
 					<h2 className="ml-4 mb-2 font-medium">Informations entreprise:</h2>
@@ -233,132 +213,11 @@ function Demo() {
 								"w-full font-semibold placeholder:font-normal placeholder:text-gray-400 border-slate-200 mt-1",
 							label: "ml-2",
 						}}
-						label={"Groupe"}
-						radius={25}
-						mt="sm"
-						placeholder="Groupe"
-						withAsterisk
-						{...form.getInputProps("groupe")}
-					/>
-					<TextInput
-						classNames={{
-							root: "pl-3 pr-3 w-full",
-							wrapper: "w-full",
-							input:
-								"w-full font-semibold placeholder:font-normal placeholder:text-gray-400 border-slate-200 mt-1",
-							label: "ml-2",
-						}}
-						label={"Code NAF"}
-						radius={25}
-						mt="sm"
-						placeholder="Code NAF"
-						withAsterisk
-						{...form.getInputProps("codeNAF")}
-					/>
-
-					<TextInput
-						classNames={{
-							root: "pl-3 pr-3 w-full",
-							wrapper: "w-full",
-							input:
-								"w-full font-semibold placeholder:font-normal placeholder:text-gray-400 border-slate-200 mt-1",
-							label: "ml-2",
-						}}
-						label={"Code postal"}
-						radius={25}
-						mt="sm"
-						placeholder="Code postal"
-						withAsterisk
-						{...form.getInputProps("codePostal")}
-					/>
-					<TextInput
-						classNames={{
-							root: "pl-3 pr-3 w-full",
-							wrapper: "w-full",
-							input:
-								"w-full font-semibold placeholder:font-normal placeholder:text-gray-400 border-slate-200 mt-1",
-							label: "ml-2",
-						}}
-						label={"Ville"}
-						radius={25}
-						mt="sm"
-						placeholder="Ville"
-						withAsterisk
-						{...form.getInputProps("ville")}
-					/>
-					<TextInput
-						classNames={{
-							root: "pl-3 pr-3 w-full",
-							wrapper: "w-full",
-							input:
-								"w-full font-semibold placeholder:font-normal placeholder:text-gray-400 border-slate-200 mt-1",
-							label: "ml-2",
-						}}
-						label={"Departement"}
-						radius={25}
-						mt="sm"
-						placeholder="Departement"
-						withAsterisk
-						{...form.getInputProps("departement")}
-					/>
-					<TextInput
-						classNames={{
-							root: "pl-3 pr-3 w-full",
-							wrapper: "w-full",
-							input:
-								"w-full font-semibold placeholder:font-normal placeholder:text-gray-400 border-slate-200 mt-1",
-							label: "ml-2",
-						}}
-						label={"Pays"}
-						radius={25}
-						mt="sm"
-						placeholder="Pays"
-						withAsterisk
-						{...form.getInputProps("pays")}
-					/>
-					<TextInput
-						classNames={{
-							root: "pl-3 pr-3 w-full",
-							wrapper: "w-full",
-							input:
-								"w-full font-semibold placeholder:font-normal placeholder:text-gray-400 border-slate-200 mt-1",
-							label: "ml-2",
-						}}
-						label={"IBAN"}
-						radius={25}
-						mt="sm"
-						placeholder="IBAN"
-						withAsterisk
-						{...form.getInputProps("IBAN")}
-					/>
-					<TextInput
-						classNames={{
-							root: "pl-3 pr-3 w-full",
-							wrapper: "w-full",
-							input:
-								"w-full font-semibold placeholder:font-normal placeholder:text-gray-400 border-slate-200 mt-1",
-							label: "ml-2",
-						}}
 						label={"Site Web"}
 						radius={25}
 						mt="sm"
 						placeholder="Site Web"
-						withAsterisk
 						{...form.getInputProps("website")}
-					/>
-					<TextInput
-						classNames={{
-							root: "pl-3 pr-3 w-full",
-							wrapper: "w-full",
-							input:
-								"w-full font-semibold placeholder:font-normal placeholder:text-gray-400 border-slate-200 mt-1",
-							label: "ml-2",
-						}}
-						label={"Pseudo"}
-						radius={25}
-						mt="sm"
-						placeholder="Pseudo"
-						withAsterisk
 					/>
 					{/* {Photo upload area} */}
 					{/* <TextInput
@@ -381,20 +240,20 @@ function Demo() {
 				</div>
 				<div className="flex flex-col items-start justify-start mt-5 pb-[25px] pt-[20px] bg-slate-100 w-4/5 rounded-2xl shadow-2xl">
 					<h2 className="ml-4 mb-2">Informations de contact</h2>
-					{/* <Select
+					<Select
 						label="Civilité"
 						classNames={{
-							input: "rounded-2xl",
+							input: "rounded-2xl font-semibold",
 							label: "ml-1",
 						}}
-						className="ml-4 mt-1 flex flex-col gap-1 justify-start items-start rounded-2xl"
+						className="ml-4 mt-1 font-semibold flex flex-col gap-1 justify-start items-start rounded-2xl"
 						placeholder="Civilité"
 						data={[
 							{ value: "mm", label: "Mme" },
 							{ value: "m", label: "M" },
 						]}
 						withAsterisk
-					/> */}
+					/>
 					<TextInput
 						classNames={{
 							root: "pl-3 pr-3 w-full",
@@ -476,6 +335,36 @@ function Demo() {
 								"w-full font-semibold placeholder:font-normal placeholder:text-gray-400 border-slate-200 mt-1",
 							label: "ml-2",
 						}}
+						label={"Ville"}
+						radius={25}
+						mt="sm"
+						placeholder="Ville"
+						withAsterisk
+						{...form.getInputProps("ville")}
+					/>
+					<TextInput
+						classNames={{
+							root: "pl-3 pr-3 w-full",
+							wrapper: "w-full",
+							input:
+								"w-full font-semibold placeholder:font-normal placeholder:text-gray-400 border-slate-200 mt-1",
+							label: "ml-2",
+						}}
+						label={"Code postal"}
+						radius={25}
+						mt="sm"
+						placeholder="Code postal"
+						withAsterisk
+						{...form.getInputProps("codePostal")}
+					/>
+					<TextInput
+						classNames={{
+							root: "pl-3 pr-3 w-full",
+							wrapper: "w-full",
+							input:
+								"w-full font-semibold placeholder:font-normal placeholder:text-gray-400 border-slate-200 mt-1",
+							label: "ml-2",
+						}}
 						label={"Email"}
 						radius={25}
 						mt="sm"
@@ -529,50 +418,6 @@ function Demo() {
 							// onChange={(phone) => this.setState({ phone })}
 						/>
 					</div>
-					<TextInput
-						classNames={{
-							root: "pl-3 pr-3 w-full",
-							wrapper: "w-full",
-							input:
-								"w-full font-semibold placeholder:font-normal placeholder:text-gray-400 border-slate-200 mt-1",
-							label: "ml-2",
-						}}
-						label={"Adresse"}
-						radius={25}
-						mt="sm"
-						placeholder="Adresse"
-						withAsterisk
-						{...form.getInputProps("adresse")}
-					/>
-					<TextInput
-						classNames={{
-							root: "pl-3 pr-3 w-full",
-							wrapper: "w-full",
-							input:
-								"w-full font-semibold placeholder:font-normal placeholder:text-gray-400 border-slate-200 mt-1",
-							label: "ml-2",
-						}}
-						label={"Ville"}
-						radius={25}
-						mt="sm"
-						placeholder="Ville"
-						withAsterisk
-					/>
-					<TextInput
-						classNames={{
-							root: "pl-3 pr-3 w-full",
-							wrapper: "w-full",
-							input:
-								"w-full font-semibold placeholder:font-normal placeholder:text-gray-400 border-slate-200 mt-1",
-							label: "ml-2",
-						}}
-						label={"Code postal"}
-						radius={25}
-						mt="sm"
-						placeholder="Code postal"
-						withAsterisk
-						{...form.getInputProps("pseudo")}
-					/>
 				</div>
 
 				<div className="flex justify-center w-3/4">
