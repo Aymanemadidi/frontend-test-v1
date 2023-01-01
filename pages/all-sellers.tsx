@@ -25,6 +25,7 @@ import {
 import { DateRangePicker, DateRangePickerValue } from "@mantine/dates";
 import { Router } from "tabler-icons-react";
 import { useRouter } from "next/router";
+import dayjs from "dayjs";
 
 const useStyles = createStyles((theme) => ({
 	th: {
@@ -341,6 +342,7 @@ export default function Demo() {
 								placeholder="Pick dates range"
 								value={rangeValue}
 								onChange={setRangeValue}
+								maxDate={dayjs(new Date()).toDate()}
 							/>
 						</div>
 						<button
