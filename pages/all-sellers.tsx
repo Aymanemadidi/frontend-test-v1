@@ -178,8 +178,9 @@ export default function Demo() {
 	}
 
 	if (error) {
-		router.push("/login");
-		return;
+		// router.push("/login");
+
+		return <div>{error.message}</div>;
 		// return (
 		// 	<div className="flex justify-center">
 		// 		<div>{error.message}</div>;

@@ -28,7 +28,7 @@ export default function NotLoggedLayout({ children }: React.PropsWithChildren) {
 	return (
 		<div className="font-Montserrat">
 			<Head>
-				<title>Oregon Humane Adoptable Dogs</title>
+				<title>Spare Place</title>
 
 				<meta name="viewport" content="initial-scale=1.0, width=device-width" />
 			</Head>

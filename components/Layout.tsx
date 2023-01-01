@@ -121,7 +121,7 @@ export default function Layout({ children, access_token }: any) {
 	if (error) {
 		// logout();
 		router.push("/login");
-		return <div>{error.message}</div>;
+		// return <div>{error.message}</div>;
 	}
 	if (data) {
 		console.log("getMe: ", data);

@@ -56,7 +56,8 @@ function Login() {
 	const { error, loading, data } = useQuery(GET_ME);
 
 	if (data) {
-		router.push("/all-sellers");
+		console.log(data);
+		// router.push("/all-sellers");
 	}
 
 	async function handleSubmit(values: any) {
@@ -69,7 +70,7 @@ function Login() {
 				},
 			},
 		});
-		console.log(data.loginUser._id);
+		// console.log(data.loginUser._id);
 		// localStorage.setItem("id", data.loginUser._id);
 		router.push("/all-sellers");
 	}
