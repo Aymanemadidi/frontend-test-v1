@@ -282,6 +282,7 @@ export default function Demo() {
 		return results;
 	}
 
+	console.log("list: ", list.sellers);
 	sellers = list.sellers.map((user: any) => (
 		<SellersBar
 			key={user.email}
@@ -304,7 +305,7 @@ export default function Demo() {
 							mb="md"
 							icon={<IconSearch size={14} stroke={1.5} />}
 							value={emailToSearch}
-							type="email"
+							autoComplete="off"
 							onChange={(e) => setEmailToSearch(e.currentTarget.value)}
 						/>
 						<TextInput
@@ -315,6 +316,7 @@ export default function Demo() {
 							mb="md"
 							icon={<IconSearch size={14} stroke={1.5} />}
 							value={nomEntrepriseToSearch}
+							autoComplete="off"
 							onChange={(e) => setNomEntrepriseToSearch(e.currentTarget.value)}
 						/>
 					</div>

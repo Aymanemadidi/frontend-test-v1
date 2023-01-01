@@ -17,6 +17,7 @@ import {
 	useMantineTheme,
 	Accordion,
 	NavLink,
+	LoadingOverlay,
 } from "@mantine/core";
 // import { IconSun, IconMoonStars } from "";
 import { Home, DogBowl, Line } from "tabler-icons-react";
@@ -46,9 +47,10 @@ import { NavItem, SelectedNavItem } from "./NavItem";
 import Badge from "@mui/material/Badge";
 
 import { motion } from "framer-motion";
-import { gql, useQuery } from "@apollo/client";
+import { gql, useMutation, useQuery } from "@apollo/client";
+import { useRouter } from "next/router";
 
-export default function Layout({ children }: React.PropsWithChildren) {
+export default function Layout({ children, access_token }: any) {
 	const theme = useMantineTheme();
 	const [checked, setChecked] = useState(false);
 	const [opened, setOpened] = useState(false);
@@ -56,23 +58,32 @@ export default function Layout({ children }: React.PropsWithChildren) {
 	const [numMessages, setNumMessages] = useState(3);
 	const [numNotif, setNumNotif] = useState(2);
 	const [width, setWidth] = useState(0);
-	const [user, setUser] = useState<any>({});
+	const [user, setUser] = useState<any>({
+		getMe: {
+			firstName: "",
+			lastName: "",
+			role: "",
+		},
+	});
 	const title = opened ? "Close navigation" : "Open navigation";
 	const [_id, setId] = useState<any>("");
+	const router = useRouter();
+
+	// console.log("access_token", access_token);
 
 	//#676C86
 	useEffect(() => {
 		// make sure your function is being called in client side only
 		if (typeof window !== "undefined") {
 			setWidth(window.innerWidth);
-			setId(window.localStorage.getItem("id"));
-			console.log("fromLocal: ", _id);
+			// setId(window.localStorage.getItem("id"));
+			// console.log("fromLocal: ", _id);
 		}
 	}, []);
 
-	const GET_USER = gql`
-		query user($_id: String!) {
-			user(_id: $_id) {
+	const GET_ME = gql`
+		query getMe {
+			getMe {
 				firstName
 				lastName
 				role
@@ -80,17 +91,53 @@ export default function Layout({ children }: React.PropsWithChildren) {
 		}
 	`;
 
-	const { error, loading, data } = useQuery(GET_USER, {
+	// const GET_ME = gql`
+	// 	query getMe {
+	// 		getMe {
+	// 			firstName
+	// 			lastName
+	// 			role
+	// 		}
+	// 	}
+	// `;
+	const LOGOUT_USER = gql`
+		mutation logoutUser {
+			logoutUser
+		}
+	`;
+	const [logout, logoutResults] = useMutation(LOGOUT_USER);
+	const { error, loading, data } = useQuery(GET_ME, {
 		onCompleted: setUser,
 		fetchPolicy: "no-cache",
-		variables: { _id },
 	});
 
 	if (loading) {
-		return <div>loading...</div>;
+		return (
+			<div className="flex justify-center">
+				{/* <LoadingOverlay visible />; */}
+			</div>
+		);
 	}
 	if (error) {
-		return <div>error</div>;
+		// logout();
+		router.push("/login");
+		return <div>{error.message}</div>;
+	}
+	if (data) {
+		console.log("getMe: ", data);
+	}
+
+	if (logoutResults.loading) {
+		return <div className="flex justify-center"></div>;
+	}
+
+	if (logoutResults.error) {
+		<div>{logoutResults.error.message}</div>;
+	}
+
+	if (logoutResults.data) {
+		// window.localStorage.removeItem("id");
+		router.push("/login");
 	}
 
 	console.log(user);
@@ -333,10 +380,10 @@ export default function Layout({ children }: React.PropsWithChildren) {
 											/>
 											<div className="hidden md:block text-black">
 												<span className="font-medium text-sm">
-													{`${user.user.firstName} ${user.user.lastName}`}
+													{`${user.getMe.firstName} ${user.getMe.lastName}`}
 												</span>
 												<br />
-												<span className="text-sm">{user.user.role}</span>
+												<span className="text-sm">{user.getMe.role}</span>
 											</div>
 											<Image
 												className="bg-none"
@@ -352,7 +399,15 @@ export default function Layout({ children }: React.PropsWithChildren) {
 												src={lineIcon}
 												height={33}
 											/>
-											<div className="self-stretch">
+											<div>
+												<button
+													className="bg-green-600 px-6 py-2 rounded-2xl font-Montserrat font-thin"
+													onClick={() => logout()}
+												>
+													logout
+												</button>
+											</div>
+											{/* <div className="self-stretch">
 												<Group position="center">
 													<Switch
 														size="xl"
@@ -382,7 +437,7 @@ export default function Layout({ children }: React.PropsWithChildren) {
 												<div className="text-black text-xs mt-1">
 													Vue {!toggle ? "Vendeur" : "Acheteur"}
 												</div>
-											</div>
+											</div> */}
 											{/* <div className="flex justify-between bg-green-500 rounded-3xl gap-4 pr-1 pl-1 py-1">
 												<Image
 													className={`p-[8px] w-[40px] h-[40px] ${

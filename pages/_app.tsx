@@ -30,7 +30,7 @@ type AppPropsWithLayout = AppProps & {
 	Component: NextPageWithLayout;
 };
 
-const App = ({ Component, pageProps }: AppPropsWithLayout) => {
+const App = ({ Component, pageProps, accessToken }: any) => {
 	// use the getLayout defined in each page
 	// if it doesn't exist, provide a fallback
 	const getLayout = Component.getLayout;
@@ -38,13 +38,13 @@ const App = ({ Component, pageProps }: AppPropsWithLayout) => {
 	if (getLayout) {
 		return getLayout(
 			<ApolloProvider client={client}>
-				<Component {...pageProps} />
+				<Component {...pageProps} accessToken={accessToken} />
 			</ApolloProvider>
 		);
 	} else {
 		return (
 			<ApolloProvider client={client}>
-				<Layout>
+				<Layout accessToken={accessToken}>
 					<Component {...pageProps} />;
 				</Layout>
 			</ApolloProvider>
@@ -53,3 +53,10 @@ const App = ({ Component, pageProps }: AppPropsWithLayout) => {
 };
 
 export default App;
+
+export async function getServerSideProps(context: any) {
+	const { req } = context;
+	console.log("req.headers.cookie: ", req.headers.cookie);
+	const accessToken = req.headers.cookie.split("access_token=")[1];
+	return { props: { accessToken } };
+}
