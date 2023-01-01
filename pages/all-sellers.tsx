@@ -267,18 +267,19 @@ export default function Demo() {
 			let y = range[0]?.getFullYear();
 			let m = range[0]?.getMonth();
 			let d = range[0]?.getDate();
-			if (m) {
-				const start = `${y}/${m + 1}/${d}`;
-				results[0] = start;
-			}
+			// if (m) {
+			const start = `${y}/${m + 1}/${d}`;
+			results[0] = start;
+			// }
 			y = range[1]?.getFullYear();
 			m = range[1]?.getMonth();
 			d = range[1]?.getDate();
-			if (m) {
-				const end = `${y}/${m + 1}/${d + 1}`;
-				results[1] = end;
-			}
+			// if (m) {
+			const end = `${y}/${m + 1}/${d + 1}`;
+			results[1] = end;
+			// }
 		}
+		console.log("results: ", results);
 		return results;
 	}
 
@@ -348,8 +349,8 @@ export default function Demo() {
 							onClick={async (e) => {
 								e.preventDefault();
 								setSearch("");
+								// console.log("rangeValue:", rangeValue);
 								let ranges = getStartAndEndFromRange(rangeValue);
-								console.log(ranges);
 								const datax = await getEmailsBySearch({
 									variables: {
 										email: emailToSearch,
@@ -359,8 +360,11 @@ export default function Demo() {
 										endDate: ranges[1],
 									},
 								});
+								// console.log("ranges: ", ranges[0]);
+								// console.log("ranges: ", ranges[1]);
 								// console.log(datax.data.sellersOcc);
 								// setSortedData(datax.data.sellersOcc);
+								// console.log("search by dates data: ", datax.data.sellersOcc);
 								setList({ sellers: datax.data.sellersOcc });
 							}}
 						>
@@ -460,7 +464,15 @@ export default function Demo() {
 								<th>Actions</th>
 							</tr>
 						</thead>
-						<tbody>{sellers}</tbody>
+						<tbody className="">
+							{sellers.length === 0 ? (
+								<div className="ml-[25%]">
+									<div>No results found</div>
+								</div>
+							) : (
+								sellers
+							)}
+						</tbody>
 					</Table>
 				</div>
 			)}
