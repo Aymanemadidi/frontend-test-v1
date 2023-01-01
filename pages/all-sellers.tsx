@@ -267,17 +267,17 @@ export default function Demo() {
 			let y = range[0]?.getFullYear();
 			let m = range[0]?.getMonth();
 			let d = range[0]?.getDate();
-			// if (m) {
-			const start = `${y}/${m + 1}/${d}`;
-			results[0] = start;
-			// }
+			if (m) {
+				const start = `${y}/${m + 1}/${d}`;
+				results[0] = start;
+			}
 			y = range[1]?.getFullYear();
 			m = range[1]?.getMonth();
 			d = range[1]?.getDate();
-			// if (m) {
-			const end = `${y}/${m + 1}/${d + 1}`;
-			results[1] = end;
-			// }
+			if (m) {
+				const end = `${y}/${m + 1}/${d + 1}`;
+				results[1] = end;
+			}
 		}
 		console.log("results: ", results);
 		return results;
