@@ -12,7 +12,7 @@ import {
 	LoadingOverlay,
 } from "@mantine/core";
 import { keys } from "@mantine/utils";
-import { gql, useLazyQuery, useQuery } from "@apollo/client";
+import { gql, useLazyQuery, useMutation, useQuery } from "@apollo/client";
 import client from "../apollo-client";
 import SellersBar from "../components/SellersBar";
 import { useSellers } from "../hooks/useSellerData";
@@ -27,6 +27,7 @@ import { Router } from "tabler-icons-react";
 import { useRouter } from "next/router";
 import dayjs from "dayjs";
 import { showNotification } from "@mantine/notifications";
+import { openConfirmModal } from "@mantine/modals";
 
 const useStyles = createStyles((theme) => ({
 	th: {
@@ -110,6 +111,7 @@ export default function Demo() {
 	const [pseudoToSearch, setPseudoToSearch] = useState("");
 	const [startDateToSearch, setStartDateToSearch] = useState("");
 	const [endDateToSearch, setEndDateToSearch] = useState("");
+	const [statut, setStatut] = useState("");
 	const [rangeValue, setRangeValue] = useState<DateRangePickerValue>([
 		null,
 		null,
@@ -117,6 +119,76 @@ export default function Demo() {
 	const router = useRouter();
 
 	const [list, setList] = useState<any>([]);
+
+	const UPDATE_STATUT = gql`
+		mutation updateSeller(
+			$_id: String!
+			$updateSellerInput: UpdateSellerInput!
+		) {
+			updateSeller(_id: $_id, updateSellerInput: $updateSellerInput) {
+				_id
+				firstName
+				email
+			}
+		}
+	`;
+
+	const [updateStatut, statutUpdateResult] = useMutation(UPDATE_STATUT);
+
+	const openModal = (e: any) => {
+		if (e === "actif" || e === "inactif") {
+			return openConfirmModal({
+				className: "mt-[200px]",
+				confirmProps: {
+					className: "bg-green-500 hover:bg-green-600 rounded-2xl",
+				},
+				cancelProps: {
+					className: "rounded-2xl",
+				},
+				title: "Veuillez confirmer le changement de statut",
+				children: (
+					<p>
+						{e === "actif" ? (
+							<p>
+								Voulez vous rendre ces utilisateurs{" "}
+								<span className="text-green-500">Actif</span> ?
+							</p>
+						) : (
+							<p>
+								Voulez vous rendre ces utilisateurs{" "}
+								<span className="text-red-400">Inactif</span> ?
+							</p>
+						)}
+					</p>
+				),
+				labels: { confirm: "Confirmer", cancel: "Abandonner" },
+				onCancel: () => {
+					setStatut(statut);
+				},
+				onConfirm: async () => {
+					for (let s of selection) {
+						await updateStatut({
+							variables: {
+								_id: s,
+								updateSellerInput: {
+									statut: e,
+								},
+							},
+						});
+					}
+					setStatut(() => e);
+					showNotification({
+						title: "Changement de multiple statut",
+						message: "Statuts changé avec success",
+						color: "green",
+						autoClose: 5000,
+					});
+				},
+			});
+		} else {
+			console.log("not yet for archive");
+		}
+	};
 
 	const ALL_SELLERS = gql`
 		query Sellers {
@@ -215,7 +287,7 @@ export default function Demo() {
 		setSelection((current) =>
 			current.length === sellersData.length
 				? []
-				: sellersData.map((item: any) => item._id)
+				: sellersData.map((item: any) => item.userId)
 		);
 
 	function filterData(data: RowData[], search: string) {
@@ -295,6 +367,7 @@ export default function Demo() {
 			user={user}
 			selection={selection}
 			toggleRow={toggleRow}
+			statut={statut === "" ? user.statut : statut}
 		/>
 	));
 
@@ -396,10 +469,14 @@ export default function Demo() {
 					rightSectionWidth={30}
 					placeholder="Actions"
 					// defaultValue={user.statut}
-					onChange={() => {
-						console.log("e");
+					onChange={(e) => {
+						openModal(e); // this actually works just need to update the ui
 					}}
-					data={[{ value: "Suprimmer", label: "Suprimmer" }]}
+					data={[
+						{ value: "archive", label: "Archiver" },
+						{ value: "actif", label: "activer" },
+						{ value: "inactif", label: "desactiver" },
+					]}
 				/>
 				<TextInput
 					placeholder="Search by any field"

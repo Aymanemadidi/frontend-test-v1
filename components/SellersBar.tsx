@@ -7,7 +7,7 @@ import removeIcon from "../public/remove-icon.svg";
 import { useLazyQuery, gql, useMutation } from "@apollo/client";
 import { string } from "yup";
 import { showNotification } from "@mantine/notifications";
-import { openConfirmModal } from "@mantine/modals";
+import { openConfirmModal, openModal } from "@mantine/modals";
 
 let statutes = ["new", "actif", "attente", "inactif"];
 
@@ -57,13 +57,16 @@ interface UpdateSellerInput {
 	statut: string;
 }
 
-function SellersBar({ user, selection, toggleRow }: any) {
+function SellersBar({ user, selection, toggleRow, statut }: any) {
 	const { classes, cx } = useStyles();
-	const [sellerStatut, setSellerStatut] = useState(user.statut);
+	const [sellerStatut, setSellerStatut] = useState(
+		statut
+		// statut !== "" ? statut : user.statut
+	);
 	const [statutModeration, setStatutModeration] = useState(
 		user.statut_moderation
 	);
-	const selected = selection.includes(user._id);
+	const selected = selection.includes(user.userId);
 
 	// useEffect(() => {
 	// 	if (statutModeration === "true" && sellerStatut !== "actif") {
@@ -102,6 +105,54 @@ function SellersBar({ user, selection, toggleRow }: any) {
 		}
 	}
 
+	const openModal = (e: any) =>
+		openConfirmModal({
+			className: "mt-[200px]",
+			confirmProps: {
+				className: "bg-green-500 hover:bg-green-600 rounded-2xl",
+			},
+			cancelProps: {
+				className: "rounded-2xl",
+			},
+			title: "Veuillez confirmer le changement de statut",
+			children: (
+				<p>
+					{e === "actif" ? (
+						<p>
+							Voulez vous rendre cet utilisateur{" "}
+							<span className="text-green-500">Actif</span> ?
+						</p>
+					) : (
+						<p>
+							Voulez vous rendre cet utilisateur{" "}
+							<span className="text-red-400">Inactif</span> ?
+						</p>
+					)}
+				</p>
+			),
+			labels: { confirm: "Confirmer", cancel: "Abandonner" },
+			onCancel: () => {
+				setSellerStatut(sellerStatut);
+			},
+			onConfirm: async () => {
+				await updateStatut({
+					variables: {
+						_id: user.userId,
+						updateSellerInput: {
+							statut: e,
+						},
+					},
+				});
+				setSellerStatut(() => e);
+				showNotification({
+					title: "Changement de statut",
+					message: "Statut changé avec success",
+					color: "green",
+					autoClose: 5000,
+				});
+			},
+		});
+
 	if (user.email === "aymaneSeller6@gmail.com") {
 		console.log("statutModeration: ", user.statut_moderation);
 	}
@@ -112,11 +163,12 @@ function SellersBar({ user, selection, toggleRow }: any) {
 					classNames={{
 						input: `${selected ? "bg-green-500" : ""}`,
 					}}
-					checked={selection.includes(user._id)}
-					onChange={() => toggleRow(user._id)}
+					checked={selection.includes(user.userId)}
+					onChange={() => toggleRow(user.userId)}
 					transitionDuration={0}
 				/>
 			</td>
+			{/* <td className="text-xs font-light">{user.userId}</td> */}
 			<td className="text-xs font-light">{user._id.slice(0, 5)}</td>
 			<td className="text-xs font-light">{user.nomEntreprise}</td>
 			<td className="text-xs font-light">{user.pseudo}</td>
@@ -143,11 +195,9 @@ function SellersBar({ user, selection, toggleRow }: any) {
 						// input: `${getSelectStyles(
 						// 	sellerStatut
 						// )} text-white rounded-2xl text-xs font-normal`,
-						input: `${
-							sellerStatut === "actif"
-								? "bg-green-500"
-								: getSelectStyles(sellerStatut)
-						} text-white rounded-2xl text-xs font-normal`,
+						input: `${getSelectStyles(
+							sellerStatut
+						)} text-white rounded-2xl text-xs font-normal`,
 					}}
 					rightSection={
 						<IconChevronDown
@@ -162,25 +212,12 @@ function SellersBar({ user, selection, toggleRow }: any) {
 							? "actif"
 							: sellerStatut
 					}
+					value={sellerStatut}
 					// defaultValue={user.statut_moderation === "true" ? "actif" : user.statut}
 					onChange={async (e) => {
 						// setStatutModeration(!statutModeration);
 						// console.log(e);
-						setSellerStatut(() => e);
-						await updateStatut({
-							variables: {
-								_id: user.userId,
-								updateSellerInput: {
-									statut: e,
-								},
-							},
-						});
-						showNotification({
-							title: "Changement de statut",
-							message: "Statut changé avec success",
-							color: "green",
-							autoClose: 5000,
-						});
+						openModal(e);
 					}}
 					data={
 						statutModeration === "true"

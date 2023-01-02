@@ -416,7 +416,12 @@ export default function Layout({ children, access_token }: any) {
 												height={33}
 											/> */}
 											<div className="cursor-pointer">
-												<Menu shadow="md" width={200}>
+												<Menu
+													shadow="md"
+													width={200}
+													transition="pop"
+													transitionDuration={150}
+												>
 													<Menu.Target>
 														<div className="flex gap-3 hover:bg-zinc-50">
 															<Image
