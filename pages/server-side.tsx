@@ -118,10 +118,12 @@ function Demo() {
 					fixNumber: Number(values.numFixe),
 					firstName: values.prenom,
 					email: values.email,
-					pseudo: values.nomEntreprise,
+					// pseudo: values.nomEntreprise,
 					password: values.password,
 					website: values.website,
 					pays: values.pays,
+					statut_moderation: false,
+					statut: "new",
 				},
 			},
 		});

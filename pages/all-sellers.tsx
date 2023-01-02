@@ -26,6 +26,7 @@ import { DateRangePicker, DateRangePickerValue } from "@mantine/dates";
 import { Router } from "tabler-icons-react";
 import { useRouter } from "next/router";
 import dayjs from "dayjs";
+import { showNotification } from "@mantine/notifications";
 
 const useStyles = createStyles((theme) => ({
 	th: {
@@ -121,6 +122,7 @@ export default function Demo() {
 		query Sellers {
 			sellers {
 				_id
+				userId
 				email
 				nomEntreprise
 				numeroSiret
@@ -150,6 +152,7 @@ export default function Demo() {
 				endDate: $endDate
 			) {
 				_id
+				userId
 				email
 				nomEntreprise
 				numeroSiret
@@ -285,7 +288,7 @@ export default function Demo() {
 		return results;
 	}
 
-	console.log("list: ", list.sellers);
+	// console.log("list: ", list.sellers.reverse());
 	sellers = list.sellers.map((user: any) => (
 		<SellersBar
 			key={user.email}
@@ -473,7 +476,7 @@ export default function Demo() {
 									<div>No results found</div>
 								</div>
 							) : (
-								sellers
+								sellers.reverse()
 							)}
 						</tbody>
 					</Table>

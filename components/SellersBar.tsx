@@ -1,9 +1,13 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Select, Checkbox, createStyles, TextInput } from "@mantine/core";
 import { IconChevronDown, IconSearch } from "@tabler/icons";
 import Image from "next/image";
 import editIcon from "../public/edit-icon.svg";
 import removeIcon from "../public/remove-icon.svg";
+import { useLazyQuery, gql, useMutation } from "@apollo/client";
+import { string } from "yup";
+import { showNotification } from "@mantine/notifications";
+import { openConfirmModal } from "@mantine/modals";
 
 let statutes = ["new", "actif", "attente", "inactif"];
 
@@ -15,6 +19,15 @@ const useStyles = createStyles((theme) => ({
 				: theme.colors[theme.primaryColor][0],
 	},
 }));
+
+// function getStatut(user: any) {
+// 	console.log(user);
+// 	if (user.statut_moderation === true) {
+// 		return true;
+// 	} else {
+// 		return false;
+// 	}
+// }
 
 function getLabel(statut: string) {
 	if (statut === "new") {
@@ -30,7 +43,7 @@ function getLabel(statut: string) {
 
 function getSelectStyles(statut: string) {
 	if (statut === "new") {
-		return "bg-purple-500 ";
+		return "bg-orange-500 ";
 	} else if (statut === "actif") {
 		return "bg-green-500 ";
 	} else if (statut === "attente") {
@@ -40,10 +53,58 @@ function getSelectStyles(statut: string) {
 	}
 }
 
+interface UpdateSellerInput {
+	statut: string;
+}
+
 function SellersBar({ user, selection, toggleRow }: any) {
 	const { classes, cx } = useStyles();
-	const [selectedStatut, setSelectedStatut] = useState(user.statut);
+	const [sellerStatut, setSellerStatut] = useState(user.statut);
+	const [statutModeration, setStatutModeration] = useState(
+		user.statut_moderation
+	);
 	const selected = selection.includes(user._id);
+
+	// useEffect(() => {
+	// 	if (statutModeration === "true" && sellerStatut !== "actif") {
+	// 		console.log("for user: ", user.email);
+	// 		console.log("statut for him: ", user.statut);
+	// 		setSellerStatut("actif");
+	// 	}
+	// }, []);
+
+	console.log(user);
+
+	const UPDATE_STATUT = gql`
+		mutation updateSeller(
+			$_id: String!
+			$updateSellerInput: UpdateSellerInput!
+		) {
+			updateSeller(_id: $_id, updateSellerInput: $updateSellerInput) {
+				_id
+				firstName
+				email
+			}
+		}
+	`;
+
+	const [updateStatut, { error, loading, data }] = useMutation(UPDATE_STATUT);
+
+	function getSelectStyles(statut: string) {
+		if (statut === "new") {
+			return "bg-orange-500 ";
+		} else if (statut === "actif") {
+			return "bg-green-500 ";
+		} else if (statut === "attente") {
+			return "bg-orange-500 ";
+		} else if (statut === "inactif") {
+			return "bg-red-400 ";
+		}
+	}
+
+	if (user.email === "aymaneSeller6@gmail.com") {
+		console.log("statutModeration: ", user.statut_moderation);
+	}
 	return (
 		<tr key={user.email} className={`${selected ? "bg-green-100" : ""}`}>
 			<td>
@@ -79,9 +140,14 @@ function SellersBar({ user, selection, toggleRow }: any) {
 			<td>
 				<Select
 					classNames={{
-						input: `${getSelectStyles(
-							selectedStatut
-						)} text-white rounded-2xl text-xs font-normal`,
+						// input: `${getSelectStyles(
+						// 	sellerStatut
+						// )} text-white rounded-2xl text-xs font-normal`,
+						input: `${
+							sellerStatut === "actif"
+								? "bg-green-500"
+								: getSelectStyles(sellerStatut)
+						} text-white rounded-2xl text-xs font-normal`,
 					}}
 					rightSection={
 						<IconChevronDown
@@ -91,16 +157,61 @@ function SellersBar({ user, selection, toggleRow }: any) {
 						/>
 					}
 					rightSectionWidth={30}
-					defaultValue={user.statut}
-					onChange={(e) => {
-						setSelectedStatut(e);
+					defaultValue={
+						user.statut_moderation === "true" && sellerStatut === "actif"
+							? "actif"
+							: sellerStatut
+					}
+					// defaultValue={user.statut_moderation === "true" ? "actif" : user.statut}
+					onChange={async (e) => {
+						// setStatutModeration(!statutModeration);
+						// console.log(e);
+						setSellerStatut(() => e);
+						await updateStatut({
+							variables: {
+								_id: user.userId,
+								updateSellerInput: {
+									statut: e,
+								},
+							},
+						});
+						showNotification({
+							title: "Changement de statut",
+							message: "Statut changé avec success",
+							color: "green",
+							autoClose: 5000,
+						});
 					}}
-					data={[
-						{ value: "actif", label: getLabel("actif") },
-						{ value: "attente", label: getLabel("attente") },
-						{ value: "inactif", label: getLabel("inactif") },
-						{ value: "new", label: getLabel("new") },
-					]}
+					data={
+						statutModeration === "true"
+							? [
+									{
+										value: "actif",
+										label: getLabel("actif"),
+										disabled: user.statut_moderation === "false",
+									},
+									// { value: "attente", label: getLabel("attente") },
+									{
+										value: "inactif",
+										label: getLabel("inactif"),
+										disabled: user.statut_moderation === "false",
+									},
+							  ]
+							: [
+									{
+										value: "actif",
+										label: getLabel("actif"),
+										disabled: user.statut_moderation === "false",
+									},
+									// { value: "attente", label: getLabel("attente") },
+									{
+										value: "inactif",
+										label: getLabel("inactif"),
+										disabled: user.statut_moderation === "false",
+									},
+									{ value: "new", label: getLabel("attente") },
+							  ]
+					}
 				/>
 			</td>
 			<td className="flex gap-3">

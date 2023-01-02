@@ -18,7 +18,22 @@ import {
 	Accordion,
 	NavLink,
 	LoadingOverlay,
+	Menu,
 } from "@mantine/core";
+import {
+	IconSettings,
+	IconSearch,
+	IconPhoto,
+	IconMessageCircle,
+	IconTrash,
+	IconArrowsLeftRight,
+	IconUserCircle,
+	IconSignRight,
+	IconShoppingBag,
+	IconBuildingStore,
+	IconLogout,
+} from "@tabler/icons";
+
 // import { IconSun, IconMoonStars } from "";
 import { Home, DogBowl, Line } from "tabler-icons-react";
 import { Dashboard } from "tabler-icons-react";
@@ -363,8 +378,9 @@ export default function Layout({ children, access_token }: any) {
 											src={settingsIcon}
 											height={30}
 										/> */}
+
 										<div className="flex gap-4">
-											<Image
+											{/* <Image
 												className="bg-none"
 												alt="burger"
 												color={theme.colors.gray[3]}
@@ -398,14 +414,106 @@ export default function Layout({ children, access_token }: any) {
 												color={theme.colors.gray[3]}
 												src={lineIcon}
 												height={33}
-											/>
+											/> */}
+											<div className="cursor-pointer">
+												<Menu shadow="md" width={200}>
+													<Menu.Target>
+														<div className="flex gap-3 hover:bg-zinc-50">
+															<Image
+																className="bg-none"
+																alt="burger"
+																color={theme.colors.gray[3]}
+																src={lineIcon}
+																height={33}
+															/>
+															<Image
+																className="bg-none"
+																alt="burger"
+																color={theme.colors.gray[3]}
+																src={profileIcon}
+																height={27}
+															/>
+															<div className="hidden md:block text-black">
+																<span className="font-medium text-sm">
+																	{`${user.getMe.firstName} ${user.getMe.lastName}`}
+																</span>
+																<br />
+																<span className="text-sm">
+																	{user.getMe.role}
+																</span>
+															</div>
+															<Image
+																className="bg-none"
+																alt="burger"
+																color={theme.colors.gray[3]}
+																src={arrowDownIcon}
+																height={5}
+															/>
+															<Image
+																className="bg-none"
+																alt="burger"
+																color={theme.colors.gray[3]}
+																src={lineIcon}
+																height={33}
+															/>
+														</div>
+													</Menu.Target>
+
+													<Menu.Dropdown>
+														<Menu.Label>
+															Bonjour{" "}
+															{user.getMe.firstName.charAt(0).toUpperCase(0) +
+																user.getMe.firstName.slice(1)}
+														</Menu.Label>
+														<Menu.Item icon={<IconUserCircle size={14} />}>
+															Mon compte
+														</Menu.Item>
+														<Menu.Item icon={<IconSignRight size={14} />}>
+															Mes ventes
+														</Menu.Item>
+														<Menu.Item icon={<IconShoppingBag size={14} />}>
+															Mes achats
+														</Menu.Item>
+														<Menu.Item icon={<IconSettings size={14} />}>
+															Settings
+														</Menu.Item>
+														<Menu.Item icon={<IconBuildingStore size={14} />}>
+															Ma boutique
+														</Menu.Item>
+														<Menu.Item
+															icon={<IconLogout size={14} />}
+															// rightSection={
+															// 	<Text size="xs" color="dimmed">
+															// 		⌘K
+															// 	</Text>
+															// }
+															onClick={() => logout()}
+														>
+															Se deconnecter
+														</Menu.Item>
+
+														{/* <Menu.Divider />
+
+														<Menu.Label>Danger zone</Menu.Label>
+														<Menu.Item icon={<IconArrowsLeftRight size={14} />}>
+															Transfer my data
+														</Menu.Item>
+														<Menu.Item
+															color="red"
+															icon={<IconTrash size={14} />}
+														>
+															Delete my account
+														</Menu.Item> */}
+													</Menu.Dropdown>
+												</Menu>
+											</div>
 											<div>
-												<button
+												{/* <button
 													className="bg-green-600 px-6 py-2 rounded-2xl font-Montserrat font-thin"
 													onClick={() => logout()}
 												>
 													logout
-												</button>
+												</button> */}
 											</div>
 											{/* <div className="self-stretch">
 												<Group position="center">

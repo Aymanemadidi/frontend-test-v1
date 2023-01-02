@@ -3,6 +3,10 @@ import "../styles/globals.css";
 import { ApolloProvider } from "@apollo/client";
 import client from "../apollo-client";
 import Layout from "../components/Layout";
+import { MantineProvider } from "@mantine/core";
+import { ModalsProvider } from "@mantine/modals";
+import { NotificationsProvider } from "@mantine/notifications";
+
 import NotLoggedLayout from "../components/notLoggedLayout";
 
 // function MyApp({ Component, pageProps }: AppProps) {
@@ -38,15 +42,27 @@ const App = ({ Component, pageProps, accessToken }: any) => {
 	if (getLayout) {
 		return getLayout(
 			<ApolloProvider client={client}>
-				<Component {...pageProps} accessToken={accessToken} />
+				<MantineProvider>
+					<ModalsProvider>
+						<NotificationsProvider>
+							<Component {...pageProps} accessToken={accessToken} />
+						</NotificationsProvider>
+					</ModalsProvider>
+				</MantineProvider>
 			</ApolloProvider>
 		);
 	} else {
 		return (
 			<ApolloProvider client={client}>
-				<Layout accessToken={accessToken}>
-					<Component {...pageProps} />;
-				</Layout>
+				<MantineProvider>
+					<ModalsProvider>
+						<NotificationsProvider>
+							<Layout accessToken={accessToken}>
+								<Component {...pageProps} />;
+							</Layout>
+						</NotificationsProvider>
+					</ModalsProvider>
+				</MantineProvider>
 			</ApolloProvider>
 		);
 	}
