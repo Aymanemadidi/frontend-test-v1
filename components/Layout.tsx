@@ -141,7 +141,7 @@ export default function Layout({ children, access_token }: any) {
 						// sx={{ display: "flex", gap: "20px" }}
 					>
 						<NavItem
-							path="/server-side"
+							path="/all-sellers"
 							name="Tableau de bord"
 							icon={dashboard}
 							opened={opened}
