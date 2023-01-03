@@ -116,6 +116,7 @@ export default function Demo() {
 		null,
 		null,
 	]);
+	const [changedByBulkIds, setChangedByBulkIds] = useState<any>([]);
 	const router = useRouter();
 
 	const [list, setList] = useState<any>([]);
@@ -166,23 +167,35 @@ export default function Demo() {
 					setStatut(statut);
 				},
 				onConfirm: async () => {
-					for (let s of selection) {
-						await updateStatut({
-							variables: {
-								_id: s,
-								updateSellerInput: {
-									statut: e,
+					try {
+						let s: any;
+						for (s of selection) {
+							await updateStatut({
+								variables: {
+									_id: s,
+									updateSellerInput: {
+										statut: e,
+									},
 								},
-							},
+							});
+						}
+						setChangedByBulkIds(selection);
+						setStatut(() => e);
+						setSelection([]);
+						showNotification({
+							title: "Changement de multiple statut",
+							message: "Statuts changé avec success",
+							color: "green",
+							autoClose: 5000,
+						});
+					} catch (e) {
+						showNotification({
+							title: "Changement de statut impossible",
+							message: "Vendeur non moderer",
+							color: "red",
+							autoClose: 5000,
 						});
 					}
-					setStatut(() => e);
-					showNotification({
-						title: "Changement de multiple statut",
-						message: "Statuts changé avec success",
-						color: "green",
-						autoClose: 5000,
-					});
 				},
 			});
 		} else {
@@ -368,6 +381,7 @@ export default function Demo() {
 			selection={selection}
 			toggleRow={toggleRow}
 			statut={statut === "" ? user.statut : statut}
+			ids={changedByBulkIds}
 		/>
 	));
 

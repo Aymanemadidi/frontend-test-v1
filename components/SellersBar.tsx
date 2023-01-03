@@ -57,11 +57,14 @@ interface UpdateSellerInput {
 	statut: string;
 }
 
-function SellersBar({ user, selection, toggleRow, statut }: any) {
+function SellersBar({ user, selection, toggleRow, statut, ids }: any) {
+	if (user.email === "new5@Seller.com") {
+		console.log("statut from parent: ", statut);
+	}
 	const { classes, cx } = useStyles();
 	const [sellerStatut, setSellerStatut] = useState(
-		statut
-		// statut !== "" ? statut : user.statut
+		// statut
+		user.statut
 	);
 	const [statutModeration, setStatutModeration] = useState(
 		user.statut_moderation
@@ -76,7 +79,13 @@ function SellersBar({ user, selection, toggleRow, statut }: any) {
 	// 	}
 	// }, []);
 
-	console.log(user);
+	// console.log(user);
+
+	useEffect(() => {
+		if (statut !== "" && ids.includes(user.userId)) {
+			setSellerStatut(statut);
+		}
+	});
 
 	const UPDATE_STATUT = gql`
 		mutation updateSeller(
@@ -165,6 +174,7 @@ function SellersBar({ user, selection, toggleRow, statut }: any) {
 					}}
 					checked={selection.includes(user.userId)}
 					onChange={() => toggleRow(user.userId)}
+					// disabled={user.statut === "new"}
 					transitionDuration={0}
 				/>
 			</td>
