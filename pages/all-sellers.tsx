@@ -383,7 +383,7 @@ export default function Demo() {
 		<div className="w-[85%] m-auto">
 			<div className="flex gap-3">
 				<p className="text-2xl mb-3 font-semibold">Vendeurs</p>
-				<Link href={"server-side"}>
+				<Link href={"/inscription-vendeur"}>
 					<IconCirclePlus size={35} />
 				</Link>
 			</div>
