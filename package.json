@@ -1,0 +1,45 @@
+{
+	"private": true,
+	"scripts": {
+		"dev": "next dev -p 5000",
+		"build": "next build",
+		"start": "next start"
+	},
+	"dependencies": {
+		"@apollo/client": "^3.7.2",
+		"@apollo/react-hooks": "^4.0.0",
+		"@emotion/react": "^11.10.5",
+		"@emotion/server": "^11.10.0",
+		"@emotion/styled": "^11.10.5",
+		"@mantine/core": "^5.9.6",
+		"@mantine/dates": "^5.9.6",
+		"@mantine/form": "^5.9.5",
+		"@mantine/hooks": "^5.9.6",
+		"@mantine/modals": "^5.9.6",
+		"@mantine/next": "^5.9.2",
+		"@mantine/notifications": "^5.9.6",
+		"@mui/material": "^5.11.1",
+		"@tabler/icons": "^1.118.0",
+		"axios": "^1.2.1",
+		"dayjs": "^1.11.7",
+		"formik": "^2.2.9",
+		"framer-motion": "^7.10.3",
+		"graphql": "^16.6.0",
+		"next": "latest",
+		"react": "18.2.0",
+		"react-dom": "18.2.0",
+		"react-phone-input-2": "^2.15.1",
+		"tabler-icons-react": "^1.56.0",
+		"yup": "^0.32.11",
+		"zod": "^3.20.2"
+	},
+	"devDependencies": {
+		"@types/node": "18.11.3",
+		"@types/react": "18.0.21",
+		"@types/react-dom": "18.0.6",
+		"autoprefixer": "^10.4.12",
+		"postcss": "^8.4.18",
+		"tailwindcss": "^3.2.1",
+		"typescript": "4.8.4"
+	}
+}
