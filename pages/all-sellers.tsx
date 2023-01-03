@@ -1,4 +1,5 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
+import Link from "next/link";
 import {
 	Table,
 	Checkbox,
@@ -13,18 +14,18 @@ import {
 } from "@mantine/core";
 import { keys } from "@mantine/utils";
 import { gql, useLazyQuery, useMutation, useQuery } from "@apollo/client";
-import client from "../apollo-client";
+// import client from "../apollo-client";
 import SellersBar from "../components/SellersBar";
-import { useSellers } from "../hooks/useSellerData";
+// import { useSellers } from "../hooks/useSellerData";
 import {
 	IconSelector,
 	IconChevronDown,
 	IconChevronUp,
 	IconSearch,
+	IconCirclePlus,
 } from "@tabler/icons";
 import { DateRangePicker, DateRangePickerValue } from "@mantine/dates";
-import { Router } from "tabler-icons-react";
-import { useRouter } from "next/router";
+// import { useRouter } from "next/router";
 import dayjs from "dayjs";
 import { showNotification } from "@mantine/notifications";
 import { openConfirmModal } from "@mantine/modals";
@@ -103,21 +104,20 @@ function Th({ children, reversed, sorted, onSort, tailwind = "" }: ThProps) {
 export default function Demo() {
 	const [selection, setSelection] = useState([]);
 	const [search, setSearch] = useState("");
-	// const [sortedData, setSortedData] = useState<any>([]);
 	const [sortBy, setSortBy] = useState<keyof RowData | null>(null);
 	const [reverseSortDirection, setReverseSortDirection] = useState(false);
 	const [emailToSearch, setEmailToSearch] = useState("");
 	const [nomEntrepriseToSearch, setNomEntrepriseToSearch] = useState("");
 	const [pseudoToSearch, setPseudoToSearch] = useState("");
-	const [startDateToSearch, setStartDateToSearch] = useState("");
-	const [endDateToSearch, setEndDateToSearch] = useState("");
+	// const [startDateToSearch, setStartDateToSearch] = useState("");
+	// const [endDateToSearch, setEndDateToSearch] = useState("");
 	const [statut, setStatut] = useState("");
 	const [rangeValue, setRangeValue] = useState<DateRangePickerValue>([
 		null,
 		null,
 	]);
 	const [changedByBulkIds, setChangedByBulkIds] = useState<any>([]);
-	const router = useRouter();
+	// const router = useRouter();
 
 	const [list, setList] = useState<any>([]);
 
@@ -269,11 +269,6 @@ export default function Demo() {
 		// router.push("/login");
 
 		return <div>{error.message}</div>;
-		// return (
-		// 	<div className="flex justify-center">
-		// 		<div>{error.message}</div>;
-		// 	</div>
-		// );
 	}
 
 	let sellersData = data?.sellers;
@@ -373,7 +368,6 @@ export default function Demo() {
 		return results;
 	}
 
-	// console.log("list: ", list.sellers.reverse());
 	sellers = list.sellers.map((user: any) => (
 		<SellersBar
 			key={user.email}
@@ -387,6 +381,12 @@ export default function Demo() {
 
 	return (
 		<div className="w-[85%] m-auto">
+			<div className="flex gap-3">
+				<p className="text-2xl mb-3 font-semibold">Vendeurs</p>
+				<Link href={"server-side"}>
+					<IconCirclePlus size={35} />
+				</Link>
+			</div>
 			<form>
 				<div className="flex flex-col px-5 pt-5 py-2 bg-white rounded-2xl shadow-sm mb-2">
 					<div className="flex gap-2">

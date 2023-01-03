@@ -58,18 +58,21 @@ interface UpdateSellerInput {
 }
 
 function SellersBar({ user, selection, toggleRow, statut, ids }: any) {
-	if (user.email === "new5@Seller.com") {
-		console.log("statut from parent: ", statut);
-	}
-	const { classes, cx } = useStyles();
-	const [sellerStatut, setSellerStatut] = useState(
-		// statut
-		user.statut
-	);
+	const [sellerStatut, setSellerStatut] = useState(user.statut);
 	const [statutModeration, setStatutModeration] = useState(
 		user.statut_moderation
 	);
 	const selected = selection.includes(user.userId);
+
+	const date = `${user.created_at.slice(0, 10)} at ${user.created_at.slice(
+		11,
+		16
+	)}`;
+
+	const jour = date.slice(8, 10);
+	const mois = date.slice(5, 7);
+	const annee = date.slice(0, 4);
+	const heure = date.slice(14, 19);
 
 	// useEffect(() => {
 	// 	if (statutModeration === "true" && sellerStatut !== "actif") {
@@ -196,26 +199,17 @@ function SellersBar({ user, selection, toggleRow, statut, ids }: any) {
 			</td>
 			<td className="">
 				<p className="text-xs font-light">
-					{user.created_at.slice(0, 10)} at {user.created_at.slice(11, 16)}
+					{jour}/{mois}/{annee}
 				</p>
 			</td>
 			<td>
 				<Select
 					classNames={{
-						// input: `${getSelectStyles(
-						// 	sellerStatut
-						// )} text-white rounded-2xl text-xs font-normal`,
 						input: `${getSelectStyles(
 							sellerStatut
 						)} text-white rounded-2xl text-xs font-normal`,
 					}}
-					rightSection={
-						<IconChevronDown
-							size={14}
-							color={"white"}
-							// style={{ marginRight: "10px" }}
-						/>
-					}
+					rightSection={<IconChevronDown size={14} color={"white"} />}
 					rightSectionWidth={30}
 					defaultValue={
 						user.statut_moderation === "true" && sellerStatut === "actif"
@@ -225,8 +219,6 @@ function SellersBar({ user, selection, toggleRow, statut, ids }: any) {
 					value={sellerStatut}
 					// defaultValue={user.statut_moderation === "true" ? "actif" : user.statut}
 					onChange={async (e) => {
-						// setStatutModeration(!statutModeration);
-						// console.log(e);
 						openModal(e);
 					}}
 					data={

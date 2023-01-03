@@ -7,26 +7,12 @@ import {
 	AppShell,
 	Navbar,
 	Header,
-	Text,
-	Title,
-	Box,
-	MediaQuery,
 	Burger,
-	Switch,
-	Group,
 	useMantineTheme,
-	Accordion,
-	NavLink,
-	LoadingOverlay,
 	Menu,
 } from "@mantine/core";
 import {
 	IconSettings,
-	IconSearch,
-	IconPhoto,
-	IconMessageCircle,
-	IconTrash,
-	IconArrowsLeftRight,
 	IconUserCircle,
 	IconSignRight,
 	IconShoppingBag,
@@ -34,11 +20,7 @@ import {
 	IconLogout,
 } from "@tabler/icons";
 
-// import { IconSun, IconMoonStars } from "";
-import { Home, DogBowl, Line } from "tabler-icons-react";
-import { Dashboard } from "tabler-icons-react";
 import dashboard from "../public/dashboard-icon.svg";
-// import { Image } from "@mantine/core";
 import bell from "../public/bell.svg";
 import ordersIcon from "../public/orders-icon.svg";
 import productsIcon from "../public/products-icon.svg";
@@ -48,20 +30,13 @@ import financeIcon from "../public/finance-icon.svg";
 import promotionsIcon from "../public/promotions-icon.svg";
 import favorisIcon from "../public/favoris-icon.svg";
 import logoIcon from "../public/logo-icon.svg";
-import burgerIcon from "../public/burger-icon.svg";
 import searchIcon from "../public/search-icon.svg";
 import messageIcon from "../public/message-icon.svg";
-import settingsIcon from "../public/settings-icon.svg";
 import lineIcon from "../public/line-icon.svg";
 import profileIcon from "../public/profile-icon.svg";
-import buyerIcon from "../public/buyer-icon.svg";
-import sellerIcon from "../public/seller-icon.svg";
-import mobileIcon from "../public/mobile-icon.png";
 import arrowDownIcon from "../public/arrow-down-icon.svg";
 import { NavItem, SelectedNavItem } from "./NavItem";
-import Badge from "@mui/material/Badge";
 
-import { motion } from "framer-motion";
 import { gql, useMutation, useQuery } from "@apollo/client";
 import { useRouter } from "next/router";
 
@@ -84,15 +59,10 @@ export default function Layout({ children, access_token }: any) {
 	const [_id, setId] = useState<any>("");
 	const router = useRouter();
 
-	// console.log("access_token", access_token);
-
-	//#676C86
 	useEffect(() => {
 		// make sure your function is being called in client side only
 		if (typeof window !== "undefined") {
 			setWidth(window.innerWidth);
-			// setId(window.localStorage.getItem("id"));
-			// console.log("fromLocal: ", _id);
 		}
 	}, []);
 
@@ -106,15 +76,6 @@ export default function Layout({ children, access_token }: any) {
 		}
 	`;
 
-	// const GET_ME = gql`
-	// 	query getMe {
-	// 		getMe {
-	// 			firstName
-	// 			lastName
-	// 			role
-	// 		}
-	// 	}
-	// `;
 	const LOGOUT_USER = gql`
 		mutation logoutUser {
 			logoutUser
