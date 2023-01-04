@@ -178,6 +178,8 @@ export default function Demo({ opened }: any) {
 			onConfirm: async () => {
 				try {
 					let s: any;
+					let test: any;
+					let arr: number[] = [];
 					if (e === "actif" || e === "inactif") {
 						for (s of selection) {
 							await updateStatut({
@@ -199,12 +201,17 @@ export default function Demo({ opened }: any) {
 									},
 								},
 							});
-							let test = list.sellers.filter(
-								(seller: any) => seller.userId !== s
-							);
+							arr.push(s);
+							// setList({ sellers: test });
 							// console.log("test: ", test);
-							setList({ sellers: test });
 						}
+						// console.log("arr: ", arr);
+						test = list.sellers.filter(
+							(seller: any) => !arr.includes(seller.userId)
+						);
+
+						setList({ sellers: test });
+						// setList({ sellers: test });
 					}
 					setChangedByBulkIds(selection);
 					if (e !== "archive") setStatut(() => e);
