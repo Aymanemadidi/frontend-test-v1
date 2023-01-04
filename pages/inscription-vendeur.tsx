@@ -124,6 +124,7 @@ function Demo() {
 					pays: values.pays,
 					statut_moderation: false,
 					statut: "new",
+					isArchived: false,
 				},
 			},
 		});
