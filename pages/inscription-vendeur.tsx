@@ -12,11 +12,12 @@ import { DatePicker } from "@mantine/dates";
 import * as Yup from "yup";
 import { z } from "zod";
 import bell from "../public/bell.svg";
-import { DropzoneButton } from "../components/DropZone";
+// import { DropzoneButton } from "../components/DropZone";
 import { nationalities } from "../helpers/countries";
 import PhoneInput from "react-phone-input-2";
 import "react-phone-input-2/lib/material.css";
 import { CreateSellerInput, useCreateSeller } from "../hooks/useCreateSeller";
+import { IconChevronDown } from "@tabler/icons";
 
 interface Seller {
 	nomEntreprise: string;
@@ -160,14 +161,56 @@ function Demo() {
 	});
 
 	return (
-		<div className="flex justify-center ml-[10%]  md:ml-[15%]">
+		<div className="flex justify-center gap-[60px] ml-[10%]  md:ml-[15%]">
+			<div className="w-[420px] justify-start border rounded-2xl">
+				<div className="flex flex-col gap-5 ml-[50px] mt-[30px]">
+					<div>
+						<p className="text-lg">Menu</p>
+					</div>
+					<div className="ml-1 flex-col flex gap-[20px] text-[15px]">
+						<div className="flex gap-5">
+							<IconChevronDown size={17} className="mt-1" />
+							<p>Géneral</p>
+						</div>
+						<div className="flex gap-5">
+							<IconChevronDown size={17} className="mt-1" />
+							<p>Zones</p>
+						</div>
+						<div className="flex gap-5">
+							<IconChevronDown size={17} className="mt-1" />
+							<p>Modes de livraison</p>
+						</div>
+						<div className="flex gap-5">
+							<IconChevronDown size={17} className="mt-1" />
+							<p>Gestion de la facturation</p>
+						</div>
+						<div className="flex gap-5">
+							<IconChevronDown size={17} className="mt-1" />
+							<p>General</p>
+						</div>
+						<div className="flex gap-5">
+							<IconChevronDown size={17} className="mt-1" />
+							<p>General</p>
+						</div>
+						<div className="flex gap-5">
+							<IconChevronDown size={17} className="mt-1" />
+							<p>General</p>
+						</div>
+						<div className="flex gap-5">
+							<IconChevronDown size={17} className="mt-1" />
+							<p>General</p>
+						</div>
+					</div>
+				</div>
+			</div>
 			<form
 				onSubmit={form.onSubmit((values) => {
 					// setObj(values);
 					handleSubmit(values);
 				})}
 				// onSubmit={form.onSubmit(console.log)}
-				className="flex flex-col justify-center ml-[15%] w-full mt-3"
+				// className="flex flex-col justify-center ml-[15%] w-full mt-3"
+				className="flex flex-col justify-center w-full mt-3"
 			>
 				<div>Inscription Vendeur</div>
 				{/* <div className="flex justify-center bg-slate-200 w-4/5 rounded-2xl"> */}

@@ -12,7 +12,7 @@ import { DatePicker } from "@mantine/dates";
 import * as Yup from "yup";
 import { z } from "zod";
 import bell from "../../public/bell.svg";
-import { DropzoneButton } from "../../components/DropZone";
+// import { DropzoneButton } from "../../components/DropZone";
 import { nationalities } from "../../helpers/countries";
 import PhoneInput from "react-phone-input-2";
 import "react-phone-input-2/lib/material.css";
