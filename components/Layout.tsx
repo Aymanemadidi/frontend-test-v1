@@ -66,6 +66,22 @@ export default function Layout({ children, access_token }: any) {
 		}
 	}, []);
 
+	function addPropsToReactElement(element: any, props: any) {
+		if (React.isValidElement(element)) {
+			return React.cloneElement(element, props);
+		}
+		return element;
+	}
+
+	function addPropsToChildren(children: any, props: any) {
+		if (!Array.isArray(children)) {
+			return addPropsToReactElement(children, props);
+		}
+		return children.map((childElement) =>
+			addPropsToReactElement(childElement, props)
+		);
+	}
+
 	const GET_ME = gql`
 		query getMe {
 			getMe {
@@ -133,11 +149,12 @@ export default function Layout({ children, access_token }: any) {
 					<Navbar
 						p="md"
 						hiddenBreakpoint="sm"
-						// hidden={!opened}
+						hidden={!opened}
 						// width={{ sm: 250 }}
-						className={`flex ${
-							opened ? "w-[250px]" : "w-[60px]"
-						} transition-[width] duration-1000`}
+						// className={`flex ${
+						// 	opened ? "w-[250px]" : "w-[60px]"
+						// } transition-[width] duration-1000`}
+						className={`flex ${opened ? "w-[200px]" : "w-[60px]"}`}
 						// sx={{ display: "flex", gap: "20px" }}
 					>
 						<NavItem
@@ -156,7 +173,7 @@ export default function Layout({ children, access_token }: any) {
 							path="/"
 							name="Mes produits"
 							icon={productsIcon}
-							gap={"80"}
+							gap={"20"}
 							opened={opened}
 						/>
 						<NavItem
@@ -380,8 +397,8 @@ export default function Layout({ children, access_token }: any) {
 												<Menu
 													shadow="md"
 													width={200}
-													transition="pop"
-													transitionDuration={150}
+													// transition="pop"
+													// transitionDuration={150}
 												>
 													<Menu.Target>
 														<div className="flex gap-3 hover:bg-zinc-50">
@@ -608,7 +625,10 @@ export default function Layout({ children, access_token }: any) {
 					},
 				})}
 			>
-				<div className="mt-[20px]">{children}</div>
+				{/* <div className="mt-[20px]">{children}</div> */}
+				<div className="mt-[20px]">
+					{addPropsToChildren(children, { opened })}
+				</div>
 			</AppShell>
 		</div>
 	);
