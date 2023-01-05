@@ -8,6 +8,8 @@ import { useLazyQuery, gql, useMutation } from "@apollo/client";
 import { string } from "yup";
 import { showNotification } from "@mantine/notifications";
 import { openConfirmModal, openModal } from "@mantine/modals";
+import Link from "next/link";
+import { useRouter } from "next/router";
 
 let statutes = ["new", "actif", "attente", "inactif"];
 
@@ -57,12 +59,23 @@ interface UpdateSellerInput {
 	statut: string;
 }
 
-function SellersBar({ user, selection, toggleRow, statut, ids }: any) {
+function SellersBar({
+	user,
+	selection,
+	toggleRow,
+	statut,
+	ids,
+	setList,
+	list,
+}: any) {
 	const [sellerStatut, setSellerStatut] = useState(user.statut);
 	const [statutModeration, setStatutModeration] = useState(
 		user.statut_moderation
 	);
 	const selected = selection.includes(user.userId);
+	const [showInput, setShowInput] = useState(false);
+
+	const router = useRouter();
 
 	const date = `${user.created_at.slice(0, 10)} at ${user.created_at.slice(
 		11,
@@ -117,6 +130,62 @@ function SellersBar({ user, selection, toggleRow, statut, ids }: any) {
 		}
 	}
 
+	const archiveModal = (e: any) =>
+		openConfirmModal({
+			className: "mt-[200px]",
+			confirmProps: {
+				className: "bg-green-500 hover:bg-green-600 rounded-2xl",
+			},
+			cancelProps: {
+				className: "rounded-2xl",
+			},
+			title: "Veuillez confirmer l'archivage",
+			children: (
+				<p>
+					<p>Voulez vous archivé cet utilisateur</p>
+				</p>
+			),
+			labels: { confirm: "Confirmer", cancel: "Abandonner" },
+			onCancel: () => {},
+			onConfirm: async () => {
+				try {
+					await updateStatut({
+						variables: {
+							_id: user.userId,
+							updateSellerInput: {
+								isArchived: true,
+							},
+						},
+					});
+					// console.log("list:", list);
+					let test = list.sellers.filter(
+						(seller: any) => seller.userId !== user.userId
+					);
+					// console.log("test: ", test);
+					setList({ sellers: test });
+					showNotification({
+						title: "Archivage",
+						message: "Archivage fait avec success",
+						color: "green",
+						autoClose: 5000,
+						bottom: "630px",
+						// top: "0px",
+						// classNames: {
+						// 	root: "translate-y-[-500px]",
+						// },
+					});
+				} catch (error) {
+					showNotification({
+						title: "Archivahe impossible",
+						message: "Erreur",
+						color: "red",
+						autoClose: 5000,
+						bottom: "630px",
+					});
+				}
+			},
+		});
+
 	const openModal = (e: any) =>
 		openConfirmModal({
 			className: "mt-[200px]",
@@ -161,6 +230,7 @@ function SellersBar({ user, selection, toggleRow, statut, ids }: any) {
 					message: "Statut changé avec success",
 					color: "green",
 					autoClose: 5000,
+					bottom: "630px",
 				});
 			},
 		});
@@ -169,7 +239,10 @@ function SellersBar({ user, selection, toggleRow, statut, ids }: any) {
 		console.log("statutModeration: ", user.statut_moderation);
 	}
 	return (
-		<tr key={user.email} className={`${selected ? "bg-green-100" : ""}`}>
+		<tr
+			key={user.email}
+			className={`${selected ? "bg-green-100" : ""} flex-col`}
+		>
 			<td>
 				<Checkbox
 					classNames={{
@@ -182,22 +255,47 @@ function SellersBar({ user, selection, toggleRow, statut, ids }: any) {
 				/>
 			</td>
 			{/* <td className="text-xs font-light">{user.userId}</td> */}
-			<td className="text-xs font-light">{user._id.slice(0, 5)}</td>
+			<td className="hidden lg:table-cell text-xs font-light">
+				{user._id.slice(0, 5)}
+			</td>
 			<td className="text-xs font-light">{user.nomEntreprise}</td>
-			<td className="text-xs font-light">{user.pseudo}</td>
-			<td className="text-xs font-light">{user.email}</td>
-			<td className="text-xs font-light">
+			<td className="hidden lg:table-cell text-xs font-light">
+				<span
+					className={`${showInput ? "hidden" : ""}`}
+					onDoubleClick={() => setShowInput(true)}
+				>
+					{user.pseudo}
+				</span>
+				{/* {user.pseudo} */}
+				<form
+					className={`${showInput ? "" : "hidden"}`}
+					action=""
+					onSubmit={(e) => {
+						e.preventDefault();
+						setShowInput(false);
+						console.log("hey");
+					}}
+				>
+					<input
+						type="text"
+						className="w-[100px] py-2 px-2 border"
+						value={user.pseudo}
+					/>
+				</form>
+			</td>
+			<td className="hidden lg:table-cell text-xs font-light">{user.email}</td>
+			<td className="hidden lg:table-cell text-xs font-light">
 				{user.typeVendeur ? "Vendeur Pro" : "Vendeur"}
 			</td>
-			<td className="text-xs font-light">
+			<td className=" hidden lg:table-cell text-xs font-light">
 				{user.typeCompte ? "Auto Entrepreneur" : "Entreprise"}
 			</td>
-			<td className="">
+			<td className="hidden lg:table-cell">
 				<p className="text-xs font-light">
 					{user.verified ? "Verifié" : "Non"}
 				</p>
 			</td>
-			<td className="">
+			<td className="hidden lg:table-cell">
 				<p className="text-xs font-light">
 					{jour}/{mois}/{annee}
 				</p>
@@ -254,20 +352,27 @@ function SellersBar({ user, selection, toggleRow, statut, ids }: any) {
 				/>
 			</td>
 			<td className="flex gap-3">
-				<button>
-					<Image
-						className={`translate-y-2`}
-						alt="edit"
-						src={editIcon}
-						height={20}
-					/>
-				</button>
+				<Link
+					href={{
+						pathname: `/vendeurs/${user.userId}`,
+					}}
+				>
+					<button>
+						<Image
+							className={`translate-y-2`}
+							alt="edit"
+							src={editIcon}
+							height={20}
+						/>
+					</button>
+				</Link>
 				<button>
 					<Image
 						className={`translate-y-2`}
 						alt="edit"
 						src={removeIcon}
 						height={20}
+						onClick={archiveModal}
 					/>
 				</button>
 			</td>

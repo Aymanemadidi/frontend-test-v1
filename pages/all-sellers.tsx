@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import {
 	Table,
@@ -101,7 +101,7 @@ function Th({ children, reversed, sorted, onSort, tailwind = "" }: ThProps) {
 	);
 }
 
-export default function Demo() {
+export default function Demo({ opened }: any) {
 	const [selection, setSelection] = useState([]);
 	const [search, setSearch] = useState("");
 	const [sortBy, setSortBy] = useState<keyof RowData | null>(null);
@@ -116,10 +116,15 @@ export default function Demo() {
 		null,
 		null,
 	]);
+	const [isOpened, setIsOpened] = useState(opened);
 	const [changedByBulkIds, setChangedByBulkIds] = useState<any>([]);
 	// const router = useRouter();
 
 	const [list, setList] = useState<any>([]);
+
+	useEffect(() => {
+		setIsOpened(opened);
+	}, [opened]);
 
 	const UPDATE_STATUT = gql`
 		mutation updateSeller(
@@ -137,38 +142,45 @@ export default function Demo() {
 	const [updateStatut, statutUpdateResult] = useMutation(UPDATE_STATUT);
 
 	const openModal = (e: any) => {
-		if (e === "actif" || e === "inactif") {
-			return openConfirmModal({
-				className: "mt-[200px]",
-				confirmProps: {
-					className: "bg-green-500 hover:bg-green-600 rounded-2xl",
-				},
-				cancelProps: {
-					className: "rounded-2xl",
-				},
-				title: "Veuillez confirmer le changement de statut",
-				children: (
-					<p>
-						{e === "actif" ? (
-							<p>
-								Voulez vous rendre ces utilisateurs{" "}
-								<span className="text-green-500">Actif</span> ?
-							</p>
-						) : (
-							<p>
-								Voulez vous rendre ces utilisateurs{" "}
-								<span className="text-red-400">Inactif</span> ?
-							</p>
-						)}
-					</p>
-				),
-				labels: { confirm: "Confirmer", cancel: "Abandonner" },
-				onCancel: () => {
-					setStatut(statut);
-				},
-				onConfirm: async () => {
-					try {
-						let s: any;
+		return openConfirmModal({
+			className: "mt-[200px]",
+			confirmProps: {
+				className: "bg-green-500 hover:bg-green-600 rounded-2xl",
+			},
+			cancelProps: {
+				className: "rounded-2xl",
+			},
+			title: "Veuillez confirmer le changement de statut",
+			children: (
+				<p>
+					{e === "actif" ? (
+						<p>
+							Voulez vous rendre ces utilisateurs{" "}
+							<span className="text-green-500">Actif</span> ?
+						</p>
+					) : e === "inactif" ? (
+						<p>
+							Voulez vous rendre ces utilisateurs{" "}
+							<span className="text-red-400">Inactif</span> ?
+						</p>
+					) : (
+						<p>
+							Voulez vous rendre ces utilisateurs{" "}
+							<span className="text-red-400">Archivé</span> ?
+						</p>
+					)}
+				</p>
+			),
+			labels: { confirm: "Confirmer", cancel: "Abandonner" },
+			onCancel: () => {
+				setStatut(statut);
+			},
+			onConfirm: async () => {
+				try {
+					let s: any;
+					let test: any;
+					let arr: number[] = [];
+					if (e === "actif" || e === "inactif") {
 						for (s of selection) {
 							await updateStatut({
 								variables: {
@@ -179,28 +191,59 @@ export default function Demo() {
 								},
 							});
 						}
-						setChangedByBulkIds(selection);
-						setStatut(() => e);
-						setSelection([]);
-						showNotification({
-							title: "Changement de multiple statut",
-							message: "Statuts changé avec success",
-							color: "green",
-							autoClose: 5000,
-						});
-					} catch (e) {
-						showNotification({
-							title: "Changement de statut impossible",
-							message: "Vendeur non moderer",
-							color: "red",
-							autoClose: 5000,
-						});
+					} else {
+						for (s of selection) {
+							await updateStatut({
+								variables: {
+									_id: s,
+									updateSellerInput: {
+										isArchived: true,
+									},
+								},
+							});
+							arr.push(s);
+							// setList({ sellers: test });
+							// console.log("test: ", test);
+						}
+						// console.log("arr: ", arr);
+						test = list.sellers.filter(
+							(seller: any) => !arr.includes(seller.userId)
+						);
+
+						setList({ sellers: test });
+						// setList({ sellers: test });
 					}
-				},
-			});
-		} else {
-			console.log("not yet for archive");
-		}
+					setChangedByBulkIds(selection);
+					if (e !== "archive") setStatut(() => e);
+					setSelection([]);
+					showNotification({
+						title: `${
+							e !== "archive" ? "Changement de multiple statut" : "Archivage"
+						}`,
+						message: `${
+							e !== "archive"
+								? "Statuts changé avec success"
+								: "Archivage fait avec success"
+						}`,
+						color: "green",
+						autoClose: 5000,
+						bottom: "630px",
+						// top: "0px",
+						// classNames: {
+						// 	root: "translate-y-[-500px]",
+						// },
+					});
+				} catch (e) {
+					showNotification({
+						title: "Changement de statut impossible",
+						message: "Vendeur non moderer",
+						color: "red",
+						autoClose: 5000,
+						bottom: "630px",
+					});
+				}
+			},
+		});
 	};
 
 	const ALL_SELLERS = gql`
@@ -217,6 +260,7 @@ export default function Demo() {
 				created_at
 				statut
 				pseudo
+				isArchived
 			}
 		}
 	`;
@@ -247,6 +291,7 @@ export default function Demo() {
 				created_at
 				statut
 				pseudo
+				isArchived
 			}
 		}
 	`;
@@ -368,33 +413,45 @@ export default function Demo() {
 		return results;
 	}
 
-	sellers = list.sellers.map((user: any) => (
-		<SellersBar
-			key={user.email}
-			user={user}
-			selection={selection}
-			toggleRow={toggleRow}
-			statut={statut === "" ? user.statut : statut}
-			ids={changedByBulkIds}
-		/>
-	));
+	sellers = list.sellers.map((user: any) => {
+		console.log("isArchived: ", user);
+		if (!user.isArchived) {
+			return (
+				<SellersBar
+					key={user.email}
+					user={user}
+					selection={selection}
+					toggleRow={toggleRow}
+					statut={statut === "" ? user.statut : statut}
+					ids={changedByBulkIds}
+					setList={setList}
+					list={list}
+				/>
+			);
+		}
+	});
+
+	// console.log("opened: ", opened);
 
 	return (
-		<div className="w-[85%] m-auto">
+		<div className={`${isOpened ? "lg:ml-[15%]" : ""} lg:m-auto lg:w-[85%]`}>
+			{/* <div className="lg:w-[85%] lg:m-auto"> */}
 			<div className="flex gap-3">
 				<p className="text-2xl mb-3 font-semibold">Vendeurs</p>
 				<Link href={"/inscription-vendeur"}>
 					<IconCirclePlus size={35} />
 				</Link>
 			</div>
-			<form>
+			<form className="">
 				<div className="flex flex-col px-5 pt-5 py-2 bg-white rounded-2xl shadow-sm mb-2">
 					<div className="flex gap-2">
 						<TextInput
 							classNames={{
-								input: "w-[250px] rounded-2xl",
+								// input: "w-[250px] rounded-2xl",
+								input: " rounded-2xl lg:w-[250px]",
 							}}
-							placeholder="Search by E-mail"
+							placeholder="E-mail"
+							// placeholder="Search by E-mail"
 							mb="md"
 							icon={<IconSearch size={14} stroke={1.5} />}
 							value={emailToSearch}
@@ -403,9 +460,11 @@ export default function Demo() {
 						/>
 						<TextInput
 							classNames={{
-								input: "w-[280px] rounded-2xl",
+								input: " rounded-2xl lg:w-[280px]",
+								// input: "w-[280px] rounded-2xl",
 							}}
-							placeholder="Search by nom de société"
+							// placeholder="Search by nom de société"
+							placeholder="Société"
 							mb="md"
 							icon={<IconSearch size={14} stroke={1.5} />}
 							value={nomEntrepriseToSearch}
@@ -413,13 +472,16 @@ export default function Demo() {
 							onChange={(e) => setNomEntrepriseToSearch(e.currentTarget.value)}
 						/>
 					</div>
-					<div className="flex justify-between items-start">
+					<div className="flex flex-col lg:flex-row lg:justify-between items-start">
 						<div className="flex gap-2">
 							<TextInput
 								classNames={{
-									input: "w-[250px] rounded-2xl",
+									// input: "w-[250px] rounded-2xl",
+									root: "basis-3/5",
+									input: "rounded-2xl lg:w-[250px]",
 								}}
-								placeholder="Search by pseudo"
+								// placeholder="Search by pseudo"
+								placeholder="Pseudo"
 								mb="md"
 								icon={<IconSearch size={14} stroke={1.5} />}
 								value={pseudoToSearch}
@@ -428,9 +490,12 @@ export default function Demo() {
 							<DateRangePicker
 								// label="Book hotel"
 								classNames={{
-									input: "w-[350px] rounded-2xl",
+									// input: "w-[350px] rounded-2xl",
+									root: "w-full",
+									input: "rounded-2xl lg:w-[350px]",
 								}}
-								placeholder="Pick dates range"
+								placeholder="Dates"
+								// placeholder="Pick dates range"
 								value={rangeValue}
 								onChange={setRangeValue}
 								maxDate={dayjs(new Date()).toDate()}
@@ -466,7 +531,7 @@ export default function Demo() {
 					</div>
 				</div>
 			</form>
-			<div className="flex justify-between mt-3">
+			<div className="flex gap-1 lg:justify-between mt-3">
 				<Select
 					classNames={{
 						input:
@@ -495,7 +560,7 @@ export default function Demo() {
 				<TextInput
 					placeholder="Search by any field"
 					classNames={{
-						input: "rounded-2xl w-[250px]",
+						input: "rounded-2xl w-[200px] lg:w-[250px]",
 					}}
 					mb="md"
 					icon={<IconSearch size={14} stroke={1.5} />}
@@ -528,12 +593,13 @@ export default function Demo() {
 										transitionDuration={0}
 									/>
 								</th>
-								<th>ID</th>
+								<th className="hidden lg:table-cell">ID</th>
+								<th className="lg:hidden">Société</th>
 								<Th
 									sorted={sortBy === "nomEntreprise"}
 									reversed={reverseSortDirection}
 									onSort={() => setSorting("nomEntreprise")}
-									tailwind={""}
+									tailwind={"hidden lg:table-cell"}
 								>
 									<p className="">Société</p>
 								</Th>
@@ -541,7 +607,8 @@ export default function Demo() {
 									sorted={sortBy === "pseudo"}
 									reversed={reverseSortDirection}
 									onSort={() => setSorting("pseudo")}
-									tailwind={"hidden md:table-cell"}
+									// tailwind={"hidden md:table-cell"}
+									tailwind={"hidden lg:table-cell"}
 								>
 									Pseudo
 								</Th>
@@ -549,15 +616,17 @@ export default function Demo() {
 									sorted={sortBy === "email"}
 									reversed={reverseSortDirection}
 									onSort={() => setSorting("email")}
-									tailwind={"hidden md:table-cell"}
+									tailwind={"hidden lg:table-cell"}
+									// tailwind={"hidden md:table-cell"}
 								>
 									E-mail
 								</Th>
+								{/* lg:table-cell */}
 								<th className="hidden lg:table-cell">Type</th>
 								<th className="hidden lg:table-cell ">Type du compte</th>
 								<th className="hidden lg:table-cell">Verifié</th>
 								<th className="hidden lg:table-cell ">enregistré le</th>
-								<th className="hidden lg:table-cell ">Statut</th>
+								<th className=" ">Statut</th>
 								<th>Actions</th>
 							</tr>
 						</thead>

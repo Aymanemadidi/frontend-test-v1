@@ -1,9 +1,9 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { NextPage } from "next";
 import Head from "next/head";
 import Image from "next/image";
-import { gql, useMutation } from "@apollo/client";
-import client from "../apollo-client";
+import { gql, useMutation, useQuery } from "@apollo/client";
+import client from "../../apollo-client";
 
 import { useForm, zodResolver } from "@mantine/form";
 import { NumberInput, TextInput, Button } from "@mantine/core";
@@ -11,13 +11,22 @@ import { Tooltip, Select } from "@mantine/core";
 import { DatePicker } from "@mantine/dates";
 import * as Yup from "yup";
 import { z } from "zod";
-import bell from "../public/bell.svg";
-// import { DropzoneButton } from "../components/DropZone";
-import { nationalities } from "../helpers/countries";
+import bell from "../../public/bell.svg";
+// import { DropzoneButton } from "../../components/DropZone";
+import { nationalities } from "../../helpers/countries";
 import PhoneInput from "react-phone-input-2";
 import "react-phone-input-2/lib/material.css";
-import { CreateSellerInput, useCreateSeller } from "../hooks/useCreateSeller";
-import { IconChevronDown } from "@tabler/icons";
+import {
+	CreateSellerInput,
+	useCreateSeller,
+} from "../../hooks/useCreateSeller";
+import {
+	UpdateSellerInput,
+	useUpdateSeller,
+} from "../../hooks/useUpdateSeller";
+import { useRouter } from "next/router";
+import { showNotification } from "@mantine/notifications";
+import { openConfirmModal } from "@mantine/modals";
 
 interface Seller {
 	nomEntreprise: string;
@@ -84,55 +93,22 @@ const schema = z.object({
 	// email: z.string().email({ message: "Invalid email" }),
 });
 
-function Demo() {
-	const data = nationalities.map(
+function UpdateSellerByAdmin({ seller, opened }: any) {
+	const CountriesData1 = nationalities.map(
 		(item) => `${item.label?.charAt(0).toUpperCase()}${item.label?.slice(1)}`
 	);
-	const data2 = nationalities.map(
+	const CountriesData2 = nationalities.map(
 		(item) => `${item.value?.charAt(0).toUpperCase()}${item.value?.slice(1)}`
 	);
 
 	const [fixTel, setFixTel] = useState(0);
 	const [obj, setObj] = useState<CreateSellerInput>(initialValues);
 	const [createSeller] = useCreateSeller();
-
-	async function handleSubmit(values: CreateSellerInput) {
-		console.log(values);
-		const tokens = await createSeller({
-			variables: {
-				createSellerInput: {
-					nomEntreprise: values.nomEntreprise,
-					lastName: values.nom,
-					numeroSiret: Number(values.numeroSiret),
-					groupe: values.groupe,
-					codeNAF: values.codeNAF,
-					codePostal: values.codePostal,
-					ville: values.ville,
-					role: "Seller",
-					IBAN: values.IBAN,
-					dateOfBirth: values.dateOfBirth,
-					nationality: values.nationality,
-					adresse: values.adress,
-					countryOfResidency: values.countryOfResidence,
-					departement: values.departement,
-					mobileNumber: Number(values.numPortable),
-					fixNumber: Number(values.numFixe),
-					firstName: values.prenom,
-					email: values.email,
-					// pseudo: values.nomEntreprise,
-					password: values.password,
-					website: values.website,
-					pays: values.pays,
-					statut_moderation: false,
-					statut: "new",
-				},
-			},
-		});
-		console.log(tokens);
-	}
-
-	const form = useForm({
-		initialValues: {
+	const [updateSeller] = useUpdateSeller();
+	const [entName, setEntName] = useState("");
+	const [user, setUser] = useState<any>({
+		seller: {
+			_id: "",
 			nomEntreprise: "",
 			numeroSiret: "",
 			groupe: "",
@@ -155,68 +131,194 @@ function Demo() {
 			adress: "",
 			countryOfResidence: "",
 		},
+	});
+	const router = useRouter();
+	const query = router.query;
+	// console.log("query: ", query);
 
-		// functions will be used to validate values at corresponding key
-		// validate: zodResolver(schema),
+	const GET_SELLER = gql`
+		query seller($_id: String!) {
+			seller(_id: $_id) {
+				_id
+				nomEntreprise
+				pseudo
+				numeroSiret
+				groupe
+				codeNAF
+				codePostal
+				ville
+				departement
+				pays
+				IBAN
+				dateOfBirth
+				nationality
+				website
+				firstName
+				lastName
+				email
+				countryOfResidency
+				mobileNumber
+				fixNumber
+				adresse
+			}
+		}
+	`;
+
+	const { error, loading, data } = useQuery(GET_SELLER, {
+		onCompleted: setUser,
+		fetchPolicy: "no-cache",
+		variables: {
+			_id: query.id,
+		},
 	});
 
+	console.log(data);
+
+	// const date = `${user.seller.dateOfBirth.slice(
+	// 	0,
+	// 	10
+	// )} at ${user.seller.dateOfBirth.slice(11, 16)}`;
+
+	// const jour = date.slice(8, 10);
+	// const mois = date.slice(5, 7);
+	// const annee = date.slice(0, 4);
+
+	const jour = "12";
+	const mois = "05";
+	const annee = "1999";
+	// const mois = date.slice(5, 7);
+	// const annee = date.slice(0, 4);
+	// const date = "12/05/1999";
+
+	const rightFormatDate = `${annee}/${mois}/${jour}`;
+
+	const openModal = (e: any) => {
+		e.preventDefault();
+		return openConfirmModal({
+			className: "mt-[200px]",
+			confirmProps: {
+				className: "bg-green-500 hover:bg-green-600 rounded-2xl",
+			},
+			cancelProps: {
+				className: "rounded-2xl",
+			},
+			title: "Veuillez confirmer l'edition vendeur",
+			children: (
+				<p>
+					<p>Voulez vous changer les informations de ce vendeur ?</p>
+				</p>
+			),
+			labels: { confirm: "Confirmer", cancel: "Abandonner" },
+			onCancel: () => {},
+			onConfirm: async () => {
+				try {
+					const seller = await updateSeller({
+						variables: {
+							_id: query.id,
+							updateSellerInput: {
+								nomEntreprise: user.seller.nomEntreprise,
+								lastName: user.seller.nom,
+								numeroSiret: Number(user.seller.numeroSiret),
+								groupe: user.seller.groupe,
+								codeNAF: user.seller.codeNAF,
+								codePostal: user.seller.codePostal,
+								ville: user.seller.ville,
+								role: "Seller",
+								IBAN: user.seller.IBAN,
+								dateOfBirth: user.seller.dateOfBirth,
+								nationality: user.seller.nationality,
+								adresse: user.seller.adresse,
+								countryOfResidency: user.seller.countryOfResidency,
+								departement: user.seller.departement,
+								mobileNumber: Number(user.seller.mobileNumber),
+								fixNumber: Number(user.seller.fixNumber),
+								firstName: user.seller.prenom,
+								email: user.seller.email,
+								password: user.seller.password,
+								// pseudo: user.seller.pseudo,
+								website: user.seller.website,
+								pays: user.seller.pays,
+							},
+						},
+					});
+					showNotification({
+						title: "Edition vendeur",
+						message: "Vendeur changé avec success",
+						color: "green",
+						autoClose: 5000,
+						bottom: "630px",
+					});
+				} catch (error) {}
+			},
+		});
+	};
+
+	// async function handleSubmit(e: any) {
+	// 	e.preventDefault();
+	// 	// console.log("from handle:", user.seller);
+	// 	//change here to update
+
+	// 	// setUser({ seller });
+	// }
+
+	// const form = useForm({
+	// 	initialValues: {
+	// 		nomEntreprise: "",
+	// 		numeroSiret: "",
+	// 		groupe: "",
+	// 		codeNAF: "",
+	// 		codePostal: "",
+	// 		ville: "",
+	// 		departement: "",
+	// 		pays: "",
+	// 		IBAN: "",
+	// 		numFixe: "",
+	// 		numPortable: "",
+	// 		dateOfBirth: "",
+	// 		nationality: "",
+	// 		website: "",
+	// 		prenom: "",
+	// 		nom: "",
+	// 		email: "",
+	// 		pseudo: "",
+	// 		password: "",
+	// 		adress: "",
+	// 		countryOfResidence: "",
+	// 	},
+
+	// 	// functions will be used to validate values at corresponding key
+	// 	// validate: zodResolver(schema),
+	// });
+
+	// useEffect(() => {
+	// 	setEntName(user.seller.nomEntreprise);
+	// }, []);
+
 	return (
-		<div className="flex justify-center gap-[60px] ml-[10%]  md:ml-[15%]">
-			<div className="w-[420px] justify-start border rounded-2xl">
-				<div className="flex flex-col gap-5 ml-[50px] mt-[30px]">
-					<div>
-						<p className="text-lg">Menu</p>
-					</div>
-					<div className="ml-1 flex-col flex gap-[20px] text-[15px]">
-						<div className="flex gap-5">
-							<IconChevronDown size={17} className="mt-1" />
-							<p>Géneral</p>
-						</div>
-						<div className="flex gap-5">
-							<IconChevronDown size={17} className="mt-1" />
-							<p>Zones</p>
-						</div>
-						<div className="flex gap-5">
-							<IconChevronDown size={17} className="mt-1" />
-							<p>Modes de livraison</p>
-						</div>
-						<div className="flex gap-5">
-							<IconChevronDown size={17} className="mt-1" />
-							<p>Gestion de la facturation</p>
-						</div>
-						<div className="flex gap-5">
-							<IconChevronDown size={17} className="mt-1" />
-							<p>General</p>
-						</div>
-						<div className="flex gap-5">
-							<IconChevronDown size={17} className="mt-1" />
-							<p>General</p>
-						</div>
-						<div className="flex gap-5">
-							<IconChevronDown size={17} className="mt-1" />
-							<p>General</p>
-						</div>
-						<div className="flex gap-5">
-							<IconChevronDown size={17} className="mt-1" />
-							<p>General</p>
-						</div>
-					</div>
-				</div>
-			</div>
+		// <div className="flex justify-center ml-[10%] md:ml-[15%] border">
+		<div
+			className={`flex justify-center ${
+				opened ? "lg:ml-[17%]" : "lg:ml-[10%]"
+			}`}
+		>
 			<form
-				onSubmit={form.onSubmit((values) => {
-					// setObj(values);
-					handleSubmit(values);
-				})}
+				// onSubmit={form.onSubmit((values) => {
+				// 	// setObj(values);
+				// 	console.log("values: ", values);
+				// 	handleSubmit();
+				// })}
+				onSubmit={(e) => openModal(e)}
 				// onSubmit={form.onSubmit(console.log)}
-				// className="flex flex-col justify-center ml-[15%] w-full mt-3"
 				className="flex flex-col justify-center w-full mt-3"
 			>
-				<div>Inscription Vendeur</div>
+				<div>Edition {user.seller.pseudo}</div>
 				{/* <div className="flex justify-center bg-slate-200 w-4/5 rounded-2xl"> */}
-				<div className="flex flex-col items-start justify-start pb-[25px] pt-[20px] bg-slate-100 w-4/5 rounded-2xl shadow-2xl">
+				<div
+					className={`flex flex-col items-start justify-start pb-[25px] pt-[20px] bg-slate-100 w-4/5 rounded-2xl shadow-2xl`}
+				>
 					<h2 className="ml-4 mb-2 font-medium">Informations entreprise:</h2>
 					<TextInput
+						// value={entName}
 						classNames={{
 							root: "pl-3 pr-3 w-full",
 							wrapper: "w-full",
@@ -240,7 +342,16 @@ function Demo() {
 						radius={25}
 						placeholder="Nom de l'entreprise"
 						withAsterisk
-						{...form.getInputProps("nomEntreprise")}
+						onChange={(e) =>
+							setUser({
+								seller: {
+									...user.seller,
+									nomEntreprise: e.currentTarget.value,
+								},
+							})
+						}
+						value={user.seller.nomEntreprise}
+						// {...form.getInputProps("nomEntreprise")}
 					/>
 					<TextInput
 						classNames={{
@@ -267,8 +378,17 @@ function Demo() {
 						mt="sm"
 						placeholder="Numéro SIRET"
 						withAsterisk
+						onChange={(e) =>
+							setUser({
+								seller: {
+									...user.seller,
+									numeroSiret: e.currentTarget.value,
+								},
+							})
+						}
+						value={user.seller.numeroSiret}
 						// value={null}
-						{...form.getInputProps("numeroSiret")}
+						// {...form.getInputProps("numeroSiret")}
 					/>
 					<TextInput
 						classNames={{
@@ -283,7 +403,16 @@ function Demo() {
 						mt="sm"
 						placeholder="Groupe"
 						withAsterisk
-						{...form.getInputProps("groupe")}
+						onChange={(e) =>
+							setUser({
+								seller: {
+									...user.seller,
+									groupe: e.currentTarget.value,
+								},
+							})
+						}
+						value={user.seller.groupe}
+						// {...form.getInputProps("groupe")}
 					/>
 					<TextInput
 						classNames={{
@@ -298,7 +427,16 @@ function Demo() {
 						mt="sm"
 						placeholder="Code NAF"
 						withAsterisk
-						{...form.getInputProps("codeNAF")}
+						onChange={(e) =>
+							setUser({
+								seller: {
+									...user.seller,
+									codeNAF: e.currentTarget.value,
+								},
+							})
+						}
+						value={user.seller.codeNAF}
+						// {...form.getInputProps("codeNAF")}
 					/>
 
 					<TextInput
@@ -314,7 +452,16 @@ function Demo() {
 						mt="sm"
 						placeholder="Code postal"
 						withAsterisk
-						{...form.getInputProps("codePostal")}
+						onChange={(e) =>
+							setUser({
+								seller: {
+									...user.seller,
+									codePostal: e.currentTarget.value,
+								},
+							})
+						}
+						value={user.seller.codePostal}
+						// {...form.getInputProps("codePostal")}
 					/>
 					<TextInput
 						classNames={{
@@ -329,7 +476,16 @@ function Demo() {
 						mt="sm"
 						placeholder="Ville"
 						withAsterisk
-						{...form.getInputProps("ville")}
+						onChange={(e) =>
+							setUser({
+								seller: {
+									...user.seller,
+									ville: e.currentTarget.value,
+								},
+							})
+						}
+						value={user.seller.ville}
+						// {...form.getInputProps("ville")}
 					/>
 					<TextInput
 						classNames={{
@@ -344,7 +500,16 @@ function Demo() {
 						mt="sm"
 						placeholder="Departement"
 						withAsterisk
-						{...form.getInputProps("departement")}
+						onChange={(e) =>
+							setUser({
+								seller: {
+									...user.seller,
+									departement: e.currentTarget.value,
+								},
+							})
+						}
+						value={user.seller.departement}
+						// {...form.getInputProps("departement")}
 					/>
 					<TextInput
 						classNames={{
@@ -359,7 +524,16 @@ function Demo() {
 						mt="sm"
 						placeholder="Pays"
 						withAsterisk
-						{...form.getInputProps("pays")}
+						onChange={(e) =>
+							setUser({
+								seller: {
+									...user.seller,
+									pays: e.currentTarget.value,
+								},
+							})
+						}
+						value={user.seller.pays}
+						// {...form.getInputProps("pays")}
 					/>
 					<TextInput
 						classNames={{
@@ -374,7 +548,16 @@ function Demo() {
 						mt="sm"
 						placeholder="IBAN"
 						withAsterisk
-						{...form.getInputProps("IBAN")}
+						onChange={(e) =>
+							setUser({
+								seller: {
+									...user.seller,
+									IBAN: e.currentTarget.value,
+								},
+							})
+						}
+						value={user.seller.IBAN}
+						// {...form.getInputProps("IBAN")}
 					/>
 					<TextInput
 						classNames={{
@@ -389,7 +572,16 @@ function Demo() {
 						mt="sm"
 						placeholder="Site Web"
 						withAsterisk
-						{...form.getInputProps("website")}
+						onChange={(e) =>
+							setUser({
+								seller: {
+									...user.seller,
+									website: e.currentTarget.value,
+								},
+							})
+						}
+						value={user.seller.website}
+						// {...form.getInputProps("website")}
 					/>
 					<TextInput
 						classNames={{
@@ -404,6 +596,15 @@ function Demo() {
 						mt="sm"
 						placeholder="Pseudo"
 						withAsterisk
+						onChange={(e) =>
+							setUser({
+								seller: {
+									...user.seller,
+									pseudo: e.currentTarget.value,
+								},
+							})
+						}
+						value={user.seller.pseudo}
 					/>
 					{/* {Photo upload area} */}
 					{/* <TextInput
@@ -419,6 +620,14 @@ function Demo() {
 						mt="sm"
 						placeholder="Logo URL"
 						withAsterisk
+						onChange={(e) =>
+							setUser({
+								seller: {
+									...user.seller,
+									nomEntreprise: e.currentTarget.value,
+								},
+							})
+						}
 					/>
 					<div className="flex">
 						<DropzoneButton />
@@ -439,6 +648,14 @@ function Demo() {
 							{ value: "m", label: "M" },
 						]}
 						withAsterisk
+						onChange={(e) =>
+							setUser({
+								seller: {
+									...user.seller,
+									nomEntreprise: e.currentTarget.value,
+								},
+							})
+						}
 					/> */}
 					<TextInput
 						classNames={{
@@ -453,7 +670,16 @@ function Demo() {
 						mt="sm"
 						placeholder="Prénom"
 						withAsterisk
-						{...form.getInputProps("prenom")}
+						onChange={(e) =>
+							setUser({
+								seller: {
+									...user.seller,
+									firstName: e.currentTarget.value,
+								},
+							})
+						}
+						value={user.seller.firstName}
+						// {...form.getInputProps("prenom")}
 					/>
 					<TextInput
 						classNames={{
@@ -468,7 +694,16 @@ function Demo() {
 						mt="sm"
 						placeholder="Nom"
 						withAsterisk
-						{...form.getInputProps("nom")}
+						onChange={(e) =>
+							setUser({
+								seller: {
+									...user.seller,
+									lastName: e.currentTarget.value,
+								},
+							})
+						}
+						value={user.seller.lastName}
+						// {...form.getInputProps("nom")}
 					/>
 					<DatePicker
 						placeholder="Date de naissance"
@@ -480,7 +715,17 @@ function Demo() {
 						className="ml-3 mt-3 flex flex-col gap-1 justify-start items-start"
 						label="Date de naissance"
 						withAsterisk
-						{...form.getInputProps("dateOfBirth")}
+						onChange={(e: any) =>
+							setUser({
+								seller: {
+									...user.seller,
+									dateOfBirth: e,
+								},
+							})
+						}
+						// value={user.seller.dateOfBirth}
+						value={new Date(user.seller.dateOfBirth)}
+						// {...form.getInputProps("dateOfBirth")}
 					/>
 					<Select
 						label="Nationalité"
@@ -494,8 +739,17 @@ function Demo() {
 						}}
 						className="ml-3 mt-3 flex flex-col gap-1 justify-start items-start"
 						maxDropdownHeight={280}
-						data={data}
-						{...form.getInputProps("nationality")}
+						data={CountriesData1}
+						onChange={(e) =>
+							setUser({
+								seller: {
+									...user.seller,
+									nationality: e,
+								},
+							})
+						}
+						value={user.seller.nationality}
+						// {...form.getInputProps("nationality")}
 					/>
 					<Select
 						label="Pays de residence"
@@ -510,8 +764,17 @@ function Demo() {
 						className="ml-3 mt-3 flex flex-col gap-1 justify-start items-start"
 						maxDropdownHeight={280}
 						withAsterisk
-						data={data2}
-						{...form.getInputProps("countryOfResidence")}
+						onChange={(e) =>
+							setUser({
+								seller: {
+									...user.seller,
+									countryOfResidency: e,
+								},
+							})
+						}
+						data={CountriesData2}
+						value={user.seller.countryOfResidency}
+						// {...form.getInputProps("countryOfResidence")}
 					/>
 					<TextInput
 						classNames={{
@@ -526,7 +789,16 @@ function Demo() {
 						mt="sm"
 						placeholder="Email"
 						withAsterisk
-						{...form.getInputProps("email")}
+						onChange={(e) =>
+							setUser({
+								seller: {
+									...user.seller,
+									email: e.currentTarget.value,
+								},
+							})
+						}
+						value={user.seller.email}
+						// {...form.getInputProps("email")}
 					/>
 					<TextInput
 						classNames={{
@@ -541,8 +813,16 @@ function Demo() {
 						mt="sm"
 						placeholder="Mot de passe"
 						withAsterisk
+						onChange={(e) =>
+							setUser({
+								seller: {
+									...user.seller,
+									password: e.currentTarget.value,
+								},
+							})
+						}
 						type={"password"}
-						{...form.getInputProps("password")}
+						// {...form.getInputProps("password")}
 					/>
 					<div className="flex flex-col ml-3 mt-3">
 						<p className="text-base font-Montserrat font-normal">
@@ -554,7 +834,16 @@ function Demo() {
 							inputClass="h-[20px] rounded-2xl"
 							inputStyle={{ borderRadius: "30px" }}
 							specialLabel=""
-							{...form.getInputProps("numFixe")}
+							onChange={(e) =>
+								setUser({
+									seller: {
+										...user.seller,
+										mobileNumber: e,
+									},
+								})
+							}
+							value={user.seller.mobileNumber}
+							// {...form.getInputProps("numFixe")}
 							// value={this.state.phone}
 							// onChange={(phone) => this.setState({ phone })}
 						/>
@@ -569,7 +858,16 @@ function Demo() {
 							inputClass="h-[20px] rounded-2xl"
 							inputStyle={{ borderRadius: "30px" }}
 							specialLabel=""
-							{...form.getInputProps("numPortable")}
+							onChange={(e) =>
+								setUser({
+									seller: {
+										...user.seller,
+										fixNumber: e,
+									},
+								})
+							}
+							value={user.seller.fixNumber}
+							// {...form.getInputProps("numPortable")}
 							// value={this.state.phone}
 							// onChange={(phone) => this.setState({ phone })}
 						/>
@@ -587,7 +885,16 @@ function Demo() {
 						mt="sm"
 						placeholder="Adresse"
 						withAsterisk
-						{...form.getInputProps("adresse")}
+						onChange={(e) =>
+							setUser({
+								seller: {
+									...user.seller,
+									adresse: e.currentTarget.value,
+								},
+							})
+						}
+						value={user.seller.adresse}
+						// {...form.getInputProps("adresse")}
 					/>
 					<TextInput
 						classNames={{
@@ -602,6 +909,14 @@ function Demo() {
 						mt="sm"
 						placeholder="Ville"
 						withAsterisk
+						onChange={(e) =>
+							setUser({
+								seller: {
+									...user.seller,
+									ville: e.currentTarget.value,
+								},
+							})
+						}
 					/>
 					<TextInput
 						classNames={{
@@ -616,7 +931,15 @@ function Demo() {
 						mt="sm"
 						placeholder="Code postal"
 						withAsterisk
-						{...form.getInputProps("pseudo")}
+						// onChange={(e) =>
+						// 	setUser({
+						// 		seller: {
+						// 			...user.seller,
+						// 			nomEntreprise: e.currentTarget.value,
+						// 		},
+						// 	})
+						// }
+						// {...form.getInputProps("pseudo")}
 					/>
 				</div>
 
@@ -663,4 +986,4 @@ function Demo() {
 // 	};
 // }
 
-export default Demo;
+export default UpdateSellerByAdmin;
