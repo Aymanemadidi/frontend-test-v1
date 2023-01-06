@@ -6,8 +6,13 @@ import { setContext } from "@apollo/client/link/context";
 // 	credentials: "include",
 // });
 
+// const httpLink = createHttpLink({
+// 	uri: "https://dev-spare-place-v1-0.onrender.com/graphql",
+// 	credentials: "include",
+// });
+
 const httpLink = createHttpLink({
-	uri: "https://dev-spare-place-v1-0.onrender.com/graphql",
+	uri: "https://personal-backend-test-v1.onrender.com/",
 	credentials: "include",
 });
 
