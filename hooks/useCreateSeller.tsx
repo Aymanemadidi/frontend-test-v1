@@ -15,12 +15,17 @@ export interface CreateSellerInput {
 	website: string;
 	dateOfBirth: string;
 	nationality: string;
-	prenom: string;
-	nom: string;
+	firstName: string;
+	lastName: string;
 	email: string;
 	pseudo: string;
 	password: string;
 	adress: string;
+	numberOfEmployees: string;
+	companyAdresse: string;
+	civilite: string;
+	tvaIntra: string;
+	typeCompte: string;
 	countryOfResidence: string;
 }
 
@@ -32,8 +37,8 @@ interface Tokens {
 const CREATE_SELLER = gql`
 	mutation createSeller($createSellerInput: CreateSellerInput!) {
 		createSeller(createSellerInput: $createSellerInput) {
-			access_token
-			refresh_token
+			userId
+			email
 		}
 	}
 `;

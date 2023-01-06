@@ -12,11 +12,12 @@ import { DatePicker } from "@mantine/dates";
 import * as Yup from "yup";
 import { z } from "zod";
 import bell from "../public/bell.svg";
-import { DropzoneButton } from "../components/DropZone";
+// import { DropzoneButton } from "../components/DropZone";
 import { nationalities } from "../helpers/countries";
 import PhoneInput from "react-phone-input-2";
 import "react-phone-input-2/lib/material.css";
 import { CreateSellerInput, useCreateSeller } from "../hooks/useCreateSeller";
+import { IconChevronDown, IconChevronRight } from "@tabler/icons";
 
 interface Seller {
 	nomEntreprise: string;
@@ -31,8 +32,8 @@ interface Seller {
 	numFixe: number;
 	numPortable: number;
 	website: string;
-	prenom: string;
-	nom: string;
+	firstName: string;
+	lastName: string;
 	email: string;
 	pseudo: string;
 	password: string;
@@ -56,12 +57,17 @@ const initialValues: CreateSellerInput = {
 	dateOfBirth: "",
 	nationality: "",
 	website: "",
-	prenom: "",
-	nom: "",
+	firstName: "",
+	lastName: "",
 	email: "",
 	pseudo: "",
 	password: "",
 	adress: "",
+	numberOfEmployees: "<10",
+	companyAdresse: "",
+	civilite: "",
+	tvaIntra: "",
+	typeCompte: "",
 	countryOfResidence: "",
 };
 
@@ -91,9 +97,12 @@ function Demo() {
 		(item) => `${item.value?.charAt(0).toUpperCase()}${item.value?.slice(1)}`
 	);
 
+	enum SelectedPage {}
+
 	const [fixTel, setFixTel] = useState(0);
 	const [obj, setObj] = useState<CreateSellerInput>(initialValues);
 	const [createSeller] = useCreateSeller();
+	const [pageSelected, setPageSelected] = useState("general");
 
 	async function handleSubmit(values: CreateSellerInput) {
 		console.log(values);
@@ -101,7 +110,7 @@ function Demo() {
 			variables: {
 				createSellerInput: {
 					nomEntreprise: values.nomEntreprise,
-					lastName: values.nom,
+					lastName: values.lastName,
 					numeroSiret: Number(values.numeroSiret),
 					groupe: values.groupe,
 					codeNAF: values.codeNAF,
@@ -116,15 +125,18 @@ function Demo() {
 					departement: values.departement,
 					mobileNumber: Number(values.numPortable),
 					fixNumber: Number(values.numFixe),
-					firstName: values.prenom,
+					firstName: values.firstName,
 					email: values.email,
 					// pseudo: values.nomEntreprise,
 					password: values.password,
 					website: values.website,
 					pays: values.pays,
+					numberOfEmployees: "<10",
+					companyAdresse: "",
+					civilite: "",
+					tvaIntra: "",
 					statut_moderation: false,
 					statut: "new",
-					isArchived: false,
 				},
 			},
 		});
@@ -147,12 +159,17 @@ function Demo() {
 			dateOfBirth: "",
 			nationality: "",
 			website: "",
-			prenom: "",
-			nom: "",
+			firstName: "",
+			lastName: "",
 			email: "",
 			pseudo: "",
 			password: "",
 			adress: "",
+			companyAdresse: "",
+			numberOfEmployees: "",
+			civilite: "",
+			tvaIntra: "",
+			typeCompte: "",
 			countryOfResidence: "",
 		},
 
@@ -161,14 +178,82 @@ function Demo() {
 	});
 
 	return (
-		<div className="flex justify-center ml-[10%]  md:ml-[15%]">
+		<div className="flex justify-center gap-[60px] ml-[10%]  md:ml-[15%]">
+			<div className="w-[420px] justify-start bg-white shadow-lg rounded-2xl">
+				<div className="flex flex-col gap-5 ml-[30px] mt-[30px]">
+					<div>
+						<p className="text-lg">Menu</p>
+					</div>
+					<div className="ml-1 flex-col flex gap-[20px] text-[15px]">
+						<div
+							className={`flex gap-5 cursor-pointer ${
+								pageSelected === "general" ? "text-green-500" : ""
+							}`}
+							onClick={() => setPageSelected("general")}
+						>
+							{pageSelected === "general" ? (
+								<IconChevronDown size={17} className={`mt-1`} />
+							) : (
+								<IconChevronRight size={17} className={`mt-1`} />
+							)}
+							<p className={`font-semibold`}>Géneral</p>
+						</div>
+						{/* <div
+							className={`flex gap-5 cursor-pointer ${
+								pageSelected === "zones" ? "text-green-500" : ""
+							}`}
+							onClick={() => setPageSelected("zones")}
+						>
+							{pageSelected === "zones" ? (
+								<IconChevronDown size={17} className={`mt-1`} />
+							) : (
+								<IconChevronRight size={17} className={`mt-1`} />
+							)}
+							<p
+								className={`font-semibold ${
+									pageSelected === "zones" ? "text-green-500" : ""
+								}`}
+							>
+								Zones
+							</p>
+						</div>
+						<div className="flex gap-5 cursor-pointer">
+							<IconChevronRight size={17} className="mt-1" />
+							<p>Modes de livraison</p>
+						</div>
+						<div className="flex gap-5 cursor-pointer">
+							<IconChevronRight size={17} className="mt-1" />
+							<p>Gestion de la facturation</p>
+						</div>
+						<div className="flex gap-5 cursor-pointer">
+							<IconChevronRight size={17} className="mt-1" />
+							<p>General</p>
+						</div>
+						<div className="flex gap-5 cursor-pointer">
+							<IconChevronRight size={17} className="mt-1" />
+							<p>General</p>
+						</div>
+						<div className="flex gap-5 cursor-pointer">
+							<IconChevronRight size={17} className="mt-1" />
+							<p>General</p>
+						</div>
+						<div className="flex gap-5 cursor-pointer">
+							<IconChevronRight size={17} className="mt-1" />
+							<p>General</p>
+						</div> */}
+					</div>
+				</div>
+			</div>
 			<form
 				onSubmit={form.onSubmit((values) => {
 					// setObj(values);
 					handleSubmit(values);
 				})}
 				// onSubmit={form.onSubmit(console.log)}
-				className="flex flex-col justify-center ml-[15%] w-full mt-3"
+				// className="flex flex-col justify-center ml-[15%] w-full mt-3"
+				className={`${
+					pageSelected === "general" ? "flex" : "hidden"
+				} flex-col justify-center w-full mt-3`}
 			>
 				<div>Inscription Vendeur</div>
 				{/* <div className="flex justify-center bg-slate-200 w-4/5 rounded-2xl"> */}
@@ -411,7 +496,7 @@ function Demo() {
 						mt="sm"
 						placeholder="Prénom"
 						withAsterisk
-						{...form.getInputProps("prenom")}
+						{...form.getInputProps("firstName")}
 					/>
 					<TextInput
 						classNames={{
@@ -426,7 +511,7 @@ function Demo() {
 						mt="sm"
 						placeholder="Nom"
 						withAsterisk
-						{...form.getInputProps("nom")}
+						{...form.getInputProps("lastName")}
 					/>
 					<DatePicker
 						placeholder="Date de naissance"
@@ -576,6 +661,240 @@ function Demo() {
 						withAsterisk
 						{...form.getInputProps("pseudo")}
 					/>
+				</div>
+
+				<div className="flex justify-center w-3/4">
+					<Button
+						type="submit"
+						mt="sm"
+						className="bg-green-700 hover:bg-green-600 w-5/6"
+					>
+						Envoyer
+					</Button>
+				</div>
+			</form>
+			<form
+				onSubmit={form.onSubmit((values) => {
+					// setObj(values);
+					handleSubmit(values);
+				})}
+				// onSubmit={form.onSubmit(console.log)}
+				// className="flex flex-col justify-center ml-[15%] w-full mt-3"
+				className={`${
+					pageSelected === "zones" ? "flex" : "hidden"
+				} flex-col justify-center w-full mt-3`}
+			>
+				<div>Zones vendeur</div>
+				{/* <div className="flex justify-center bg-slate-200 w-4/5 rounded-2xl"> */}
+				<div className="flex flex-col items-start justify-start pb-[25px] pt-[20px] bg-slate-100 w-4/5 rounded-2xl shadow-2xl">
+					<h2 className="ml-4 mb-2 font-medium">Informations entreprise:</h2>
+					<TextInput
+						classNames={{
+							root: "pl-3 pr-3 w-full",
+							wrapper: "w-full",
+							input:
+								"w-full font-semibold placeholder:font-normal font-semibold placeholder:text-gray-400 border-slate-200 mt-[3px]",
+							label: "ml-2 flex",
+						}}
+						label={
+							<div className="flex gap-1">
+								<p className="">Nom de l'entreprise</p>
+								<Tooltip className="" label="Help">
+									<Image
+										className="bg-none"
+										alt="burger"
+										src={bell}
+										height={13}
+									/>
+								</Tooltip>
+							</div>
+						}
+						radius={25}
+						placeholder="Nom de l'entreprise"
+						withAsterisk
+						{...form.getInputProps("nomEntreprise")}
+					/>
+					<TextInput
+						classNames={{
+							root: "pl-3 pr-3 w-full",
+							wrapper: "w-full",
+							input:
+								"w-full font-semibold placeholder:font-normal placeholder:text-gray-400 border-slate-200 mt-1",
+							label: "ml-2 flex",
+						}}
+						label={
+							<div className="flex gap-1">
+								<p className="">Numero Siret</p>
+								<Tooltip className="" label="Help">
+									<Image
+										className="bg-none"
+										alt="burger"
+										src={bell}
+										height={13}
+									/>
+								</Tooltip>
+							</div>
+						}
+						radius={25}
+						mt="sm"
+						placeholder="Numéro SIRET"
+						withAsterisk
+						// value={null}
+						{...form.getInputProps("numeroSiret")}
+					/>
+					<TextInput
+						classNames={{
+							root: "pl-3 pr-3 w-full",
+							wrapper: "w-full",
+							input:
+								"w-full font-semibold placeholder:font-normal placeholder:text-gray-400 border-slate-200 mt-1",
+							label: "ml-2",
+						}}
+						label={"Groupe"}
+						radius={25}
+						mt="sm"
+						placeholder="Groupe"
+						withAsterisk
+						{...form.getInputProps("groupe")}
+					/>
+					<TextInput
+						classNames={{
+							root: "pl-3 pr-3 w-full",
+							wrapper: "w-full",
+							input:
+								"w-full font-semibold placeholder:font-normal placeholder:text-gray-400 border-slate-200 mt-1",
+							label: "ml-2",
+						}}
+						label={"Code NAF"}
+						radius={25}
+						mt="sm"
+						placeholder="Code NAF"
+						withAsterisk
+						{...form.getInputProps("codeNAF")}
+					/>
+
+					<TextInput
+						classNames={{
+							root: "pl-3 pr-3 w-full",
+							wrapper: "w-full",
+							input:
+								"w-full font-semibold placeholder:font-normal placeholder:text-gray-400 border-slate-200 mt-1",
+							label: "ml-2",
+						}}
+						label={"Code postal"}
+						radius={25}
+						mt="sm"
+						placeholder="Code postal"
+						withAsterisk
+						{...form.getInputProps("codePostal")}
+					/>
+					<TextInput
+						classNames={{
+							root: "pl-3 pr-3 w-full",
+							wrapper: "w-full",
+							input:
+								"w-full font-semibold placeholder:font-normal placeholder:text-gray-400 border-slate-200 mt-1",
+							label: "ml-2",
+						}}
+						label={"Ville"}
+						radius={25}
+						mt="sm"
+						placeholder="Ville"
+						withAsterisk
+						{...form.getInputProps("ville")}
+					/>
+					<TextInput
+						classNames={{
+							root: "pl-3 pr-3 w-full",
+							wrapper: "w-full",
+							input:
+								"w-full font-semibold placeholder:font-normal placeholder:text-gray-400 border-slate-200 mt-1",
+							label: "ml-2",
+						}}
+						label={"Departement"}
+						radius={25}
+						mt="sm"
+						placeholder="Departement"
+						withAsterisk
+						{...form.getInputProps("departement")}
+					/>
+					<TextInput
+						classNames={{
+							root: "pl-3 pr-3 w-full",
+							wrapper: "w-full",
+							input:
+								"w-full font-semibold placeholder:font-normal placeholder:text-gray-400 border-slate-200 mt-1",
+							label: "ml-2",
+						}}
+						label={"Pays"}
+						radius={25}
+						mt="sm"
+						placeholder="Pays"
+						withAsterisk
+						{...form.getInputProps("pays")}
+					/>
+					<TextInput
+						classNames={{
+							root: "pl-3 pr-3 w-full",
+							wrapper: "w-full",
+							input:
+								"w-full font-semibold placeholder:font-normal placeholder:text-gray-400 border-slate-200 mt-1",
+							label: "ml-2",
+						}}
+						label={"IBAN"}
+						radius={25}
+						mt="sm"
+						placeholder="IBAN"
+						withAsterisk
+						{...form.getInputProps("IBAN")}
+					/>
+					<TextInput
+						classNames={{
+							root: "pl-3 pr-3 w-full",
+							wrapper: "w-full",
+							input:
+								"w-full font-semibold placeholder:font-normal placeholder:text-gray-400 border-slate-200 mt-1",
+							label: "ml-2",
+						}}
+						label={"Site Web"}
+						radius={25}
+						mt="sm"
+						placeholder="Site Web"
+						withAsterisk
+						{...form.getInputProps("website")}
+					/>
+					<TextInput
+						classNames={{
+							root: "pl-3 pr-3 w-full",
+							wrapper: "w-full",
+							input:
+								"w-full font-semibold placeholder:font-normal placeholder:text-gray-400 border-slate-200 mt-1",
+							label: "ml-2",
+						}}
+						label={"Pseudo"}
+						radius={25}
+						mt="sm"
+						placeholder="Pseudo"
+						withAsterisk
+					/>
+					{/* {Photo upload area} */}
+					{/* <TextInput
+						classNames={{
+							root: "pl-3 pr-3 w-full",
+							wrapper: "w-full",
+							input:
+								"w-full font-semibold placeholder:font-normal placeholder:text-gray-400 border-slate-200 mt-1",
+							label: "ml-2",
+						}}
+						label={"Logo"}
+						radius={25}
+						mt="sm"
+						placeholder="Logo URL"
+						withAsterisk
+					/>
+					<div className="flex">
+						<DropzoneButton />
+					</div> */}
 				</div>
 
 				<div className="flex justify-center w-3/4">

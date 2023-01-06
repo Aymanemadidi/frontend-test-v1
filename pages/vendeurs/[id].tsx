@@ -12,7 +12,7 @@ import { DatePicker } from "@mantine/dates";
 import * as Yup from "yup";
 import { z } from "zod";
 import bell from "../../public/bell.svg";
-import { DropzoneButton } from "../../components/DropZone";
+// import { DropzoneButton } from "../../components/DropZone";
 import { nationalities } from "../../helpers/countries";
 import PhoneInput from "react-phone-input-2";
 import "react-phone-input-2/lib/material.css";
@@ -66,12 +66,17 @@ const initialValues: CreateSellerInput = {
 	dateOfBirth: "",
 	nationality: "",
 	website: "",
-	prenom: "",
-	nom: "",
+	firstName: "",
+	lastName: "",
 	email: "",
 	pseudo: "",
 	password: "",
 	adress: "",
+	companyAdresse: "",
+	numberOfEmployees: "",
+	civilite: "",
+	tvaIntra: "",
+	typeCompte: "entreprise",
 	countryOfResidence: "",
 };
 
@@ -123,12 +128,17 @@ function UpdateSellerByAdmin({ seller, opened }: any) {
 			dateOfBirth: "",
 			nationality: "",
 			website: "",
-			prenom: "",
-			nom: "",
+			firstName: "",
+			lastName: "",
 			email: "",
 			pseudo: "",
 			password: "",
 			adress: "",
+			companyAdresse: "",
+			numberOfEmployees: "",
+			civilite: "",
+			tvaIntra: "",
+			typeCompte: "",
 			countryOfResidence: "",
 		},
 	});
@@ -217,7 +227,7 @@ function UpdateSellerByAdmin({ seller, opened }: any) {
 							_id: query.id,
 							updateSellerInput: {
 								nomEntreprise: user.seller.nomEntreprise,
-								lastName: user.seller.nom,
+								lastName: user.seller.lastName,
 								numeroSiret: Number(user.seller.numeroSiret),
 								groupe: user.seller.groupe,
 								codeNAF: user.seller.codeNAF,
@@ -232,7 +242,7 @@ function UpdateSellerByAdmin({ seller, opened }: any) {
 								departement: user.seller.departement,
 								mobileNumber: Number(user.seller.mobileNumber),
 								fixNumber: Number(user.seller.fixNumber),
-								firstName: user.seller.prenom,
+								firstName: user.seller.firstName,
 								email: user.seller.email,
 								password: user.seller.password,
 								// pseudo: user.seller.pseudo,

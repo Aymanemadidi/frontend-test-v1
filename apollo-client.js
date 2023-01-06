@@ -6,6 +6,11 @@ const httpLink = createHttpLink({
 	credentials: "include",
 });
 
+// const httpLink = createHttpLink({
+// 	uri: "https://dev-spare-place-v1-0.onrender.com/graphql",
+// 	credentials: "include",
+// });
+
 const authLink = setContext((_, { headers }) => {
 	// get the authentication token from local storage if it exists
 	// const token = localStorage.getItem("token");
