@@ -42,22 +42,22 @@ function Login() {
 	const [loginUser] = useLoginUser();
 	const router = useRouter();
 
-	const GET_ME = gql`
-		query getMe {
-			getMe {
-				firstName
-				lastName
-				role
-			}
-		}
-	`;
+	// const GET_ME = gql`
+	// 	query getMe {
+	// 		getMe {
+	// 			firstName
+	// 			lastName
+	// 			role
+	// 		}
+	// 	}
+	// `;
 
-	const { error, loading, data } = useQuery(GET_ME);
+	// const { error, loading, data } = useQuery(GET_ME);
 
-	if (data) {
-		console.log(data);
-		// router.push("/all-sellers");
-	}
+	// if (data) {
+	// 	console.log(data);
+	// 	// router.push("/all-sellers");
+	// }
 
 	async function handleSubmit(values: any) {
 		// console.log(values);
@@ -83,68 +83,68 @@ function Login() {
 		// functions will be used to validate values at corresponding key
 		// validate: zodResolver(schema),
 	});
-	if (error) {
-		return (
-			<div className="flex justify-center">
-				<form
-					onSubmit={form.onSubmit((values) => {
-						// setObj(values);
-						handleSubmit(values);
-					})}
-					// onSubmit={form.onSubmit(console.log)}
-					className="flex flex-col justify-center items-center w-full mt-3"
-				>
-					{/* <div className="flex justify-center bg-slate-200 w-4/5 rounded-2xl"> */}
-					<div className="flex flex-col items-start justify-center w-1/2  pb-[25px] pt-[20px] bg-slate-100 rounded-2xl shadow-2xl">
-						<h2 className="ml-4 mb-2 font-medium">Se connecter::</h2>
+	// if (error) {
+	return (
+		<div className="flex justify-center">
+			<form
+				onSubmit={form.onSubmit((values) => {
+					// setObj(values);
+					handleSubmit(values);
+				})}
+				// onSubmit={form.onSubmit(console.log)}
+				className="flex flex-col justify-center items-center w-full mt-3"
+			>
+				{/* <div className="flex justify-center bg-slate-200 w-4/5 rounded-2xl"> */}
+				<div className="flex flex-col items-start justify-center w-1/2  pb-[25px] pt-[20px] bg-slate-100 rounded-2xl shadow-2xl">
+					<h2 className="ml-4 mb-2 font-medium">Se connecter::</h2>
 
-						<TextInput
-							classNames={{
-								root: "pl-3 pr-3 w-full",
-								wrapper: "w-full",
-								input:
-									"w-full font-semibold placeholder:font-normal placeholder:text-gray-400 border-slate-200 mt-1",
-								label: "ml-2",
-							}}
-							label={"Email"}
-							radius={25}
-							mt="sm"
-							placeholder="Email"
-							type={"email"}
-							withAsterisk
-							{...form.getInputProps("email")}
-						/>
-						<TextInput
-							classNames={{
-								root: "pl-3 pr-3 w-full",
-								wrapper: "w-full",
-								input:
-									"w-full font-semibold placeholder:font-normal placeholder:text-gray-400 border-slate-200 mt-1",
-								label: "ml-2",
-							}}
-							label={"Mot de passe"}
-							radius={25}
-							mt="sm"
-							placeholder="Mot de passe"
-							withAsterisk
-							type={"password"}
-							{...form.getInputProps("password")}
-						/>
-					</div>
+					<TextInput
+						classNames={{
+							root: "pl-3 pr-3 w-full",
+							wrapper: "w-full",
+							input:
+								"w-full font-semibold placeholder:font-normal placeholder:text-gray-400 border-slate-200 mt-1",
+							label: "ml-2",
+						}}
+						label={"Email"}
+						radius={25}
+						mt="sm"
+						placeholder="Email"
+						type={"email"}
+						withAsterisk
+						{...form.getInputProps("email")}
+					/>
+					<TextInput
+						classNames={{
+							root: "pl-3 pr-3 w-full",
+							wrapper: "w-full",
+							input:
+								"w-full font-semibold placeholder:font-normal placeholder:text-gray-400 border-slate-200 mt-1",
+							label: "ml-2",
+						}}
+						label={"Mot de passe"}
+						radius={25}
+						mt="sm"
+						placeholder="Mot de passe"
+						withAsterisk
+						type={"password"}
+						{...form.getInputProps("password")}
+					/>
+				</div>
 
-					<div className="flex justify-center w-3/4">
-						<Button
-							type="submit"
-							mt="sm"
-							className="bg-green-700 hover:bg-green-600 w-2/3"
-						>
-							Envoyer
-						</Button>
-					</div>
-				</form>
-			</div>
-		);
-	}
+				<div className="flex justify-center w-3/4">
+					<Button
+						type="submit"
+						mt="sm"
+						className="bg-green-700 hover:bg-green-600 w-2/3"
+					>
+						Envoyer
+					</Button>
+				</div>
+			</form>
+		</div>
+	);
+	// }
 }
 
 Login.getLayout = (page: ReactElement) => {
