@@ -137,6 +137,7 @@ function Demo() {
 					tvaIntra: "",
 					statut_moderation: false,
 					statut: "new",
+					isArchived: false,
 				},
 			},
 		});
