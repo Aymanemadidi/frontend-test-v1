@@ -415,20 +415,20 @@ export default function Demo({ opened }: any) {
 
 	sellers = list.sellers.map((user: any) => {
 		console.log("isArchived: ", user);
-		if (!user.isArchived) {
-			return (
-				<SellersBar
-					key={user.email}
-					user={user}
-					selection={selection}
-					toggleRow={toggleRow}
-					statut={statut === "" ? user.statut : statut}
-					ids={changedByBulkIds}
-					setList={setList}
-					list={list}
-				/>
-			);
-		}
+		// if (!user.isArchived) {
+		return (
+			<SellersBar
+				key={user.email}
+				user={user}
+				selection={selection}
+				toggleRow={toggleRow}
+				statut={statut === "" ? user.statut : statut}
+				ids={changedByBulkIds}
+				setList={setList}
+				list={list}
+			/>
+		);
+		// }
 	});
 
 	// console.log("opened: ", opened);
