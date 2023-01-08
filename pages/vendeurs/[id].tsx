@@ -71,13 +71,16 @@ const initialValues: CreateSellerInput = {
 	email: "",
 	pseudo: "",
 	password: "",
-	adress: "",
+	adresse: "",
 	companyAdresse: "",
 	numberOfEmployees: "",
 	civilite: "",
 	tvaIntra: "",
 	typeCompte: "entreprise",
 	countryOfResidence: "",
+	companyCodePostal: "",
+	companyPays: "",
+	companyVille: "",
 };
 
 const schema = z.object({
