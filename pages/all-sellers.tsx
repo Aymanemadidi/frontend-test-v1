@@ -393,25 +393,27 @@ export default function Demo({ opened }: any) {
 
 	function getStartAndEndFromRange(range: any) {
 		let results = ["", ""];
-		if (range) {
+		if (range[0] !== null && range[1] !== null) {
 			let y = range[0]?.getFullYear();
 			let m = range[0]?.getMonth();
 			let d = range[0]?.getDate();
-			if (m) {
-				const start = `${y}/${m + 1}/${d}`;
-				results[0] = start;
-			}
+			// if (m) {
+			const start = `${y}/${m + 1}/${d}`;
+			results[0] = start;
+			// }
 			y = range[1]?.getFullYear();
 			m = range[1]?.getMonth();
 			d = range[1]?.getDate();
-			if (m) {
-				const end = `${y}/${m + 1}/${d + 1}`;
-				results[1] = end;
-			}
+			// if (m) {
+			const end = `${y}/${m + 1}/${d + 1}`;
+			results[1] = end;
+			// }
 		}
 		console.log("results: ", results);
 		return results;
 	}
+
+	console.log("sellers", list.sellers);
 
 	sellers = list.sellers.map((user: any) => {
 		console.log("isArchived: ", user);
@@ -438,7 +440,7 @@ export default function Demo({ opened }: any) {
 			{/* <div className="lg:w-[85%] lg:m-auto"> */}
 			<div className="flex gap-3">
 				<p className="text-2xl mb-3 font-semibold">Vendeurs</p>
-				<Link href={"/inscription-vendeur"}>
+				<Link href={"/ajouter-vendeur"}>
 					<IconCirclePlus size={35} />
 				</Link>
 			</div>
@@ -507,8 +509,9 @@ export default function Demo({ opened }: any) {
 							onClick={async (e) => {
 								e.preventDefault();
 								setSearch("");
-								// console.log("rangeValue:", rangeValue);
+								console.log("rangeValue:", rangeValue);
 								let ranges = getStartAndEndFromRange(rangeValue);
+								console.log("ranges", ranges);
 								const datax = await getEmailsBySearch({
 									variables: {
 										email: emailToSearch,

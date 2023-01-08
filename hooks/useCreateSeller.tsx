@@ -20,9 +20,12 @@ export interface CreateSellerInput {
 	email: string;
 	pseudo: string;
 	password: string;
-	adress: string;
+	adresse: string;
 	numberOfEmployees: string;
 	companyAdresse: string;
+	companyCodePostal: string;
+	companyVille: string;
+	companyPays: string;
 	civilite: string;
 	tvaIntra: string;
 	typeCompte: string;
@@ -44,5 +47,5 @@ const CREATE_SELLER = gql`
 `;
 
 export const useCreateSeller = () => {
-	return useMutation<Tokens, any>(CREATE_SELLER);
+	return useMutation<any, any>(CREATE_SELLER);
 };
