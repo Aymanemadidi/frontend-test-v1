@@ -3,11 +3,13 @@ import Link from "next/link";
 import Head from "next/head";
 import Image from "next/image";
 
-import { AppShell, Header, Burger, useMantineTheme } from "@mantine/core";
+import { AppShell, Header, Burger, useMantineTheme, Menu } from "@mantine/core";
 import logoIcon from "../public/logo-icon.svg";
 import searchIcon from "../public/search-icon.svg";
 import lineIcon from "../public/line-icon.svg";
 import profileIcon from "../public/profile-icon.svg";
+import { IconLogin, IconUser } from "@tabler/icons";
+import { useRouter } from "next/router";
 
 export default function NotLoggedLayout({ children }: React.PropsWithChildren) {
 	const theme = useMantineTheme();
@@ -17,6 +19,7 @@ export default function NotLoggedLayout({ children }: React.PropsWithChildren) {
 	const [numNotif, setNumNotif] = useState(2);
 	const [width, setWidth] = useState(0);
 	const title = opened ? "Close navigation" : "Open navigation";
+	const router = useRouter();
 	//#676C86
 	useEffect(() => {
 		// make sure your function is being called in client side only
@@ -110,13 +113,50 @@ export default function NotLoggedLayout({ children }: React.PropsWithChildren) {
 												src={lineIcon}
 												height={33}
 											/>
-											<Image
-												className="bg-none"
-												alt="burger"
-												color={theme.colors.gray[3]}
-												src={profileIcon}
-												height={27}
-											/>
+											<Menu
+												shadow="md"
+												width={200}
+												// transition="pop"
+												// transitionDuration={150}
+											>
+												<Menu.Target>
+													<Image
+														className="bg-none cursor-pointer"
+														alt="burger"
+														color={theme.colors.gray[3]}
+														src={profileIcon}
+														height={27}
+													/>
+												</Menu.Target>
+
+												<Menu.Dropdown>
+													<Menu.Item
+														icon={<IconUser size={14} />}
+														onClick={() => router.push("/inscription")}
+													>
+														S'inscrire
+													</Menu.Item>
+													<Menu.Item
+														icon={<IconLogin size={14} />}
+														onClick={() => router.push("/login")}
+													>
+														Se connecter
+													</Menu.Item>
+
+													{/* <Menu.Divider />
+
+														<Menu.Label>Danger zone</Menu.Label>
+														<Menu.Item icon={<IconArrowsLeftRight size={14} />}>
+															Transfer my data
+														</Menu.Item>
+														<Menu.Item
+															color="red"
+															icon={<IconTrash size={14} />}
+														>
+															Delete my account
+														</Menu.Item> */}
+												</Menu.Dropdown>
+											</Menu>
 										</div>
 									</div>
 								</div>

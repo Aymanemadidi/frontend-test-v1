@@ -11,28 +11,37 @@ export interface CreateBuyerInput {
 	pays: string;
 	dateOfBirth: string;
 	nationality: string;
-	prenom: string;
-	nom: string;
+	firstName: string;
+	lastName: string;
 	email: string;
 	password: string;
 	pseudo: string;
-	countryOfResidence: string;
+	countryOfResidency: string;
+	adresse: string;
+	companyAdresse: string;
+	companyVille: string;
+	companyCodePostal: string;
+	companyPays: string;
+	civilite: string;
+	departement: string;
+	typeCompte: string;
+	tvaIntra: string;
 }
 
-interface Tokens {
-	access_token: string;
-	refresh_token: string;
-}
+// interface Tokens {
+// 	access_token: string;
+// 	refresh_token: string;
+// }
 
 const CREATE_BUYER = gql`
 	mutation createBuyer($createBuyerInput: CreateBuyerInput!) {
 		createBuyer(createBuyerInput: $createBuyerInput) {
-			access_token
-			refresh_token
+			userId
+			email
 		}
 	}
 `;
 
 export const useCreateBuyer = () => {
-	return useMutation<Tokens, any>(CREATE_BUYER);
+	return useMutation<any, any>(CREATE_BUYER);
 };
