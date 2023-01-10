@@ -16,51 +16,19 @@ import bell from "../../public/bell.svg";
 import { nationalities } from "../../helpers/countries";
 import PhoneInput from "react-phone-input-2";
 import "react-phone-input-2/lib/material.css";
-import {
-	CreateSellerInput,
-	useCreateSeller,
-} from "../../hooks/useCreateSeller";
-import {
-	UpdateSellerInput,
-	useUpdateSeller,
-} from "../../hooks/useUpdateSeller";
+import { CreateBuyerInput, useCreateBuyer } from "../../hooks/useCreateBuyer";
+import { UpdateBuyerInput, useUpdateBuyer } from "../../hooks/useUpdateBuyer";
 import { useRouter } from "next/router";
 import { showNotification } from "@mantine/notifications";
 import { openConfirmModal } from "@mantine/modals";
 
-interface Seller {
-	nomEntreprise: string;
-	numeroSiret: number;
-	groupe: string;
-	codeNAF: string;
-	codePostal: string;
-	ville: string;
-	departement: string;
-	pays: string;
-	IBAN: string;
-	numFixe: number;
-	numPortable: number;
-	website: string;
-	prenom: string;
-	nom: string;
-	email: string;
-	pseudo: string;
-	password: string;
-	// adresse: "",
-}
-
-const d = new Date();
-
-const initialValues: CreateSellerInput = {
+const initialValues: CreateBuyerInput = {
 	nomEntreprise: "",
 	numeroSiret: "",
-	groupe: "",
-	codeNAF: "",
 	codePostal: "",
 	ville: "",
 	departement: "",
 	pays: "",
-	IBAN: "",
 	numFixe: "",
 	numPortable: "",
 	dateOfBirth: "",
@@ -73,11 +41,10 @@ const initialValues: CreateSellerInput = {
 	password: "",
 	adresse: "",
 	companyAdresse: "",
-	numberOfEmployees: "",
 	civilite: "",
 	tvaIntra: "",
 	typeCompte: "entreprise",
-	countryOfResidence: "",
+	countryOfResidency: "",
 	companyCodePostal: "",
 	companyPays: "",
 	companyVille: "",
@@ -101,7 +68,7 @@ const schema = z.object({
 	// email: z.string().email({ message: "Invalid email" }),
 });
 
-function UpdateSellerByAdmin({ seller, opened }: any) {
+function UpdatebuyerByAdmin({ buyer, opened }: any) {
 	const CountriesData1 = nationalities.map(
 		(item) => `${item.label?.charAt(0).toUpperCase()}${item.label?.slice(1)}`
 	);
@@ -110,22 +77,19 @@ function UpdateSellerByAdmin({ seller, opened }: any) {
 	);
 
 	const [fixTel, setFixTel] = useState(0);
-	const [obj, setObj] = useState<CreateSellerInput>(initialValues);
-	const [createSeller] = useCreateSeller();
-	const [updateSeller] = useUpdateSeller();
+	const [obj, setObj] = useState<CreateBuyerInput>(initialValues);
+	const [createBuyer] = useCreateBuyer();
+	const [updateBuyer] = useUpdateBuyer();
 	const [entName, setEntName] = useState("");
 	const [user, setUser] = useState<any>({
-		seller: {
+		buyer: {
 			_id: "",
 			nomEntreprise: "",
 			numeroSiret: "",
-			groupe: "",
-			codeNAF: "",
 			codePostal: "",
 			ville: "",
 			departement: "",
 			pays: "",
-			IBAN: "",
 			numFixe: "",
 			numPortable: "",
 			dateOfBirth: "",
@@ -136,33 +100,29 @@ function UpdateSellerByAdmin({ seller, opened }: any) {
 			email: "",
 			pseudo: "",
 			password: "",
-			adress: "",
+			adresse: "",
 			companyAdresse: "",
-			numberOfEmployees: "",
 			civilite: "",
 			tvaIntra: "",
 			typeCompte: "",
-			countryOfResidence: "",
+			countryOfResidency: "",
 		},
 	});
 	const router = useRouter();
 	const query = router.query;
 	// console.log("query: ", query);
 
-	const GET_SELLER = gql`
-		query seller($_id: String!) {
-			seller(_id: $_id) {
+	const GET_BUYER = gql`
+		query buyer($_id: String!) {
+			buyer(_id: $_id) {
 				_id
 				nomEntreprise
 				pseudo
 				numeroSiret
-				groupe
-				codeNAF
 				codePostal
 				ville
 				departement
 				pays
-				IBAN
 				dateOfBirth
 				nationality
 				website
@@ -173,11 +133,14 @@ function UpdateSellerByAdmin({ seller, opened }: any) {
 				mobileNumber
 				fixNumber
 				adresse
+				companyAdresse
+				companyVille
+				companyCodePostal
 			}
 		}
 	`;
 
-	const { error, loading, data } = useQuery(GET_SELLER, {
+	const { error, loading, data } = useQuery(GET_BUYER, {
 		onCompleted: setUser,
 		fetchPolicy: "no-cache",
 		variables: {
@@ -187,10 +150,10 @@ function UpdateSellerByAdmin({ seller, opened }: any) {
 
 	console.log(data);
 
-	// const date = `${user.seller.dateOfBirth.slice(
+	// const date = `${user.buyer.dateOfBirth.slice(
 	// 	0,
 	// 	10
-	// )} at ${user.seller.dateOfBirth.slice(11, 16)}`;
+	// )} at ${user.buyer.dateOfBirth.slice(11, 16)}`;
 
 	// const jour = date.slice(8, 10);
 	// const mois = date.slice(5, 7);
@@ -225,38 +188,37 @@ function UpdateSellerByAdmin({ seller, opened }: any) {
 			onCancel: () => {},
 			onConfirm: async () => {
 				try {
-					const seller = await updateSeller({
+					const buyer = await updateBuyer({
 						variables: {
 							_id: query.id,
-							updateSellerInput: {
-								nomEntreprise: user.seller.nomEntreprise,
-								lastName: user.seller.lastName,
-								numeroSiret: Number(user.seller.numeroSiret),
-								groupe: user.seller.groupe,
-								codeNAF: user.seller.codeNAF,
-								codePostal: user.seller.codePostal,
-								ville: user.seller.ville,
-								role: "Seller",
-								IBAN: user.seller.IBAN,
-								dateOfBirth: user.seller.dateOfBirth,
-								nationality: user.seller.nationality,
-								adresse: user.seller.adresse,
-								countryOfResidency: user.seller.countryOfResidency,
-								departement: user.seller.departement,
-								mobileNumber: Number(user.seller.mobileNumber),
-								fixNumber: Number(user.seller.fixNumber),
-								firstName: user.seller.firstName,
-								email: user.seller.email,
-								password: user.seller.password,
-								// pseudo: user.seller.pseudo,
-								website: user.seller.website,
-								pays: user.seller.pays,
+							updateBuyerInput: {
+								nomEntreprise: user.buyer.nomEntreprise,
+								lastName: user.buyer.lastName,
+								numeroSiret: Number(user.buyer.numeroSiret),
+								codePostal: user.buyer.codePostal,
+								ville: user.buyer.ville,
+								companyVille: user.buyer.companyVille,
+								companyCodePostal: user.buyer.companyCodePostal,
+								role: "buyer",
+								dateOfBirth: user.buyer.dateOfBirth,
+								nationality: user.buyer.nationality,
+								adresse: user.buyer.adresse,
+								countryOfResidency: user.buyer.countryOfResidency,
+								departement: user.buyer.departement,
+								mobileNumber: Number(user.buyer.mobileNumber),
+								fixNumber: Number(user.buyer.fixNumber),
+								firstName: user.buyer.firstName,
+								email: user.buyer.email,
+								password: user.buyer.password,
+								// pseudo: user.buyer.pseudo,
+								website: user.buyer.website,
+								pays: user.buyer.pays,
 							},
 						},
 					});
 					showNotification({
-						title: "Edition vendeur",
-						message: "Vendeur changé avec success",
+						title: "Edition acheteur",
+						message: "Acheteur changé avec success",
 						color: "green",
 						autoClose: 5000,
 						bottom: "630px",
@@ -268,10 +230,10 @@ function UpdateSellerByAdmin({ seller, opened }: any) {
 
 	// async function handleSubmit(e: any) {
 	// 	e.preventDefault();
-	// 	// console.log("from handle:", user.seller);
+	// 	// console.log("from handle:", user.buyer);
 	// 	//change here to update
 
-	// 	// setUser({ seller });
+	// 	// setUser({ buyer });
 	// }
 
 	// const form = useForm({
@@ -304,7 +266,7 @@ function UpdateSellerByAdmin({ seller, opened }: any) {
 	// });
 
 	// useEffect(() => {
-	// 	setEntName(user.seller.nomEntreprise);
+	// 	setEntName(user.buyer.nomEntreprise);
 	// }, []);
 
 	return (
@@ -324,14 +286,13 @@ function UpdateSellerByAdmin({ seller, opened }: any) {
 				// onSubmit={form.onSubmit(console.log)}
 				className="flex flex-col justify-center w-full mt-3"
 			>
-				<div>Edition {user.seller.pseudo}</div>
+				<div>Edition {user.buyer.pseudo}</div>
 				{/* <div className="flex justify-center bg-slate-200 w-4/5 rounded-2xl"> */}
 				<div
 					className={`flex flex-col items-start justify-start pb-[25px] pt-[20px] bg-slate-100 w-4/5 rounded-2xl shadow-2xl`}
 				>
 					<h2 className="ml-4 mb-2 font-medium">Informations entreprise:</h2>
 					<TextInput
-						// value={entName}
 						classNames={{
 							root: "pl-3 pr-3 w-full",
 							wrapper: "w-full",
@@ -357,14 +318,13 @@ function UpdateSellerByAdmin({ seller, opened }: any) {
 						withAsterisk
 						onChange={(e) =>
 							setUser({
-								seller: {
-									...user.seller,
+								buyer: {
+									...user.buyer,
 									nomEntreprise: e.currentTarget.value,
 								},
 							})
 						}
-						value={user.seller.nomEntreprise}
-						// {...form.getInputProps("nomEntreprise")}
+						value={user.buyer.nomEntreprise}
 					/>
 					<TextInput
 						classNames={{
@@ -393,63 +353,13 @@ function UpdateSellerByAdmin({ seller, opened }: any) {
 						withAsterisk
 						onChange={(e) =>
 							setUser({
-								seller: {
-									...user.seller,
+								buyer: {
+									...user.buyer,
 									numeroSiret: e.currentTarget.value,
 								},
 							})
 						}
-						value={user.seller.numeroSiret}
-						// value={null}
-						// {...form.getInputProps("numeroSiret")}
-					/>
-					<TextInput
-						classNames={{
-							root: "pl-3 pr-3 w-full",
-							wrapper: "w-full",
-							input:
-								"w-full font-semibold placeholder:font-normal placeholder:text-gray-400 border-slate-200 mt-1",
-							label: "ml-2",
-						}}
-						label={"Groupe"}
-						radius={25}
-						mt="sm"
-						placeholder="Groupe"
-						withAsterisk
-						onChange={(e) =>
-							setUser({
-								seller: {
-									...user.seller,
-									groupe: e.currentTarget.value,
-								},
-							})
-						}
-						value={user.seller.groupe}
-						// {...form.getInputProps("groupe")}
-					/>
-					<TextInput
-						classNames={{
-							root: "pl-3 pr-3 w-full",
-							wrapper: "w-full",
-							input:
-								"w-full font-semibold placeholder:font-normal placeholder:text-gray-400 border-slate-200 mt-1",
-							label: "ml-2",
-						}}
-						label={"Code NAF"}
-						radius={25}
-						mt="sm"
-						placeholder="Code NAF"
-						withAsterisk
-						onChange={(e) =>
-							setUser({
-								seller: {
-									...user.seller,
-									codeNAF: e.currentTarget.value,
-								},
-							})
-						}
-						value={user.seller.codeNAF}
-						// {...form.getInputProps("codeNAF")}
+						value={user.buyer.numeroSiret}
 					/>
 
 					<TextInput
@@ -467,14 +377,13 @@ function UpdateSellerByAdmin({ seller, opened }: any) {
 						withAsterisk
 						onChange={(e) =>
 							setUser({
-								seller: {
-									...user.seller,
-									codePostal: e.currentTarget.value,
+								buyer: {
+									...user.buyer,
+									companyCodePostal: e.currentTarget.value,
 								},
 							})
 						}
-						value={user.seller.codePostal}
-						// {...form.getInputProps("codePostal")}
+						value={user.buyer.companyCodePostal}
 					/>
 					<TextInput
 						classNames={{
@@ -491,14 +400,13 @@ function UpdateSellerByAdmin({ seller, opened }: any) {
 						withAsterisk
 						onChange={(e) =>
 							setUser({
-								seller: {
-									...user.seller,
-									ville: e.currentTarget.value,
+								buyer: {
+									...user.buyer,
+									companyVille: e.currentTarget.value,
 								},
 							})
 						}
-						value={user.seller.ville}
-						// {...form.getInputProps("ville")}
+						value={user.buyer.companyVille}
 					/>
 					<TextInput
 						classNames={{
@@ -515,14 +423,13 @@ function UpdateSellerByAdmin({ seller, opened }: any) {
 						withAsterisk
 						onChange={(e) =>
 							setUser({
-								seller: {
-									...user.seller,
+								buyer: {
+									...user.buyer,
 									departement: e.currentTarget.value,
 								},
 							})
 						}
-						value={user.seller.departement}
-						// {...form.getInputProps("departement")}
+						value={user.buyer.departement}
 					/>
 					<TextInput
 						classNames={{
@@ -539,38 +446,13 @@ function UpdateSellerByAdmin({ seller, opened }: any) {
 						withAsterisk
 						onChange={(e) =>
 							setUser({
-								seller: {
-									...user.seller,
+								buyer: {
+									...user.buyer,
 									pays: e.currentTarget.value,
 								},
 							})
 						}
-						value={user.seller.pays}
-						// {...form.getInputProps("pays")}
-					/>
-					<TextInput
-						classNames={{
-							root: "pl-3 pr-3 w-full",
-							wrapper: "w-full",
-							input:
-								"w-full font-semibold placeholder:font-normal placeholder:text-gray-400 border-slate-200 mt-1",
-							label: "ml-2",
-						}}
-						label={"IBAN"}
-						radius={25}
-						mt="sm"
-						placeholder="IBAN"
-						withAsterisk
-						onChange={(e) =>
-							setUser({
-								seller: {
-									...user.seller,
-									IBAN: e.currentTarget.value,
-								},
-							})
-						}
-						value={user.seller.IBAN}
-						// {...form.getInputProps("IBAN")}
+						value={user.buyer.pays}
 					/>
 					<TextInput
 						classNames={{
@@ -587,14 +469,13 @@ function UpdateSellerByAdmin({ seller, opened }: any) {
 						withAsterisk
 						onChange={(e) =>
 							setUser({
-								seller: {
-									...user.seller,
+								buyer: {
+									...user.buyer,
 									website: e.currentTarget.value,
 								},
 							})
 						}
-						value={user.seller.website}
-						// {...form.getInputProps("website")}
+						value={user.buyer.website}
 					/>
 					<TextInput
 						classNames={{
@@ -611,65 +492,17 @@ function UpdateSellerByAdmin({ seller, opened }: any) {
 						withAsterisk
 						onChange={(e) =>
 							setUser({
-								seller: {
-									...user.seller,
+								buyer: {
+									...user.buyer,
 									pseudo: e.currentTarget.value,
 								},
 							})
 						}
-						value={user.seller.pseudo}
+						value={user.buyer.pseudo}
 					/>
-					{/* {Photo upload area} */}
-					{/* <TextInput
-						classNames={{
-							root: "pl-3 pr-3 w-full",
-							wrapper: "w-full",
-							input:
-								"w-full font-semibold placeholder:font-normal placeholder:text-gray-400 border-slate-200 mt-1",
-							label: "ml-2",
-						}}
-						label={"Logo"}
-						radius={25}
-						mt="sm"
-						placeholder="Logo URL"
-						withAsterisk
-						onChange={(e) =>
-							setUser({
-								seller: {
-									...user.seller,
-									nomEntreprise: e.currentTarget.value,
-								},
-							})
-						}
-					/>
-					<div className="flex">
-						<DropzoneButton />
-					</div> */}
 				</div>
 				<div className="flex flex-col items-start justify-start mt-5 pb-[25px] pt-[20px] bg-slate-100 w-4/5 rounded-2xl shadow-2xl">
 					<h2 className="ml-4 mb-2">Informations de contact</h2>
-					{/* <Select
-						label="Civilité"
-						classNames={{
-							input: "rounded-2xl",
-							label: "ml-1",
-						}}
-						className="ml-4 mt-1 flex flex-col gap-1 justify-start items-start rounded-2xl"
-						placeholder="Civilité"
-						data={[
-							{ value: "mm", label: "Mme" },
-							{ value: "m", label: "M" },
-						]}
-						withAsterisk
-						onChange={(e) =>
-							setUser({
-								seller: {
-									...user.seller,
-									nomEntreprise: e.currentTarget.value,
-								},
-							})
-						}
-					/> */}
 					<TextInput
 						classNames={{
 							root: "pl-3 pr-3 w-full",
@@ -685,14 +518,13 @@ function UpdateSellerByAdmin({ seller, opened }: any) {
 						withAsterisk
 						onChange={(e) =>
 							setUser({
-								seller: {
-									...user.seller,
+								buyer: {
+									...user.buyer,
 									firstName: e.currentTarget.value,
 								},
 							})
 						}
-						value={user.seller.firstName}
-						// {...form.getInputProps("prenom")}
+						value={user.buyer.firstName}
 					/>
 					<TextInput
 						classNames={{
@@ -709,14 +541,13 @@ function UpdateSellerByAdmin({ seller, opened }: any) {
 						withAsterisk
 						onChange={(e) =>
 							setUser({
-								seller: {
-									...user.seller,
+								buyer: {
+									...user.buyer,
 									lastName: e.currentTarget.value,
 								},
 							})
 						}
-						value={user.seller.lastName}
-						// {...form.getInputProps("nom")}
+						value={user.buyer.lastName}
 					/>
 					<DatePicker
 						placeholder="Date de naissance"
@@ -730,15 +561,13 @@ function UpdateSellerByAdmin({ seller, opened }: any) {
 						withAsterisk
 						onChange={(e: any) =>
 							setUser({
-								seller: {
-									...user.seller,
+								buyer: {
+									...user.buyer,
 									dateOfBirth: e,
 								},
 							})
 						}
-						// value={user.seller.dateOfBirth}
-						value={new Date(user.seller.dateOfBirth)}
-						// {...form.getInputProps("dateOfBirth")}
+						value={new Date(user.buyer.dateOfBirth)}
 					/>
 					<Select
 						label="Nationalité"
@@ -755,14 +584,13 @@ function UpdateSellerByAdmin({ seller, opened }: any) {
 						data={CountriesData1}
 						onChange={(e) =>
 							setUser({
-								seller: {
-									...user.seller,
+								buyer: {
+									...user.buyer,
 									nationality: e,
 								},
 							})
 						}
-						value={user.seller.nationality}
-						// {...form.getInputProps("nationality")}
+						value={user.buyer.nationality}
 					/>
 					<Select
 						label="Pays de residence"
@@ -779,15 +607,14 @@ function UpdateSellerByAdmin({ seller, opened }: any) {
 						withAsterisk
 						onChange={(e) =>
 							setUser({
-								seller: {
-									...user.seller,
+								buyer: {
+									...user.buyer,
 									countryOfResidency: e,
 								},
 							})
 						}
 						data={CountriesData2}
-						value={user.seller.countryOfResidency}
-						// {...form.getInputProps("countryOfResidence")}
+						value={user.buyer.countryOfResidency}
 					/>
 					<TextInput
 						classNames={{
@@ -804,14 +631,13 @@ function UpdateSellerByAdmin({ seller, opened }: any) {
 						withAsterisk
 						onChange={(e) =>
 							setUser({
-								seller: {
-									...user.seller,
+								buyer: {
+									...user.buyer,
 									email: e.currentTarget.value,
 								},
 							})
 						}
-						value={user.seller.email}
-						// {...form.getInputProps("email")}
+						value={user.buyer.email}
 					/>
 					<TextInput
 						classNames={{
@@ -828,14 +654,13 @@ function UpdateSellerByAdmin({ seller, opened }: any) {
 						withAsterisk
 						onChange={(e) =>
 							setUser({
-								seller: {
-									...user.seller,
+								buyer: {
+									...user.buyer,
 									password: e.currentTarget.value,
 								},
 							})
 						}
 						type={"password"}
-						// {...form.getInputProps("password")}
 					/>
 					<div className="flex flex-col ml-3 mt-3">
 						<p className="text-base font-Montserrat font-normal">
@@ -849,16 +674,17 @@ function UpdateSellerByAdmin({ seller, opened }: any) {
 							specialLabel=""
 							onChange={(e) =>
 								setUser({
-									seller: {
-										...user.seller,
+									buyer: {
+										...user.buyer,
 										mobileNumber: e,
 									},
 								})
 							}
-							value={user.seller.mobileNumber}
-							// {...form.getInputProps("numFixe")}
-							// value={this.state.phone}
-							// onChange={(phone) => this.setState({ phone })}
+							value={
+								user.buyer.mobileNumber
+									? user.buyer.mobileNumber.toString()
+									: ""
+							}
 						/>
 					</div>
 					<div className="flex flex-col ml-3 mt-3">
@@ -873,16 +699,15 @@ function UpdateSellerByAdmin({ seller, opened }: any) {
 							specialLabel=""
 							onChange={(e) =>
 								setUser({
-									seller: {
-										...user.seller,
+									buyer: {
+										...user.buyer,
 										fixNumber: e,
 									},
 								})
 							}
-							value={user.seller.fixNumber}
-							// {...form.getInputProps("numPortable")}
-							// value={this.state.phone}
-							// onChange={(phone) => this.setState({ phone })}
+							value={
+								user.buyer.fixNumber ? user.buyer.fixNumber.toString() : ""
+							}
 						/>
 					</div>
 					<TextInput
@@ -900,14 +725,13 @@ function UpdateSellerByAdmin({ seller, opened }: any) {
 						withAsterisk
 						onChange={(e) =>
 							setUser({
-								seller: {
-									...user.seller,
+								buyer: {
+									...user.buyer,
 									adresse: e.currentTarget.value,
 								},
 							})
 						}
-						value={user.seller.adresse}
-						// {...form.getInputProps("adresse")}
+						value={user.buyer.adresse}
 					/>
 					<TextInput
 						classNames={{
@@ -924,12 +748,13 @@ function UpdateSellerByAdmin({ seller, opened }: any) {
 						withAsterisk
 						onChange={(e) =>
 							setUser({
-								seller: {
-									...user.seller,
+								buyer: {
+									...user.buyer,
 									ville: e.currentTarget.value,
 								},
 							})
 						}
+						value={user.buyer.ville}
 					/>
 					<TextInput
 						classNames={{
@@ -944,15 +769,15 @@ function UpdateSellerByAdmin({ seller, opened }: any) {
 						mt="sm"
 						placeholder="Code postal"
 						withAsterisk
-						// onChange={(e) =>
-						// 	setUser({
-						// 		seller: {
-						// 			...user.seller,
-						// 			nomEntreprise: e.currentTarget.value,
-						// 		},
-						// 	})
-						// }
-						// {...form.getInputProps("pseudo")}
+						onChange={(e) =>
+							setUser({
+								buyer: {
+									...user.buyer,
+									codePostal: e.currentTarget.value,
+								},
+							})
+						}
+						value={user.buyer.codePostal}
 					/>
 				</div>
 
@@ -999,4 +824,4 @@ function UpdateSellerByAdmin({ seller, opened }: any) {
 // 	};
 // }
 
-export default UpdateSellerByAdmin;
+export default UpdatebuyerByAdmin;

@@ -7,9 +7,24 @@ import { setContext } from "@apollo/client/link/context";
 // });
 
 const httpLink = createHttpLink({
-	uri: "https://dev-spare-place-v1-0.onrender.com/graphql",
+	uri: process.env.NEXT_PUBLIC_GRAPHQL_URI,
 	credentials: "include",
 });
+
+// const httpLink = createHttpLink({
+// 	uri: "https://dev-spare-place-v1-0.onrender.com/graphql",
+// 	credentials: "include",
+// });
+
+// const httpLink = createHttpLink({
+// 	uri: "https://personal-backend-test-v1.onrender.com/graphql",
+// 	credentials: "include",
+// });
+
+// const httpLink = createHttpLink({
+// 	uri: "https://dev-spare-place.onrender.com/graphql",
+// 	credentials: "include",
+// });
 
 const authLink = setContext((_, { headers }) => {
 	// get the authentication token from local storage if it exists
