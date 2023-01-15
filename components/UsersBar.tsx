@@ -63,9 +63,11 @@ function BuyersBar({
 				? user.seller.statut
 				: user.buyer !== null
 				? user.buyer.statut
-				: "actif"
+				: user.statut
 		}`
 	);
+
+	console.log("user.statut: ", user.statut);
 	// const [statutModeration, setStatutModeration] = useState(
 	// 	user.statut_moderation
 	// );
@@ -150,6 +152,16 @@ function BuyersBar({
 				}
 			}
 		`;
+	} else if (user.buyer === null) {
+		UPDATE_STATUT = gql`
+			mutation updateUser($_id: String!, $updateUserInput: UpdateUserInput!) {
+				updateUser(_id: $_id, updateUserInput: $updateUserInput) {
+					_id
+					firstName
+					email
+				}
+			}
+		`;
 	}
 
 	// const UPDATE_STATUT = gql`
@@ -211,13 +223,21 @@ function BuyersBar({
 								},
 							},
 						});
-					}
-					if (user.seller) {
+					} else if (user.seller) {
 						await updateStatut({
 							variables: {
 								_id: user._id,
 								updateSellerInput: {
 									isArchived: true,
+								},
+							},
+						});
+					} else {
+						await updateStatut({
+							variables: {
+								_id: user._id,
+								updateUserInput: {
+									statut: e,
 								},
 							},
 						});
@@ -293,6 +313,15 @@ function BuyersBar({
 						variables: {
 							_id: user._id,
 							updateSellerInput: {
+								statut: e,
+							},
+						},
+					});
+				} else {
+					await updateStatut({
+						variables: {
+							_id: user._id,
+							updateUserInput: {
 								statut: e,
 							},
 						},

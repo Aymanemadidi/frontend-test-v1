@@ -132,6 +132,19 @@ export default function Demo({ opened }: any) {
 		setIsOpened(opened);
 	}, [opened]);
 
+	const UPDATE_USER_STATUT = gql`
+		mutation updateUser($_id: String!, $updateUserInput: UpdateUserInput!) {
+			updateUser(_id: $_id, updateUserInput: $updateUserInput) {
+				_id
+				firstName
+				email
+			}
+		}
+	`;
+
+	const [updateUserStatut, userStatutUpdateResult] =
+		useMutation(UPDATE_USER_STATUT);
+
 	const UPDATE_SELLER_STATUT = gql`
 		mutation updateSeller(
 			$_id: String!
@@ -219,6 +232,15 @@ export default function Demo({ opened }: any) {
 										},
 									},
 								});
+							} else {
+								await updateUserStatut({
+									variables: {
+										_id: s[0],
+										updateUserInput: {
+											statut: e,
+										},
+									},
+								});
 							}
 						}
 					} else {
@@ -237,6 +259,15 @@ export default function Demo({ opened }: any) {
 									variables: {
 										_id: s[0],
 										updateSellerInput: {
+											isArchived: true,
+										},
+									},
+								});
+							} else {
+								await updateUserStatut({
+									variables: {
+										_id: s[0],
+										updateUserInput: {
 											isArchived: true,
 										},
 									},
@@ -299,6 +330,8 @@ export default function Demo({ opened }: any) {
 				lastName
 				email
 				role
+				statut
+				isArchived
 				seller {
 					statut
 					created_at
@@ -355,6 +388,8 @@ export default function Demo({ opened }: any) {
 				lastName
 				email
 				role
+				statut
+				isArchived
 				seller {
 					statut
 					created_at
