@@ -19,6 +19,7 @@ import "react-phone-input-2/lib/material.css";
 import { CreateSellerInput, useCreateSeller } from "../hooks/useCreateSeller";
 import { IconChevronDown, IconChevronRight } from "@tabler/icons";
 import NotLoggedLayout from "../components/notLoggedLayout";
+import { useRouter } from "next/router";
 
 const d = new Date();
 
@@ -86,48 +87,53 @@ function Demo() {
 	const [obj, setObj] = useState<CreateSellerInput>(initialValues);
 	const [createSeller] = useCreateSeller();
 	const [pageSelected, setPageSelected] = useState("general");
+	const router = useRouter();
 
 	async function handleSubmit(values: CreateSellerInput) {
-		console.log(values);
-		const tokens = await createSeller({
-			variables: {
-				createSellerInput: {
-					nomEntreprise: values.nomEntreprise,
-					lastName: values.lastName,
-					numeroSiret: Number(values.numeroSiret),
-					groupe: values.groupe,
-					codeNAF: values.codeNAF,
-					codePostal: values.codePostal,
-					ville: values.ville,
-					role: "Seller",
-					IBAN: values.IBAN,
-					dateOfBirth: values.dateOfBirth,
-					nationality: values.nationality,
-					adresse: values.adresse,
-					countryOfResidency: values.countryOfResidence,
-					departement: values.departement,
-					mobileNumber: Number(values.numPortable),
-					fixNumber: Number(values.numFixe),
-					firstName: values.firstName,
-					email: values.email,
-					// pseudo: values.nomEntreprise,
-					password: values.password,
-					website: values.website,
-					pays: values.pays,
-					numberOfEmployees: "<10",
-					companyAdresse: "",
-					civilite: "",
-					tvaIntra: "",
-					companyCodePostal: "",
-					companyVille: "",
-					companyPays: "",
-					statut_moderation: false,
-					statut: "new",
-					isArchived: false,
+		try {
+			const seller = await createSeller({
+				variables: {
+					createSellerInput: {
+						nomEntreprise: values.nomEntreprise,
+						lastName: values.lastName,
+						numeroSiret: Number(values.numeroSiret),
+						groupe: values.groupe,
+						codeNAF: values.codeNAF,
+						codePostal: values.codePostal,
+						ville: values.ville,
+						role: "Seller",
+						IBAN: values.IBAN,
+						dateOfBirth: values.dateOfBirth,
+						nationality: values.nationality,
+						adresse: values.adresse,
+						countryOfResidency: values.countryOfResidence,
+						departement: values.departement,
+						mobileNumber: Number(values.numPortable),
+						fixNumber: Number(values.numFixe),
+						firstName: values.firstName,
+						email: values.email,
+						// pseudo: values.nomEntreprise,
+						password: values.password,
+						website: values.website,
+						pays: values.pays,
+						numberOfEmployees: "<10",
+						companyAdresse: "",
+						civilite: "",
+						tvaIntra: "",
+						companyCodePostal: "",
+						companyVille: "",
+						companyPays: "",
+						statut_moderation: false,
+						statut: "new",
+						isArchived: false,
+					},
 				},
-			},
-		});
-		console.log(tokens);
+			});
+			console.log(seller);
+			router.push("/vendeurs");
+		} catch (error) {
+			alert(error);
+		}
 	}
 
 	const form = useForm({
@@ -168,8 +174,8 @@ function Demo() {
 	});
 
 	return (
-		<div className="flex justify-center gap-[60px] ml-[10%]  md:ml-[15%]">
-			<div className="w-[420px] justify-start bg-white shadow-lg rounded-2xl">
+		<div className="flex justify-center gap-[60px] ml-[10%]  md:ml-[15%] w-[100%] lg:w-[90%]">
+			<div className="hidden lg:block w-[420px] justify-start bg-white shadow-lg rounded-2xl">
 				<div className="flex flex-col gap-5 ml-[30px] mt-[30px]">
 					<div>
 						<p className="text-lg">Menu</p>

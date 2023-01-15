@@ -26,6 +26,7 @@ import "react-phone-input-2/lib/material.css";
 import { DatePicker } from "@mantine/dates";
 import { useForm, zodResolver } from "@mantine/form";
 import { useCreateBuyer, CreateBuyerInput } from "../hooks/useCreateBuyer";
+import { useRouter } from "next/router";
 
 function PasswordRequirement({
 	meets,
@@ -83,6 +84,7 @@ export default function Inscription() {
 	const [mobile, setMobile] = useState("");
 	const [fix, setFix] = useState("");
 	const [createBuyer] = useCreateBuyer();
+	const router = useRouter();
 	const checks = requirements.map((requirement, index) => (
 		<PasswordRequirement
 			key={index}
@@ -110,42 +112,46 @@ export default function Inscription() {
 		));
 
 	async function handleSubmit(values: CreateBuyerInput) {
-		// console.log(values);
-		const buyer = await createBuyer({
-			variables: {
-				createBuyerInput: {
-					nomEntreprise: values.nomEntreprise,
-					numeroSiret: Number(values.numeroSiret),
-					codePostal: values.codePostal,
-					ville: values.ville,
-					role: "Seller",
-					dateOfBirth: values.dateOfBirth,
-					nationality: values.nationality,
-					adresse: values.adresse,
-					countryOfResidency: values.countryOfResidency,
-					departement: values.departement,
-					mobileNumber: Number(mobile),
-					fixNumber: Number(fix),
-					firstName: values.firstName,
-					lastName: values.lastName,
-					email: values.email,
-					// pseudo: values.nomEntreprise,
-					password: password,
-					website: values.website,
-					pays: values.pays,
-					companyAdresse: values.companyAdresse,
-					companyVille: "",
-					companyCodePostal: "",
-					companyPays: "",
-					civilite: values.civilite,
-					typeCompte: values.typeCompte,
-					tvaIntra: values.tvaIntra,
-					statut: "new",
-					// isArchived: false,
+		try {
+			const buyer = await createBuyer({
+				variables: {
+					createBuyerInput: {
+						nomEntreprise: values.nomEntreprise,
+						numeroSiret: Number(values.numeroSiret),
+						codePostal: values.codePostal,
+						ville: values.ville,
+						role: "Seller",
+						dateOfBirth: values.dateOfBirth,
+						nationality: values.nationality,
+						adresse: values.adresse,
+						countryOfResidency: values.countryOfResidency,
+						departement: values.departement,
+						mobileNumber: Number(mobile),
+						fixNumber: Number(fix),
+						firstName: values.firstName,
+						lastName: values.lastName,
+						email: values.email,
+						// pseudo: values.nomEntreprise,
+						password: password,
+						website: values.website,
+						pays: values.pays,
+						companyAdresse: values.companyAdresse,
+						companyVille: "",
+						companyCodePostal: "",
+						companyPays: "",
+						civilite: values.civilite,
+						typeCompte: values.typeCompte,
+						tvaIntra: values.tvaIntra,
+						statut: "new",
+						isArchived: false,
+					},
 				},
-			},
-		});
-		console.log(buyer);
+			});
+			router.push("/dashboard");
+			console.log(buyer);
+		} catch (error) {
+			alert("Some error has occured");
+		}
 	}
 
 	const form = useForm({

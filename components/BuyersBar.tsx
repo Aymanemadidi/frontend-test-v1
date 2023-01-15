@@ -77,6 +77,8 @@ function BuyersBar({
 
 	const router = useRouter();
 
+	console.log("date: ", user.created_at);
+
 	const date = `${user.created_at.slice(0, 10)} at ${user.created_at.slice(
 		11,
 		16

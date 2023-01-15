@@ -15,8 +15,7 @@ import {
 import { keys } from "@mantine/utils";
 import { gql, useLazyQuery, useMutation, useQuery } from "@apollo/client";
 // import client from "../apollo-client";
-// import SellersBar from "../components/SellersBar";
-import BuyersBar from "../components/BuyersBar";
+import SellersBar from "../components/SellersBar";
 // import { useSellers } from "../hooks/useSellerData";
 import {
 	IconSelector,
@@ -30,7 +29,6 @@ import { DateRangePicker, DateRangePickerValue } from "@mantine/dates";
 import dayjs from "dayjs";
 import { showNotification } from "@mantine/notifications";
 import { openConfirmModal } from "@mantine/modals";
-import UsersBar from "../components/UsersBar";
 
 const useStyles = createStyles((theme) => ({
 	th: {
@@ -80,7 +78,13 @@ interface ThProps {
 	tailwind: string;
 }
 
-function Th({ children, reversed, sorted, onSort, tailwind = "" }: ThProps) {
+export function Th({
+	children,
+	reversed,
+	sorted,
+	onSort,
+	tailwind = "",
+}: ThProps) {
 	const { classes } = useStyles();
 	const Icon = sorted
 		? reversed
@@ -105,7 +109,6 @@ function Th({ children, reversed, sorted, onSort, tailwind = "" }: ThProps) {
 
 export default function Demo({ opened }: any) {
 	const [selection, setSelection] = useState([]);
-	const [roldeSelection, setRoleSelection] = useState([]);
 	const [search, setSearch] = useState("");
 	const [sortBy, setSortBy] = useState<keyof RowData | null>(null);
 	const [reverseSortDirection, setReverseSortDirection] = useState(false);
@@ -129,25 +132,12 @@ export default function Demo({ opened }: any) {
 		setIsOpened(opened);
 	}, [opened]);
 
-	const UPDATE_SELLER_STATUT = gql`
+	const UPDATE_STATUT = gql`
 		mutation updateSeller(
 			$_id: String!
 			$updateSellerInput: UpdateSellerInput!
 		) {
 			updateSeller(_id: $_id, updateSellerInput: $updateSellerInput) {
-				_id
-				firstName
-				email
-			}
-		}
-	`;
-
-	const [updateSellerStatut, sellerStatutUpdateResult] =
-		useMutation(UPDATE_SELLER_STATUT);
-
-	const UPDATE_STATUT = gql`
-		mutation updateBuyer($_id: String!, $updateBuyerInput: UpdateBuyerInput!) {
-			updateBuyer(_id: $_id, updateBuyerInput: $updateBuyerInput) {
 				_id
 				firstName
 				email
@@ -198,64 +188,39 @@ export default function Demo({ opened }: any) {
 					let arr: number[] = [];
 					if (e === "actif" || e === "inactif") {
 						for (s of selection) {
-							if (s[1] === "Buyer") {
-								await updateStatut({
-									variables: {
-										_id: s[0],
-										updateBuyerInput: {
-											statut: e,
-										},
+							await updateStatut({
+								variables: {
+									_id: s,
+									updateSellerInput: {
+										statut: e,
 									},
-								});
-							} else if (s[1] === "Seller") {
-								await updateSellerStatut({
-									variables: {
-										_id: s[0],
-										updateSellerInput: {
-											statut: e,
-										},
-									},
-								});
-							}
+								},
+							});
 						}
 					} else {
 						for (s of selection) {
-							if (s[1] === "Buyer") {
-								await updateStatut({
-									variables: {
-										_id: s[0],
-										updateBuyerInput: {
-											isArchived: true,
-										},
+							await updateStatut({
+								variables: {
+									_id: s,
+									updateSellerInput: {
+										isArchived: true,
 									},
-								});
-							} else if (s[1] === "Seller") {
-								await updateSellerStatut({
-									variables: {
-										_id: s[0],
-										updateSellerInput: {
-											isArchived: true,
-										},
-									},
-								});
-							}
+								},
+							});
 							arr.push(s);
 							// setList({ sellers: test });
+							// console.log("test: ", test);
 						}
 						// console.log("arr: ", arr);
-						test = list.users2.filter(
-							(user2: any) =>
-								!arr.some((element: any) => element.includes(user2._id))
+						test = list.sellers.filter(
+							(seller: any) => !arr.includes(seller.userId)
 						);
 
-						console.log("test: ", test);
-
-						setList({ users2: test });
+						setList({ sellers: test });
 						// setList({ sellers: test });
 					}
 					setChangedByBulkIds(selection);
-					console.log("e", e);
-					if (e !== "archive") setStatut(e);
+					if (e !== "archive") setStatut(() => e);
 					setSelection([]);
 					showNotification({
 						title: `${
@@ -275,10 +240,9 @@ export default function Demo({ opened }: any) {
 						// },
 					});
 				} catch (e) {
-					alert(e);
 					showNotification({
 						title: "Changement de statut impossible",
-						message: "Une erreur s'est produite",
+						message: "Vendeur non moderer",
 						color: "red",
 						autoClose: 5000,
 						bottom: "630px",
@@ -288,55 +252,34 @@ export default function Demo({ opened }: any) {
 		});
 	};
 
-	const ALL_USERS_NEW = gql`
-		query users2 {
-			users2 {
+	const ALL_SELLERS = gql`
+		query Sellers {
+			sellers {
 				_id
-				firstName
-				lastName
+				userId
 				email
-				role
-				seller {
-					statut
-					created_at
-					typeCompte
-					nomEntreprise
-					pseudo
-					typeCompte
-					statut_moderation
-					isArchived
-				}
-				buyer {
-					statut
-					created_at
-					nomEntreprise
-					pseudo
-					typeCompte
-					isArchived
-				}
+				nomEntreprise
+				numeroSiret
+				statut_moderation
+				typeVendeur
+				typeCompte
+				created_at
+				statut
+				pseudo
+				isArchived
 			}
 		}
 	`;
 
-	// const ALL_USERS = gql`
-	// 	query users {
-	// 		users {
-	// 			_id
-	// 			email
-	// 			role
-	// 		}
-	// 	}
-	// `;
-
-	const GET_USERS_BY_OC = gql`
-		query UsersByOc(
+	const GET_SELLERS_BY_OC = gql`
+		query SellersByOc(
 			$email: String!
 			$nomEntreprise: String!
 			$pseudo: String!
 			$startDate: String!
 			$endDate: String!
 		) {
-			usersOcc(
+			sellersOcc(
 				email: $email
 				nomEntreprise: $nomEntreprise
 				pseudo: $pseudo
@@ -348,6 +291,8 @@ export default function Demo({ opened }: any) {
 				email
 				nomEntreprise
 				numeroSiret
+				statut_moderation
+				typeVendeur
 				typeCompte
 				created_at
 				statut
@@ -357,18 +302,11 @@ export default function Demo({ opened }: any) {
 		}
 	`;
 
-	// const newData = useQuery(ALL_USERS_NEW, {
-	// 	fetchPolicy: "no-cache",
-	// });
-	// if (newData.data) {
-	// 	console.log("newData: ", newData.data);
-	// }
-
-	const { error, loading, data } = useQuery(ALL_USERS_NEW, {
+	const { error, loading, data } = useQuery(ALL_SELLERS, {
 		onCompleted: setList,
 		fetchPolicy: "no-cache",
 	});
-	const [getEmailsBySearch, results] = useLazyQuery(GET_USERS_BY_OC);
+	const [getEmailsBySearch, results] = useLazyQuery(GET_SELLERS_BY_OC);
 
 	if (loading) {
 		return (
@@ -384,35 +322,31 @@ export default function Demo({ opened }: any) {
 		return <div>{error.message}</div>;
 	}
 
-	console.log("newUsers: ", data);
-
-	let usersData = data?.users2;
-	let users = [];
+	let sellersData = data?.sellers;
+	let sellers = [];
 	if (results.data) {
-		usersData = results.data.usersOcc;
+		sellersData = results.data.sellersOcc;
 	}
 
 	const setSorting = (field: keyof RowData) => {
 		const reversed = field === sortBy ? !reverseSortDirection : false;
 		setReverseSortDirection(reversed);
 		setSortBy(field);
-		usersData = sortData(usersData, { sortBy: field, reversed, search });
-		setList({ users2: usersData });
+		sellersData = sortData(sellersData, { sortBy: field, reversed, search });
+		setList({ sellers: sellersData });
 	};
 
-	const toggleRow = (arr: [id: string, role: string]) => {
-		setSelection((current: any) => {
-			console.log("current selection: ", current);
-			return current.some((s: any) => s.includes(arr[0]))
-				? current.filter((item: any) => item[0] !== arr[0])
-				: [...current, [arr[0], arr[1]]];
-		});
-	};
+	const toggleRow = (id: string) =>
+		setSelection((current: any) =>
+			current.includes(id)
+				? current.filter((item: any) => item !== id)
+				: [...current, id]
+		);
 	const toggleAll = () =>
 		setSelection((current) =>
-			current.length === usersData.length
+			current.length === sellersData.length
 				? []
-				: usersData.map((item: any) => item._id)
+				: sellersData.map((item: any) => item.userId)
 		);
 
 	function filterData(data: RowData[], search: string) {
@@ -432,13 +366,13 @@ export default function Demo({ opened }: any) {
 	const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
 		const { value } = event.currentTarget;
 		setSearch(value);
-		usersData = sortData(usersData, {
+		sellersData = sortData(sellersData, {
 			sortBy,
 			reversed: reverseSortDirection,
 			search: value,
 		});
-		console.log(usersData);
-		setList({ users2: usersData });
+		console.log(sellersData);
+		setList({ sellers: sellersData });
 	};
 
 	function sortData(
@@ -485,30 +419,24 @@ export default function Demo({ opened }: any) {
 		return results;
 	}
 
-	console.log("users", list.users);
+	console.log("sellers", list.sellers);
 
-	users = list.users2.map((user: any) => {
+	sellers = list.sellers.map((user: any) => {
 		console.log("isArchived: ", user);
-		if (
-			user.seller
-				? !user.seller.isArchived
-				: user.buyer
-				? !user.buyer.isArchived
-				: !user.isArchived
-		) {
-			return (
-				<UsersBar
-					key={user.email}
-					user={user}
-					selection={selection}
-					toggleRow={toggleRow}
-					statut={statut === "" ? user.statut : statut}
-					ids={changedByBulkIds}
-					setList={setList}
-					list={list}
-				/>
-			);
-		}
+		// if (!user.isArchived) {
+		return (
+			<SellersBar
+				key={user.email}
+				user={user}
+				selection={selection}
+				toggleRow={toggleRow}
+				statut={statut === "" ? user.statut : statut}
+				ids={changedByBulkIds}
+				setList={setList}
+				list={list}
+			/>
+		);
+		// }
 	});
 
 	// console.log("opened: ", opened);
@@ -517,8 +445,8 @@ export default function Demo({ opened }: any) {
 		<div className={`${isOpened ? "lg:ml-[15%]" : ""} lg:m-auto lg:w-[85%]`}>
 			{/* <div className="lg:w-[85%] lg:m-auto"> */}
 			<div className="flex gap-3">
-				<p className="text-2xl mb-3 font-semibold">Tous les utilisateurs</p>
-				<Link href={"/ajouter-acheteur"}>
+				<p className="text-2xl mb-3 font-semibold">Vendeurs</p>
+				<Link href={"/ajouter-vendeur"}>
 					<IconCirclePlus size={35} />
 				</Link>
 			</div>
@@ -604,7 +532,7 @@ export default function Demo({ opened }: any) {
 								// console.log(datax.data.sellersOcc);
 								// setSortedData(datax.data.sellersOcc);
 								// console.log("search by dates data: ", datax.data.sellersOcc);
-								setList({ buyers: datax.data.buyersOcc });
+								setList({ sellers: datax.data.sellersOcc });
 							}}
 						>
 							Rechercher
@@ -665,27 +593,26 @@ export default function Demo({ opened }: any) {
 								<th style={{ width: 40 }}>
 									<Checkbox
 										onChange={toggleAll}
-										checked={selection.length === usersData.length}
+										checked={selection.length === sellersData.length}
 										indeterminate={
 											false
 											// selection.length > 0 &&
-											// selection.length !== usersData.length
+											// selection.length !== sellersData.length
 										}
 										transitionDuration={0}
 									/>
 								</th>
 								<th className="hidden lg:table-cell">ID</th>
-								<th className="">Société</th>
-								<th className="hidden lg:table-cell">Pseudo</th>
-								{/* <Th
+								<th className="lg:hidden">Société</th>
+								<Th
 									sorted={sortBy === "nomEntreprise"}
 									reversed={reverseSortDirection}
 									onSort={() => setSorting("nomEntreprise")}
 									tailwind={"hidden lg:table-cell"}
 								>
 									<p className="">Société</p>
-								</Th> */}
-								{/* <Th
+								</Th>
+								<Th
 									sorted={sortBy === "pseudo"}
 									reversed={reverseSortDirection}
 									onSort={() => setSorting("pseudo")}
@@ -693,7 +620,7 @@ export default function Demo({ opened }: any) {
 									tailwind={"hidden lg:table-cell"}
 								>
 									Pseudo
-								</Th> */}
+								</Th>
 								<Th
 									sorted={sortBy === "email"}
 									reversed={reverseSortDirection}
@@ -706,19 +633,19 @@ export default function Demo({ opened }: any) {
 								{/* lg:table-cell */}
 								<th className="hidden lg:table-cell">Type</th>
 								<th className="hidden lg:table-cell ">Type du compte</th>
-								{/*<th className="hidden lg:table-cell">Verifié</th>*/}
-								<th className="hidden lg:table-cell ">Enregistré le</th>
-								<th className="">Statut</th>
+								<th className="hidden lg:table-cell">Verifié</th>
+								<th className="hidden lg:table-cell ">enregistré le</th>
+								<th className=" ">Statut</th>
 								<th>Actions</th>
 							</tr>
 						</thead>
 						<tbody className="">
-							{users.length === 0 ? (
+							{sellers.length === 0 ? (
 								<div className="ml-[25%]">
 									<div>No results found</div>
 								</div>
 							) : (
-								users.reverse()
+								sellers.reverse()
 							)}
 						</tbody>
 					</Table>

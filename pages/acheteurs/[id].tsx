@@ -208,7 +208,7 @@ function UpdatebuyerByAdmin({ buyer, opened }: any) {
 								mobileNumber: Number(user.buyer.mobileNumber),
 								fixNumber: Number(user.buyer.fixNumber),
 								firstName: user.buyer.firstName,
-								email: user.buyer.email,
+								// email: user.buyer.email,
 								password: user.buyer.password,
 								// pseudo: user.buyer.pseudo,
 								website: user.buyer.website,
@@ -616,7 +616,7 @@ function UpdatebuyerByAdmin({ buyer, opened }: any) {
 						data={CountriesData2}
 						value={user.buyer.countryOfResidency}
 					/>
-					<TextInput
+					{/* <TextInput
 						classNames={{
 							root: "pl-3 pr-3 w-full",
 							wrapper: "w-full",
@@ -638,7 +638,7 @@ function UpdatebuyerByAdmin({ buyer, opened }: any) {
 							})
 						}
 						value={user.buyer.email}
-					/>
+					/> */}
 					<TextInput
 						classNames={{
 							root: "pl-3 pr-3 w-full",
