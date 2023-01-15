@@ -16,7 +16,10 @@ import bell from "../public/bell.svg";
 import { nationalities } from "../helpers/countries";
 import PhoneInput from "react-phone-input-2";
 import "react-phone-input-2/lib/material.css";
-import { CreateBuyerInput, useCreateBuyer } from "../hooks/useCreateBuyer";
+import {
+	CreateBuyerInput,
+	useCreateBuyerByAdm,
+} from "../hooks/useCreateBuyerByAdmin";
 import { IconChevronDown, IconChevronRight } from "@tabler/icons";
 import NotLoggedLayout from "../components/notLoggedLayout";
 import { useRouter } from "next/router";
@@ -79,7 +82,7 @@ function Demo() {
 
 	const [fixTel, setFixTel] = useState(0);
 	const [obj, setObj] = useState<CreateBuyerInput>(initialValues);
-	const [createBuyer] = useCreateBuyer();
+	const [createBuyerByAdm] = useCreateBuyerByAdm();
 	const [pageSelected, setPageSelected] = useState("general");
 	const [phoneCountry, setPhoneCountry] = useState("fr");
 	const router = useRouter();
@@ -87,7 +90,7 @@ function Demo() {
 	async function handleSubmit(values: CreateBuyerInput) {
 		try {
 			console.log(values);
-			const buyers = await createBuyer({
+			const buyers = await createBuyerByAdm({
 				variables: {
 					createBuyerInput: {
 						nomEntreprise: values.nomEntreprise,

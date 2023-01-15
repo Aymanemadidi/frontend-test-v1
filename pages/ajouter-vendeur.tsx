@@ -16,10 +16,14 @@ import bell from "../public/bell.svg";
 import { nationalities } from "../helpers/countries";
 import PhoneInput from "react-phone-input-2";
 import "react-phone-input-2/lib/material.css";
-import { CreateSellerInput, useCreateSeller } from "../hooks/useCreateSeller";
+// import { CreateSellerInput, useCreateSeller } from "../hooks/useCreateSeller";
 import { IconChevronDown, IconChevronRight } from "@tabler/icons";
 import NotLoggedLayout from "../components/notLoggedLayout";
 import { useRouter } from "next/router";
+import {
+	CreateSellerInput,
+	useCreateSellerByAdm,
+} from "../hooks/useCreateSellerByAdmin";
 
 const d = new Date();
 
@@ -85,13 +89,13 @@ function Demo() {
 
 	const [fixTel, setFixTel] = useState(0);
 	const [obj, setObj] = useState<CreateSellerInput>(initialValues);
-	const [createSeller] = useCreateSeller();
+	const [createSellerByAdm] = useCreateSellerByAdm();
 	const [pageSelected, setPageSelected] = useState("general");
 	const router = useRouter();
 
 	async function handleSubmit(values: CreateSellerInput) {
 		try {
-			const seller = await createSeller({
+			const seller = await createSellerByAdm({
 				variables: {
 					createSellerInput: {
 						nomEntreprise: values.nomEntreprise,
