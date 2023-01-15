@@ -13,6 +13,7 @@ import {
 	IconShoppingBag,
 	IconStar,
 	IconTruck,
+	IconUser,
 } from "@tabler/icons";
 import { FaqSimple } from "../components/Accordion";
 import { Th } from "../pages/vendeurs";
@@ -202,7 +203,7 @@ const Dashboard = () => {
 						</div>
 					</div>
 					<div className="flex gap-5 w-full">
-						<div className="bg-white md:w-1/2 py-[25px] text-black rounded-3xl shadow-xl">
+						<div className="bg-white w-1/2 py-[25px] text-black rounded-3xl shadow-xl">
 							<div className="flex flex-col justify-start gap-[30px] ml-5 font-semibold">
 								<div>
 									<p className="font-semibold">Envois en attente</p>
@@ -219,7 +220,7 @@ const Dashboard = () => {
 								</div>
 							</div>
 						</div>
-						<div className="bg-white md:w-1/2 py-[25px] text-black rounded-3xl shadow-xl">
+						<div className="bg-white w-1/2 py-[25px] text-black rounded-3xl shadow-xl">
 							<div className="flex flex-col justify-start gap-[30px] ml-5 font-semibold">
 								<div>
 									<p className="font-semibold">Mes produits favoris</p>
@@ -241,15 +242,15 @@ const Dashboard = () => {
 						<div className="bg-white w-1/2 py-[25px] text-black rounded-3xl shadow-xl">
 							<div className="flex flex-col justify-start gap-[30px] ml-5 font-semibold">
 								<div>
-									<p className="font-semibold">Envois en attente</p>
+									<p className="font-semibold">Évaluations su jour</p>
 								</div>
 								<div className="flex justify-between">
 									<div>
 										<p>10</p>
 									</div>
 									<div className="mr-[30px]">
-										<ThemeIcon color={"#5b73fd"} radius="xl" size="lg">
-											<IconTruck size={22} />
+										<ThemeIcon color={"purple"} radius="xl" size="lg">
+											<IconUser size={22} />
 										</ThemeIcon>
 									</div>
 								</div>
@@ -258,14 +259,14 @@ const Dashboard = () => {
 						<div className="bg-white w-1/2 py-[25px] text-black rounded-3xl shadow-xl">
 							<div className="flex flex-col justify-start gap-[30px] ml-5 font-semibold">
 								<div>
-									<p className="font-semibold">Mes produits favoris</p>
+									<p className="font-semibold">Fournisseur preferés</p>
 								</div>
 								<div className="flex justify-between">
 									<div>
 										<p>25</p>
 									</div>
 									<div className="mr-[30px]">
-										<ThemeIcon color={"#5bdefd"} radius="xl" size="lg">
+										<ThemeIcon color={"green"} radius="xl" size="lg">
 											<IconStar size={22} />
 										</ThemeIcon>
 									</div>
