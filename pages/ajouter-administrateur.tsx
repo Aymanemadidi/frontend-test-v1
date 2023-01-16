@@ -74,11 +74,13 @@ function Demo() {
 						firstName: values.firstName,
 						email: values.email,
 						password: values.password,
+						statut: "actif",
+						isArchived: false,
 					},
 				},
 			});
 			console.log(user);
-			router.push("/utilisateurs");
+			router.push("/administrateurs");
 		} catch (error) {
 			alert(error);
 		}

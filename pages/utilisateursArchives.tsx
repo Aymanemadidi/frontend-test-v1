@@ -196,10 +196,7 @@ export default function Demo({ opened }: any) {
 							<span className="text-red-400">Inactif</span> ?
 						</p>
 					) : (
-						<p>
-							Voulez vous rendre ces utilisateurs{" "}
-							<span className="text-red-400">Archivé</span> ?
-						</p>
+						<p>Voulez vous restaurer ces utilisateurs </p>
 					)}
 				</p>
 			),
@@ -250,7 +247,7 @@ export default function Demo({ opened }: any) {
 									variables: {
 										_id: s[0],
 										updateBuyerInput: {
-											isArchived: true,
+											isArchived: false,
 										},
 									},
 								});
@@ -259,7 +256,7 @@ export default function Demo({ opened }: any) {
 									variables: {
 										_id: s[0],
 										updateSellerInput: {
-											isArchived: true,
+											isArchived: false,
 										},
 									},
 								});
@@ -268,7 +265,7 @@ export default function Demo({ opened }: any) {
 									variables: {
 										_id: s[0],
 										updateUserInput: {
-											isArchived: true,
+											isArchived: false,
 										},
 									},
 								});
@@ -543,13 +540,13 @@ export default function Demo({ opened }: any) {
 	console.log("users", list.users);
 
 	users = list.users2.map((user: any) => {
-		// console.log("isArchived: ", user);
+		console.log("isArchived: ", user);
 		if (
 			user.seller
-				? !user.seller.isArchived
+				? user.seller.isArchived
 				: user.buyer
-				? !user.buyer.isArchived
-				: !user.isArchived
+				? user.buyer.isArchived
+				: user.isArchived
 		) {
 			return (
 				<UsersBar
@@ -573,28 +570,7 @@ export default function Demo({ opened }: any) {
 		<div className={`${isOpened ? "lg:ml-[15%]" : ""} lg:m-auto lg:w-[85%]`}>
 			{/* <div className="lg:w-[85%] lg:m-auto"> */}
 			<div className="flex gap-3">
-				<p className="text-2xl mb-3 font-semibold">Tous les utilisateurs</p>
-				<Select
-					// label="Ajouter"
-					classNames={{
-						// root: "basis-3/5",
-						input: "rounded-2xl",
-					}}
-					mb="md"
-					icon={<IconPlus size={14} stroke={1.5} />}
-					placeholder="Ajouter"
-					data={[
-						{ label: "Un Vendeur", value: "vendeur" },
-						{ label: "Un Vendeur Pro", value: "vendeur?isPro=true" },
-						{ label: "Un Acheteur", value: "acheteur" },
-						{ label: "Un Administrateur", value: "administrateur" },
-					]}
-					onChange={(e) => {
-						if (e !== "") {
-							router.push(`/ajouter-${e}`);
-						}
-					}}
-				/>
+				<p className="text-2xl mb-3 font-semibold">Utilisateurs archivés</p>
 				{/* <Link href={"/ajouter-acheteur"}>
 					<IconCirclePlus size={35} />
 				</Link> */}
@@ -784,7 +760,6 @@ export default function Demo({ opened }: any) {
 									console.log("rangeValue:", rangeValue);
 									let ranges = getStartAndEndFromRange(rangeValue);
 									console.log("ranges", ranges);
-									console.log("email to search: ", emailToSearch);
 									const datax = await getAllUsersByOc({
 										variables: {
 											email: emailToSearch,
@@ -835,7 +810,7 @@ export default function Demo({ opened }: any) {
 						openModal(e); // this actually works just need to update the ui
 					}}
 					data={[
-						{ value: "archive", label: "Archiver" },
+						{ value: "restore", label: "restaurer" },
 						{ value: "actif", label: "activer" },
 						{ value: "inactif", label: "desactiver" },
 					]}

@@ -28,8 +28,11 @@ const mockdata = [
 		initiallyOpened: true,
 		links: [
 			{ label: "Tous", link: "/utilisateurs" },
+			{ label: "Administrateurs", link: "/administrateurs" },
 			{ label: "Vendeurs", link: "/vendeurs" },
+			{ label: "Vendeurs Pro", link: "/vendeursPro" },
 			{ label: "Acheteurs", link: "/acheteurs" },
+			{ label: "Utilisateurs Archivés", link: "/utilisateursArchives" },
 			// { label: "Real time", link: "/" },
 		],
 	},

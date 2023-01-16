@@ -59,7 +59,7 @@ interface UpdateSellerInput {
 	statut: string;
 }
 
-function SellersBar({
+function AdminsBar({
 	user,
 	selection,
 	toggleRow,
@@ -68,14 +68,16 @@ function SellersBar({
 	setList,
 	list,
 }: any) {
-	const [sellerStatut, setSellerStatut] = useState(user.statut);
-	const [statutModeration, setStatutModeration] = useState(
-		user.statut_moderation
-	);
-	const selected = selection.includes(user.userId);
+	const [adminStatut, setAdminStatut] = useState(user.statut);
+	// const [statutModeration, setStatutModeration] = useState(
+	// 	user.statut_moderation
+	// );
+	const selected = selection.includes(user._id);
 	const [showInput, setShowInput] = useState(false);
 
 	const router = useRouter();
+
+	console.log("date: ", user.created_at);
 
 	const date = `${user.created_at.slice(0, 10)} at ${user.created_at.slice(
 		11,
@@ -95,20 +97,19 @@ function SellersBar({
 	// 	}
 	// }, []);
 
-	// console.log(user);
+	console.log("from AdminsBar: ", user);
 
 	useEffect(() => {
-		if (statut !== "" && ids.includes(user.userId)) {
-			setSellerStatut(statut);
+		if (statut !== "" && ids.includes(user._id)) {
+			setAdminStatut(statut);
 		}
 	});
 
+	console.log(user);
+
 	const UPDATE_STATUT = gql`
-		mutation updateSeller(
-			$_id: String!
-			$updateSellerInput: UpdateSellerInput!
-		) {
-			updateSeller(_id: $_id, updateSellerInput: $updateSellerInput) {
+		mutation updateUser($_id: String!, $updateUserInput: UpdateUserInput!) {
+			updateUser(_id: $_id, updateUserInput: $updateUserInput) {
 				_id
 				firstName
 				email
@@ -116,11 +117,24 @@ function SellersBar({
 		}
 	`;
 
+	// const UPDATE_STATUT = gql`
+	// 	mutation updateSeller(
+	// 		$_id: String!
+	// 		$updateSellerInput: UpdateSellerInput!
+	// 	) {
+	// 		updateSeller(_id: $_id, updateSellerInput: $updateSellerInput) {
+	// 			_id
+	// 			firstName
+	// 			email
+	// 		}
+	// 	}
+	// `;
+
 	const [updateStatut, { error, loading, data }] = useMutation(UPDATE_STATUT);
 
 	function getSelectStyles(statut: string) {
 		if (statut === "new") {
-			return "bg-orange-500 ";
+			return "bg-purple-500 ";
 		} else if (statut === "actif") {
 			return "bg-green-500 ";
 		} else if (statut === "attente") {
@@ -151,25 +165,16 @@ function SellersBar({
 				try {
 					await updateStatut({
 						variables: {
-							_id: user.userId,
-							updateSellerInput: {
+							_id: user._id,
+							updateBuyerInput: {
 								isArchived: true,
 							},
 						},
 					});
-					if (user.isPro) {
-						let test = list.sellersPro.filter(
-							(seller: any) => seller.userId !== user.userId
-						);
-						setList({ sellersPro: test });
-					} else {
-						let test = list.sellers.filter(
-							(seller: any) => seller.userId !== user.userId
-						);
-						setList({ sellers: test });
-					}
+					// console.log("list:", list);
+					let test = list.buyers.filter((buyer: any) => buyer._id !== user._id);
 					// console.log("test: ", test);
-
+					setList({ buyers: test });
 					showNotification({
 						title: "Archivage",
 						message: "Archivage fait avec success",
@@ -220,18 +225,18 @@ function SellersBar({
 			),
 			labels: { confirm: "Confirmer", cancel: "Abandonner" },
 			onCancel: () => {
-				setSellerStatut(sellerStatut);
+				setAdminStatut(adminStatut);
 			},
 			onConfirm: async () => {
 				await updateStatut({
 					variables: {
-						_id: user.userId,
-						updateSellerInput: {
+						_id: user._id,
+						updateUserInput: {
 							statut: e,
 						},
 					},
 				});
-				setSellerStatut(() => e);
+				setAdminStatut(() => e);
 				showNotification({
 					title: "Changement de statut",
 					message: "Statut changé avec success",
@@ -241,10 +246,6 @@ function SellersBar({
 				});
 			},
 		});
-
-	if (user.email === "aymaneSeller6@gmail.com") {
-		console.log("statutModeration: ", user.statut_moderation);
-	}
 	return (
 		<tr
 			key={user.email}
@@ -255,25 +256,25 @@ function SellersBar({
 					classNames={{
 						input: `${selected ? "bg-green-500" : ""}`,
 					}}
-					checked={selection.includes(user.userId)}
-					onChange={() => toggleRow(user.userId)}
+					checked={selection.includes(user._id)}
+					onChange={() => toggleRow(user._id)}
 					// disabled={user.statut === "new"}
 					transitionDuration={0}
 				/>
 			</td>
-			{/* <td className="text-xs font-light">{user.userId}</td> */}
+			{/* <td className="text-xs font-light">{user._id}</td> */}
 			<td className="hidden lg:table-cell text-xs font-light">
 				{user._id.slice(0, 5)}
 			</td>
-			<td className="text-xs font-light">{user.nomEntreprise}</td>
-			<td className="hidden lg:table-cell text-xs font-light">
+			{/* <td className="text-xs font-light">{user.nomEntreprise}</td> */}
+			{/* <td className="hidden lg:table-cell text-xs font-light">
 				<span
 					className={`${showInput ? "hidden" : ""}`}
 					onDoubleClick={() => setShowInput(true)}
 				>
 					{user.pseudo}
 				</span>
-				{/* {user.pseudo} */}
+				{user.pseudo}
 				<form
 					className={`${showInput ? "" : "hidden"}`}
 					action=""
@@ -289,19 +290,19 @@ function SellersBar({
 						value={user.pseudo}
 					/>
 				</form>
-			</td>
+			</td> */}
 			<td className="hidden lg:table-cell text-xs font-light">{user.email}</td>
-			<td className="hidden lg:table-cell text-xs font-light">
-				{user.isPro ? "Pro" : "Vendeur"}
-			</td>
-			<td className=" hidden lg:table-cell text-xs font-light">
+			{/* <td className="hidden lg:table-cell text-xs font-light">
+				{user.typeVendeur ? "Vendeur Pro" : "Vendeur"}
+			</td> */}
+			{/* <td className=" hidden lg:table-cell text-xs font-light">
 				{user.typeCompte ? "Auto Entrepreneur" : "Entreprise"}
-			</td>
-			<td className="hidden lg:table-cell">
+			</td> */}
+			{/* <td className="hidden lg:table-cell">
 				<p className="text-xs font-light">
 					{user.verified ? "Verifié" : "Non"}
 				</p>
-			</td>
+			</td> */}
 			<td className="hidden lg:table-cell">
 				<p className="text-xs font-light">
 					{jour}/{mois}/{annee}
@@ -311,57 +312,34 @@ function SellersBar({
 				<Select
 					classNames={{
 						input: `${getSelectStyles(
-							sellerStatut
+							adminStatut
 						)} text-white rounded-2xl text-xs font-normal`,
 					}}
 					rightSection={<IconChevronDown size={14} color={"white"} />}
 					rightSectionWidth={30}
-					defaultValue={
-						user.statut_moderation === "true" && sellerStatut === "actif"
-							? "actif"
-							: sellerStatut
-					}
-					value={sellerStatut}
+					// defaultValue={"buyerStatut"}
+					value={adminStatut}
 					// defaultValue={user.statut_moderation === "true" ? "actif" : user.statut}
 					onChange={async (e) => {
 						openModal(e);
 					}}
-					data={
-						statutModeration === "true"
-							? [
-									{
-										value: "actif",
-										label: getLabel("actif"),
-										disabled: user.statut_moderation === "false",
-									},
-									// { value: "attente", label: getLabel("attente") },
-									{
-										value: "inactif",
-										label: getLabel("inactif"),
-										disabled: user.statut_moderation === "false",
-									},
-							  ]
-							: [
-									{
-										value: "actif",
-										label: getLabel("actif"),
-										disabled: user.statut_moderation === "false",
-									},
-									// { value: "attente", label: getLabel("attente") },
-									{
-										value: "inactif",
-										label: getLabel("inactif"),
-										disabled: user.statut_moderation === "false",
-									},
-									{ value: "new", label: getLabel("attente") },
-							  ]
-					}
+					data={[
+						{
+							value: "actif",
+							label: getLabel("actif"),
+						},
+						// { value: "attente", label: getLabel("attente") },
+						{
+							value: "inactif",
+							label: getLabel("inactif"),
+						},
+					]}
 				/>
 			</td>
 			<td className="flex gap-3">
 				<Link
 					href={{
-						pathname: `/vendeurs/${user.userId}`,
+						pathname: `/administrateurs/${user._id}`,
 					}}
 				>
 					<button>
@@ -387,4 +365,4 @@ function SellersBar({
 	);
 }
 
-export default SellersBar;
+export default AdminsBar;

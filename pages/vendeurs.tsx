@@ -261,7 +261,7 @@ export default function Demo({ opened }: any) {
 				nomEntreprise
 				numeroSiret
 				statut_moderation
-				typeVendeur
+				isPro
 				typeCompte
 				created_at
 				statut
@@ -292,7 +292,7 @@ export default function Demo({ opened }: any) {
 				nomEntreprise
 				numeroSiret
 				statut_moderation
-				typeVendeur
+				isPro
 				typeCompte
 				created_at
 				statut

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Select, Checkbox, createStyles, TextInput } from "@mantine/core";
-import { IconChevronDown, IconSearch } from "@tabler/icons";
+import { IconArrowBackUp, IconChevronDown, IconSearch } from "@tabler/icons";
 import Image from "next/image";
 import editIcon from "../public/edit-icon.svg";
 import removeIcon from "../public/remove-icon.svg";
@@ -237,7 +237,7 @@ function BuyersBar({
 							variables: {
 								_id: user._id,
 								updateUserInput: {
-									statut: e,
+									isArchived: true,
 								},
 							},
 						});
@@ -260,6 +260,80 @@ function BuyersBar({
 				} catch (error) {
 					showNotification({
 						title: "Archivahe impossible",
+						message: "Erreur",
+						color: "red",
+						autoClose: 5000,
+						bottom: "630px",
+					});
+				}
+			},
+		});
+
+	const restoreModal = (e: any) =>
+		openConfirmModal({
+			className: "mt-[200px]",
+			confirmProps: {
+				className: "bg-green-500 hover:bg-green-600 rounded-2xl",
+			},
+			cancelProps: {
+				className: "rounded-2xl",
+			},
+			title: "Veuillez confirmer votre action",
+			children: (
+				<p>
+					<p>Voulez vous vraiment restaurer cet utilisateur</p>
+				</p>
+			),
+			labels: { confirm: "Confirmer", cancel: "Abandonner" },
+			onCancel: () => {},
+			onConfirm: async () => {
+				try {
+					if (user.buyer) {
+						await updateStatut({
+							variables: {
+								_id: user._id,
+								updateBuyerInput: {
+									isArchived: false,
+								},
+							},
+						});
+					} else if (user.seller) {
+						await updateStatut({
+							variables: {
+								_id: user._id,
+								updateSellerInput: {
+									isArchived: false,
+								},
+							},
+						});
+					} else {
+						await updateStatut({
+							variables: {
+								_id: user._id,
+								updateUserInput: {
+									isArchived: false,
+								},
+							},
+						});
+					}
+					// console.log("list:", list);
+					let test = list.users2.filter((user2: any) => user2._id !== user._id);
+					// console.log("test: ", test);
+					setList({ users2: test });
+					showNotification({
+						title: "Restorage",
+						message: "Restorage faite avec success",
+						color: "green",
+						autoClose: 5000,
+						bottom: "630px",
+						// top: "0px",
+						// classNames: {
+						// 	root: "translate-y-[-500px]",
+						// },
+					});
+				} catch (error) {
+					showNotification({
+						title: "Restorage impossible",
 						message: "Erreur",
 						color: "red",
 						autoClose: 5000,
@@ -401,7 +475,9 @@ function BuyersBar({
 			<td className="hidden lg:table-cell text-xs font-light">{user.email}</td>
 			<td className="hidden lg:table-cell text-xs font-light">
 				{user.role === "Seller"
-					? "Vendeur"
+					? user.seller?.isPro === true
+						? "Vendeur Pro"
+						: "Vendeur"
 					: user.role === "Buyer"
 					? "Acheteur"
 					: "Admin"}
@@ -488,9 +564,28 @@ function BuyersBar({
 						/>
 					</button>
 				</Link>
+				<button
+					className={`mt-1 ${
+						user.seller?.isArchived ||
+						user.buyer?.isArchived ||
+						user?.isArchived
+							? ""
+							: "hidden"
+					}`}
+					onClick={restoreModal}
+				>
+					<IconArrowBackUp color={"#676C86"} />
+				</button>
 				<button>
 					<Image
-						className={`translate-y-2`}
+						// className={`translate-y-2`}
+						className={`mt-1 ${
+							user.seller?.isArchived === false ||
+							user.buyer?.isArchived === false ||
+							user?.isArchived === false
+								? ""
+								: "hidden"
+						}`}
 						alt="edit"
 						src={removeIcon}
 						height={20}

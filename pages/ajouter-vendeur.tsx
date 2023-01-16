@@ -92,6 +92,7 @@ function Demo() {
 	const [createSellerByAdm] = useCreateSellerByAdm();
 	const [pageSelected, setPageSelected] = useState("general");
 	const router = useRouter();
+	console.log("router.query: ", router.query);
 
 	async function handleSubmit(values: CreateSellerInput) {
 		try {
@@ -130,6 +131,7 @@ function Demo() {
 						statut_moderation: false,
 						statut: "new",
 						isArchived: false,
+						isPro: router.query.isPro === "true" ? true : false,
 					},
 				},
 			});
@@ -255,7 +257,7 @@ function Demo() {
 					pageSelected === "general" ? "flex" : "hidden"
 				} flex-col justify-center w-full mt-3`}
 			>
-				<div>Ajouter Vendeur</div>
+				<div>Ajouter Vendeur {router.query.isPro === "true" ? "Pro" : ""}</div>
 				{/* <div className="flex justify-center bg-slate-200 w-4/5 rounded-2xl"> */}
 				<div className="flex flex-col items-start justify-start pb-[25px] pt-[20px] bg-slate-100 w-4/5 rounded-2xl shadow-2xl">
 					<h2 className="ml-4 mb-2 font-medium">Informations entreprise:</h2>
