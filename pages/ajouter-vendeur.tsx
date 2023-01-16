@@ -16,9 +16,14 @@ import bell from "../public/bell.svg";
 import { nationalities } from "../helpers/countries";
 import PhoneInput from "react-phone-input-2";
 import "react-phone-input-2/lib/material.css";
-import { CreateSellerInput, useCreateSeller } from "../hooks/useCreateSeller";
+// import { CreateSellerInput, useCreateSeller } from "../hooks/useCreateSeller";
 import { IconChevronDown, IconChevronRight } from "@tabler/icons";
 import NotLoggedLayout from "../components/notLoggedLayout";
+import { useRouter } from "next/router";
+import {
+	CreateSellerInput,
+	useCreateSellerByAdm,
+} from "../hooks/useCreateSellerByAdmin";
 
 const d = new Date();
 
@@ -84,50 +89,57 @@ function Demo() {
 
 	const [fixTel, setFixTel] = useState(0);
 	const [obj, setObj] = useState<CreateSellerInput>(initialValues);
-	const [createSeller] = useCreateSeller();
+	const [createSellerByAdm] = useCreateSellerByAdm();
 	const [pageSelected, setPageSelected] = useState("general");
+	const router = useRouter();
+	console.log("router.query: ", router.query);
 
 	async function handleSubmit(values: CreateSellerInput) {
-		console.log(values);
-		const tokens = await createSeller({
-			variables: {
-				createSellerInput: {
-					nomEntreprise: values.nomEntreprise,
-					lastName: values.lastName,
-					numeroSiret: Number(values.numeroSiret),
-					groupe: values.groupe,
-					codeNAF: values.codeNAF,
-					codePostal: values.codePostal,
-					ville: values.ville,
-					role: "Seller",
-					IBAN: values.IBAN,
-					dateOfBirth: values.dateOfBirth,
-					nationality: values.nationality,
-					adresse: values.adresse,
-					countryOfResidency: values.countryOfResidence,
-					departement: values.departement,
-					mobileNumber: Number(values.numPortable),
-					fixNumber: Number(values.numFixe),
-					firstName: values.firstName,
-					email: values.email,
-					// pseudo: values.nomEntreprise,
-					password: values.password,
-					website: values.website,
-					pays: values.pays,
-					numberOfEmployees: "<10",
-					companyAdresse: "",
-					civilite: "",
-					tvaIntra: "",
-					companyCodePostal: "",
-					companyVille: "",
-					companyPays: "",
-					statut_moderation: false,
-					statut: "new",
-					isArchived: false,
+		try {
+			const seller = await createSellerByAdm({
+				variables: {
+					createSellerInput: {
+						nomEntreprise: values.nomEntreprise,
+						lastName: values.lastName,
+						numeroSiret: Number(values.numeroSiret),
+						groupe: values.groupe,
+						codeNAF: values.codeNAF,
+						codePostal: values.codePostal,
+						ville: values.ville,
+						role: "Seller",
+						IBAN: values.IBAN,
+						dateOfBirth: values.dateOfBirth,
+						nationality: values.nationality,
+						adresse: values.adresse,
+						countryOfResidency: values.countryOfResidence,
+						departement: values.departement,
+						mobileNumber: Number(values.numPortable),
+						fixNumber: Number(values.numFixe),
+						firstName: values.firstName,
+						email: values.email,
+						// pseudo: values.nomEntreprise,
+						password: values.password,
+						website: values.website,
+						pays: values.pays,
+						numberOfEmployees: "<10",
+						companyAdresse: "",
+						civilite: "",
+						tvaIntra: "",
+						companyCodePostal: "",
+						companyVille: "",
+						companyPays: "",
+						statut_moderation: false,
+						statut: "new",
+						isArchived: false,
+						isPro: router.query.isPro === "true" ? true : false,
+					},
 				},
-			},
-		});
-		console.log(tokens);
+			});
+			console.log(seller);
+			router.push("/vendeurs");
+		} catch (error) {
+			alert(error);
+		}
 	}
 
 	const form = useForm({
@@ -168,8 +180,8 @@ function Demo() {
 	});
 
 	return (
-		<div className="flex justify-center gap-[60px] ml-[10%]  md:ml-[15%]">
-			<div className="w-[420px] justify-start bg-white shadow-lg rounded-2xl">
+		<div className="flex justify-center gap-[60px] ml-[10%]  md:ml-[15%] w-[100%] lg:w-[90%]">
+			<div className="hidden lg:block w-[420px] justify-start bg-white shadow-lg rounded-2xl">
 				<div className="flex flex-col gap-5 ml-[30px] mt-[30px]">
 					<div>
 						<p className="text-lg">Menu</p>
@@ -245,7 +257,7 @@ function Demo() {
 					pageSelected === "general" ? "flex" : "hidden"
 				} flex-col justify-center w-full mt-3`}
 			>
-				<div>Ajouter Vendeur</div>
+				<div>Ajouter Vendeur {router.query.isPro === "true" ? "Pro" : ""}</div>
 				{/* <div className="flex justify-center bg-slate-200 w-4/5 rounded-2xl"> */}
 				<div className="flex flex-col items-start justify-start pb-[25px] pt-[20px] bg-slate-100 w-4/5 rounded-2xl shadow-2xl">
 					<h2 className="ml-4 mb-2 font-medium">Informations entreprise:</h2>

@@ -157,12 +157,19 @@ function SellersBar({
 							},
 						},
 					});
-					// console.log("list:", list);
-					let test = list.sellers.filter(
-						(seller: any) => seller.userId !== user.userId
-					);
+					if (user.isPro) {
+						let test = list.sellersPro.filter(
+							(seller: any) => seller.userId !== user.userId
+						);
+						setList({ sellersPro: test });
+					} else {
+						let test = list.sellers.filter(
+							(seller: any) => seller.userId !== user.userId
+						);
+						setList({ sellers: test });
+					}
 					// console.log("test: ", test);
-					setList({ sellers: test });
+
 					showNotification({
 						title: "Archivage",
 						message: "Archivage fait avec success",
@@ -285,7 +292,7 @@ function SellersBar({
 			</td>
 			<td className="hidden lg:table-cell text-xs font-light">{user.email}</td>
 			<td className="hidden lg:table-cell text-xs font-light">
-				{user.typeVendeur ? "Vendeur Pro" : "Vendeur"}
+				{user.isPro ? "Pro" : "Vendeur"}
 			</td>
 			<td className=" hidden lg:table-cell text-xs font-light">
 				{user.typeCompte ? "Auto Entrepreneur" : "Entreprise"}

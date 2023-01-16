@@ -71,7 +71,7 @@ function Login() {
 		});
 		// console.log(data.loginUser._id);
 		// localStorage.setItem("id", data.loginUser._id);
-		router.push("/all-sellers");
+		router.push("/dashboard");
 	}
 
 	const form = useForm({

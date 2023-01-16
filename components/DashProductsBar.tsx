@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Select, Checkbox, createStyles, TextInput } from "@mantine/core";
-import { IconArrowBackUp, IconChevronDown, IconSearch } from "@tabler/icons";
+import { IconChevronDown, IconSearch } from "@tabler/icons";
 import Image from "next/image";
 import editIcon from "../public/edit-icon.svg";
 import removeIcon from "../public/remove-icon.svg";
@@ -10,7 +10,6 @@ import { showNotification } from "@mantine/notifications";
 import { openConfirmModal, openModal } from "@mantine/modals";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { userAgent } from "next/server";
 
 let statutes = ["new", "actif", "attente", "inactif"];
 
@@ -31,6 +30,18 @@ const useStyles = createStyles((theme) => ({
 // 		return false;
 // 	}
 // }
+
+function getLabel(statut: string) {
+	if (statut === "new") {
+		return "Nouveau";
+	} else if (statut === "actif") {
+		return "Actif";
+	} else if (statut === "attente") {
+		return "En attente";
+	} else if (statut === "inactif") {
+		return "Inactif";
+	}
+}
 
 function getSelectStyles(statut: string) {
 	if (statut === "new") {
@@ -57,17 +68,7 @@ function BuyersBar({
 	setList,
 	list,
 }: any) {
-	const [userStatut, setUserStatut] = useState(
-		`${
-			user.seller !== null
-				? user.seller.statut
-				: user.buyer !== null
-				? user.buyer.statut
-				: user.statut
-		}`
-	);
-
-	console.log("user.statut: ", user.statut);
+	const [buyerStatut, setBuyerStatut] = useState(user.statut);
 	// const [statutModeration, setStatutModeration] = useState(
 	// 	user.statut_moderation
 	// );
@@ -76,19 +77,10 @@ function BuyersBar({
 
 	const router = useRouter();
 
-	const date = `${
-		user.seller
-			? user.seller.created_at.slice(0, 10)
-			: user.buyer
-			? user.buyer.created_at.slice(0, 10)
-			: "2023-01-05T13:53:55.756Z".slice(0, 10)
-	} at ${
-		user.seller
-			? user.seller.created_at.slice(11, 16)
-			: user.buyer
-			? user.buyer.created_at.slice(11, 16)
-			: "2023-01-05T13:53:55.756Z".slice(11, 16)
-	}`;
+	const date = `${user.created_at.slice(0, 10)} at ${user.created_at.slice(
+		11,
+		16
+	)}`;
 
 	const jour = date.slice(8, 10);
 	const mois = date.slice(5, 7);
@@ -105,32 +97,15 @@ function BuyersBar({
 
 	// console.log(user);
 
-	function getLabel(statut: string) {
-		if (statut === "new") {
-			if (user.buyer) {
-				return "Nouveau";
-			} else if (user.seller) {
-				return "En attente";
-			}
-		} else if (statut === "actif") {
-			return "Actif";
-		} else if (statut === "attente") {
-			return "En attente";
-		} else if (statut === "inactif") {
-			return "Inactif";
-		}
-	}
-
 	useEffect(() => {
-		if (
-			statut !== "" &&
-			ids.some((element: any) => element.includes(user._id))
-		) {
-			setUserStatut(statut);
+		if (statut !== "" && ids.includes(user.userId)) {
+			setBuyerStatut(statut);
 		}
 	});
 
-	let UPDATE_STATUT = gql`
+	console.log(user);
+
+	const UPDATE_STATUT = gql`
 		mutation updateBuyer($_id: String!, $updateBuyerInput: UpdateBuyerInput!) {
 			updateBuyer(_id: $_id, updateBuyerInput: $updateBuyerInput) {
 				_id
@@ -139,30 +114,6 @@ function BuyersBar({
 			}
 		}
 	`;
-	if (user.seller) {
-		UPDATE_STATUT = gql`
-			mutation updateSeller(
-				$_id: String!
-				$updateSellerInput: UpdateSellerInput!
-			) {
-				updateSeller(_id: $_id, updateSellerInput: $updateSellerInput) {
-					_id
-					firstName
-					email
-				}
-			}
-		`;
-	} else if (user.buyer === null) {
-		UPDATE_STATUT = gql`
-			mutation updateUser($_id: String!, $updateUserInput: UpdateUserInput!) {
-				updateUser(_id: $_id, updateUserInput: $updateUserInput) {
-					_id
-					firstName
-					email
-				}
-			}
-		`;
-	}
 
 	// const UPDATE_STATUT = gql`
 	// 	mutation updateSeller(
@@ -181,11 +132,7 @@ function BuyersBar({
 
 	function getSelectStyles(statut: string) {
 		if (statut === "new") {
-			if (user.buyer) {
-				return "bg-purple-500 ";
-			} else if (user.seller) {
-				return "bg-orange-500";
-			}
+			return "bg-purple-500 ";
 		} else if (statut === "actif") {
 			return "bg-green-500 ";
 		} else if (statut === "attente") {
@@ -214,38 +161,20 @@ function BuyersBar({
 			onCancel: () => {},
 			onConfirm: async () => {
 				try {
-					if (user.buyer) {
-						await updateStatut({
-							variables: {
-								_id: user._id,
-								updateBuyerInput: {
-									isArchived: true,
-								},
+					await updateStatut({
+						variables: {
+							_id: user.userId,
+							updateBuyerInput: {
+								isArchived: true,
 							},
-						});
-					} else if (user.seller) {
-						await updateStatut({
-							variables: {
-								_id: user._id,
-								updateSellerInput: {
-									isArchived: true,
-								},
-							},
-						});
-					} else {
-						await updateStatut({
-							variables: {
-								_id: user._id,
-								updateUserInput: {
-									isArchived: true,
-								},
-							},
-						});
-					}
+						},
+					});
 					// console.log("list:", list);
-					let test = list.users2.filter((user2: any) => user2._id !== user._id);
+					let test = list.buyers.filter(
+						(buyer: any) => buyer.userId !== user.userId
+					);
 					// console.log("test: ", test);
-					setList({ users2: test });
+					setList({ buyers: test });
 					showNotification({
 						title: "Archivage",
 						message: "Archivage fait avec success",
@@ -260,80 +189,6 @@ function BuyersBar({
 				} catch (error) {
 					showNotification({
 						title: "Archivahe impossible",
-						message: "Erreur",
-						color: "red",
-						autoClose: 5000,
-						bottom: "630px",
-					});
-				}
-			},
-		});
-
-	const restoreModal = (e: any) =>
-		openConfirmModal({
-			className: "mt-[200px]",
-			confirmProps: {
-				className: "bg-green-500 hover:bg-green-600 rounded-2xl",
-			},
-			cancelProps: {
-				className: "rounded-2xl",
-			},
-			title: "Veuillez confirmer votre action",
-			children: (
-				<p>
-					<p>Voulez vous vraiment restaurer cet utilisateur</p>
-				</p>
-			),
-			labels: { confirm: "Confirmer", cancel: "Abandonner" },
-			onCancel: () => {},
-			onConfirm: async () => {
-				try {
-					if (user.buyer) {
-						await updateStatut({
-							variables: {
-								_id: user._id,
-								updateBuyerInput: {
-									isArchived: false,
-								},
-							},
-						});
-					} else if (user.seller) {
-						await updateStatut({
-							variables: {
-								_id: user._id,
-								updateSellerInput: {
-									isArchived: false,
-								},
-							},
-						});
-					} else {
-						await updateStatut({
-							variables: {
-								_id: user._id,
-								updateUserInput: {
-									isArchived: false,
-								},
-							},
-						});
-					}
-					// console.log("list:", list);
-					let test = list.users2.filter((user2: any) => user2._id !== user._id);
-					// console.log("test: ", test);
-					setList({ users2: test });
-					showNotification({
-						title: "Restorage",
-						message: "Restorage faite avec success",
-						color: "green",
-						autoClose: 5000,
-						bottom: "630px",
-						// top: "0px",
-						// classNames: {
-						// 	root: "translate-y-[-500px]",
-						// },
-					});
-				} catch (error) {
-					showNotification({
-						title: "Restorage impossible",
 						message: "Erreur",
 						color: "red",
 						autoClose: 5000,
@@ -370,38 +225,18 @@ function BuyersBar({
 			),
 			labels: { confirm: "Confirmer", cancel: "Abandonner" },
 			onCancel: () => {
-				setUserStatut(userStatut);
+				setBuyerStatut(buyerStatut);
 			},
 			onConfirm: async () => {
-				if (user.buyer) {
-					await updateStatut({
-						variables: {
-							_id: user._id,
-							updateBuyerInput: {
-								statut: e,
-							},
+				await updateStatut({
+					variables: {
+						_id: user.userId,
+						updateBuyerInput: {
+							statut: e,
 						},
-					});
-				} else if (user.seller) {
-					await updateStatut({
-						variables: {
-							_id: user._id,
-							updateSellerInput: {
-								statut: e,
-							},
-						},
-					});
-				} else {
-					await updateStatut({
-						variables: {
-							_id: user._id,
-							updateUserInput: {
-								statut: e,
-							},
-						},
-					});
-				}
-				setUserStatut(() => e);
+					},
+				});
+				setBuyerStatut(() => e);
 				showNotification({
 					title: "Changement de statut",
 					message: "Statut changé avec success",
@@ -421,8 +256,8 @@ function BuyersBar({
 					classNames={{
 						input: `${selected ? "bg-green-500" : ""}`,
 					}}
-					checked={selection.some((s: any) => s.includes(user._id))}
-					onChange={() => toggleRow([user._id, user.role])}
+					checked={selection.includes(user.userId)}
+					onChange={() => toggleRow(user.userId)}
 					// disabled={user.statut === "new"}
 					transitionDuration={0}
 				/>
@@ -431,25 +266,15 @@ function BuyersBar({
 			<td className="hidden lg:table-cell text-xs font-light">
 				{user._id.slice(0, 5)}
 			</td>
-			<td className="text-xs font-light">
-				{user.seller
-					? user.seller.nomEntreprise
-					: user.buyer
-					? user.buyer.nomEntreprise
-					: ""}
-			</td>
+			<td className="text-xs font-light">{user.nomEntreprise}</td>
 			<td className="hidden lg:table-cell text-xs font-light">
 				<span
 					className={`${showInput ? "hidden" : ""}`}
 					onDoubleClick={() => setShowInput(true)}
 				>
-					{user.seller
-						? user.seller.pseudo
-						: user.buyer
-						? user.buyer.pseudo
-						: ""}
+					{user.pseudo}
 				</span>
-				{/* {user.seller ? user.seller.pseudo : user.buyer ? user.buyer.pseudo : ""} */}
+				{/* {user.pseudo} */}
 				<form
 					className={`${showInput ? "" : "hidden"}`}
 					action=""
@@ -462,34 +287,22 @@ function BuyersBar({
 					<input
 						type="text"
 						className="w-[100px] py-2 px-2 border"
-						value={
-							user.seller
-								? user.seller.pseudo
-								: user.buyer
-								? user.buyer.pseudo
-								: ""
-						}
+						value={user.pseudo}
 					/>
 				</form>
 			</td>
 			<td className="hidden lg:table-cell text-xs font-light">{user.email}</td>
-			<td className="hidden lg:table-cell text-xs font-light">
-				{user.role === "Seller"
-					? user.seller?.isPro === true
-						? "Vendeur Pro"
-						: "Vendeur"
-					: user.role === "Buyer"
-					? "Acheteur"
-					: "Admin"}
-			</td>
+			{/* <td className="hidden lg:table-cell text-xs font-light">
+				{user.typeVendeur ? "Vendeur Pro" : "Vendeur"}
+			</td> */}
 			<td className=" hidden lg:table-cell text-xs font-light">
-				{user.seller ? user.seller.typeCompte : user.buyer ? "Entreprise" : ""}
+				{user.typeCompte ? "Auto Entrepreneur" : "Entreprise"}
 			</td>
-			{/* <td className="hidden lg:table-cell">
+			<td className="hidden lg:table-cell">
 				<p className="text-xs font-light">
 					{user.verified ? "Verifié" : "Non"}
 				</p>
-			</td>*/}
+			</td>
 			<td className="hidden lg:table-cell">
 				<p className="text-xs font-light">
 					{jour}/{mois}/{annee}
@@ -499,24 +312,23 @@ function BuyersBar({
 				<Select
 					classNames={{
 						input: `${getSelectStyles(
-							userStatut
+							buyerStatut
 						)} text-white rounded-2xl text-xs font-normal`,
 					}}
 					rightSection={<IconChevronDown size={14} color={"white"} />}
 					rightSectionWidth={30}
-					// defaultValue={"userStatut"}
-					value={userStatut}
+					// defaultValue={"buyerStatut"}
+					value={buyerStatut}
 					// defaultValue={user.statut_moderation === "true" ? "actif" : user.statut}
 					onChange={async (e) => {
 						openModal(e);
 					}}
 					data={
-						userStatut === "new"
+						buyerStatut === "new"
 							? [
 									{
 										value: "actif",
 										label: getLabel("actif"),
-										disabled: user.seller?.statut_moderation === "false",
 									},
 									{
 										value: "new",
@@ -526,7 +338,6 @@ function BuyersBar({
 									{
 										value: "inactif",
 										label: getLabel("inactif"),
-										disabled: user.seller?.statut_moderation === "false",
 									},
 							  ]
 							: [
@@ -546,13 +357,7 @@ function BuyersBar({
 			<td className="flex gap-3">
 				<Link
 					href={{
-						pathname: `${
-							user.role === "Buyer"
-								? `/acheteurs/${user._id}`
-								: user.role === "Seller"
-								? `/vendeurs/${user._id}`
-								: `/admins/${user._id}`
-						}`,
+						pathname: `/acheteurs/${user.userId}`,
 					}}
 				>
 					<button>
@@ -564,28 +369,9 @@ function BuyersBar({
 						/>
 					</button>
 				</Link>
-				<button
-					className={`mt-1 ${
-						user.seller?.isArchived ||
-						user.buyer?.isArchived ||
-						user?.isArchived
-							? ""
-							: "hidden"
-					}`}
-					onClick={restoreModal}
-				>
-					<IconArrowBackUp color={"#676C86"} />
-				</button>
 				<button>
 					<Image
-						// className={`translate-y-2`}
-						className={`mt-1 ${
-							user.seller?.isArchived === false ||
-							user.buyer?.isArchived === false ||
-							user?.isArchived === false
-								? ""
-								: "hidden"
-						}`}
+						className={`translate-y-2`}
 						alt="edit"
 						src={removeIcon}
 						height={20}

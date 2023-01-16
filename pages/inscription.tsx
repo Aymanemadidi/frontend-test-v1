@@ -7,7 +7,7 @@ import { useRouter } from "next/router";
 export default function Inscription() {
 	const router = useRouter();
 	return (
-		<div className="flex flex-col gap-2 items-center w-full border">
+		<div className="flex flex-col gap-2 items-center w-full">
 			S'inscrire comme:
 			<Button
 				className="bg-green-500 w-[15%] min-w-[150px]"

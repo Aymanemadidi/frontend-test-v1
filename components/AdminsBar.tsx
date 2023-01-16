@@ -59,7 +59,7 @@ interface UpdateSellerInput {
 	statut: string;
 }
 
-function BuyersBar({
+function AdminsBar({
 	user,
 	selection,
 	toggleRow,
@@ -68,11 +68,11 @@ function BuyersBar({
 	setList,
 	list,
 }: any) {
-	const [buyerStatut, setBuyerStatut] = useState(user.statut);
+	const [adminStatut, setAdminStatut] = useState(user.statut);
 	// const [statutModeration, setStatutModeration] = useState(
 	// 	user.statut_moderation
 	// );
-	const selected = selection.includes(user.userId);
+	const selected = selection.includes(user._id);
 	const [showInput, setShowInput] = useState(false);
 
 	const router = useRouter();
@@ -97,19 +97,19 @@ function BuyersBar({
 	// 	}
 	// }, []);
 
-	// console.log(user);
+	console.log("from AdminsBar: ", user);
 
 	useEffect(() => {
-		if (statut !== "" && ids.includes(user.userId)) {
-			setBuyerStatut(statut);
+		if (statut !== "" && ids.includes(user._id)) {
+			setAdminStatut(statut);
 		}
 	});
 
 	console.log(user);
 
 	const UPDATE_STATUT = gql`
-		mutation updateBuyer($_id: String!, $updateBuyerInput: UpdateBuyerInput!) {
-			updateBuyer(_id: $_id, updateBuyerInput: $updateBuyerInput) {
+		mutation updateUser($_id: String!, $updateUserInput: UpdateUserInput!) {
+			updateUser(_id: $_id, updateUserInput: $updateUserInput) {
 				_id
 				firstName
 				email
@@ -165,18 +165,16 @@ function BuyersBar({
 				try {
 					await updateStatut({
 						variables: {
-							_id: user.userId,
-							updateBuyerInput: {
+							_id: user._id,
+							updateUserInput: {
 								isArchived: true,
 							},
 						},
 					});
 					// console.log("list:", list);
-					let test = list.buyers.filter(
-						(buyer: any) => buyer.userId !== user.userId
-					);
+					let test = list.admins.filter((admin: any) => admin._id !== user._id);
 					// console.log("test: ", test);
-					setList({ buyers: test });
+					setList({ admins: test });
 					showNotification({
 						title: "Archivage",
 						message: "Archivage fait avec success",
@@ -227,18 +225,18 @@ function BuyersBar({
 			),
 			labels: { confirm: "Confirmer", cancel: "Abandonner" },
 			onCancel: () => {
-				setBuyerStatut(buyerStatut);
+				setAdminStatut(adminStatut);
 			},
 			onConfirm: async () => {
 				await updateStatut({
 					variables: {
-						_id: user.userId,
-						updateBuyerInput: {
+						_id: user._id,
+						updateUserInput: {
 							statut: e,
 						},
 					},
 				});
-				setBuyerStatut(() => e);
+				setAdminStatut(() => e);
 				showNotification({
 					title: "Changement de statut",
 					message: "Statut changé avec success",
@@ -258,25 +256,25 @@ function BuyersBar({
 					classNames={{
 						input: `${selected ? "bg-green-500" : ""}`,
 					}}
-					checked={selection.includes(user.userId)}
-					onChange={() => toggleRow(user.userId)}
+					checked={selection.includes(user._id)}
+					onChange={() => toggleRow(user._id)}
 					// disabled={user.statut === "new"}
 					transitionDuration={0}
 				/>
 			</td>
-			{/* <td className="text-xs font-light">{user.userId}</td> */}
+			{/* <td className="text-xs font-light">{user._id}</td> */}
 			<td className="hidden lg:table-cell text-xs font-light">
 				{user._id.slice(0, 5)}
 			</td>
-			<td className="text-xs font-light">{user.nomEntreprise}</td>
-			<td className="hidden lg:table-cell text-xs font-light">
+			{/* <td className="text-xs font-light">{user.nomEntreprise}</td> */}
+			{/* <td className="hidden lg:table-cell text-xs font-light">
 				<span
 					className={`${showInput ? "hidden" : ""}`}
 					onDoubleClick={() => setShowInput(true)}
 				>
 					{user.pseudo}
 				</span>
-				{/* {user.pseudo} */}
+				{user.pseudo}
 				<form
 					className={`${showInput ? "" : "hidden"}`}
 					action=""
@@ -292,19 +290,19 @@ function BuyersBar({
 						value={user.pseudo}
 					/>
 				</form>
-			</td>
+			</td> */}
 			<td className="hidden lg:table-cell text-xs font-light">{user.email}</td>
 			{/* <td className="hidden lg:table-cell text-xs font-light">
 				{user.typeVendeur ? "Vendeur Pro" : "Vendeur"}
 			</td> */}
-			<td className=" hidden lg:table-cell text-xs font-light">
+			{/* <td className=" hidden lg:table-cell text-xs font-light">
 				{user.typeCompte ? "Auto Entrepreneur" : "Entreprise"}
-			</td>
-			<td className="hidden lg:table-cell">
+			</td> */}
+			{/* <td className="hidden lg:table-cell">
 				<p className="text-xs font-light">
 					{user.verified ? "Verifié" : "Non"}
 				</p>
-			</td>
+			</td> */}
 			<td className="hidden lg:table-cell">
 				<p className="text-xs font-light">
 					{jour}/{mois}/{annee}
@@ -314,52 +312,34 @@ function BuyersBar({
 				<Select
 					classNames={{
 						input: `${getSelectStyles(
-							buyerStatut
+							adminStatut
 						)} text-white rounded-2xl text-xs font-normal`,
 					}}
 					rightSection={<IconChevronDown size={14} color={"white"} />}
 					rightSectionWidth={30}
 					// defaultValue={"buyerStatut"}
-					value={buyerStatut}
+					value={adminStatut}
 					// defaultValue={user.statut_moderation === "true" ? "actif" : user.statut}
 					onChange={async (e) => {
 						openModal(e);
 					}}
-					data={
-						buyerStatut === "new"
-							? [
-									{
-										value: "actif",
-										label: getLabel("actif"),
-									},
-									{
-										value: "new",
-										label: getLabel("new"),
-									},
-									// { value: "attente", label: getLabel("attente") },
-									{
-										value: "inactif",
-										label: getLabel("inactif"),
-									},
-							  ]
-							: [
-									{
-										value: "actif",
-										label: getLabel("actif"),
-									},
-									// { value: "attente", label: getLabel("attente") },
-									{
-										value: "inactif",
-										label: getLabel("inactif"),
-									},
-							  ]
-					}
+					data={[
+						{
+							value: "actif",
+							label: getLabel("actif"),
+						},
+						// { value: "attente", label: getLabel("attente") },
+						{
+							value: "inactif",
+							label: getLabel("inactif"),
+						},
+					]}
 				/>
 			</td>
 			<td className="flex gap-3">
 				<Link
 					href={{
-						pathname: `/acheteurs/${user.userId}`,
+						pathname: `/administrateurs/${user._id}`,
 					}}
 				>
 					<button>
@@ -385,4 +365,4 @@ function BuyersBar({
 	);
 }
 
-export default BuyersBar;
+export default AdminsBar;

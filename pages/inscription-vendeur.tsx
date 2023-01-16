@@ -26,6 +26,7 @@ import "react-phone-input-2/lib/material.css";
 import { DatePicker } from "@mantine/dates";
 import { CreateSellerInput, useCreateSeller } from "../hooks/useCreateSeller";
 import { useForm, zodResolver } from "@mantine/form";
+import { useRouter } from "next/router";
 
 function PasswordRequirement({
 	meets,
@@ -83,6 +84,8 @@ export default function InscriptionVendeur() {
 	const [mobile, setMobile] = useState("");
 	const [fix, setFix] = useState("");
 	const [createSeller] = useCreateSeller();
+	const router = useRouter();
+
 	const checks = requirements.map((requirement, index) => (
 		<PasswordRequirement
 			key={index}
@@ -110,47 +113,51 @@ export default function InscriptionVendeur() {
 		));
 
 	async function handleSubmit(values: CreateSellerInput) {
-		// console.log(values);
-		const tokens = await createSeller({
-			variables: {
-				createSellerInput: {
-					nomEntreprise: values.nomEntreprise,
-					numeroSiret: Number(values.numeroSiret),
-					groupe: values.groupe,
-					codeNAF: values.codeNAF,
-					codePostal: values.codePostal,
-					ville: values.ville,
-					role: "Seller",
-					IBAN: values.IBAN,
-					dateOfBirth: values.dateOfBirth,
-					nationality: values.nationality,
-					adresse: values.adresse,
-					countryOfResidency: values.countryOfResidence,
-					departement: values.departement,
-					mobileNumber: Number(mobile),
-					fixNumber: Number(fix),
-					firstName: values.firstName,
-					lastName: values.lastName,
-					email: values.email,
-					// pseudo: values.nomEntreprise,
-					password: password,
-					website: values.website,
-					pays: values.pays,
-					numberOfEmployees: values.numberOfEmployees,
-					companyAdresse: values.companyAdresse,
-					companyVille: "",
-					companyCodePostal: "",
-					companyPays: "",
-					civilite: values.civilite,
-					typeCompte: values.typeCompte,
-					tvaIntra: values.tvaIntra,
-					statut_moderation: false,
-					statut: "new",
-					isArchived: false,
+		try {
+			const seller = await createSeller({
+				variables: {
+					createSellerInput: {
+						nomEntreprise: values.nomEntreprise,
+						numeroSiret: Number(values.numeroSiret),
+						groupe: values.groupe,
+						codeNAF: values.codeNAF,
+						codePostal: values.codePostal,
+						ville: values.ville,
+						role: "Seller",
+						IBAN: values.IBAN,
+						dateOfBirth: values.dateOfBirth,
+						nationality: values.nationality,
+						adresse: values.adresse,
+						countryOfResidency: values.countryOfResidence,
+						departement: values.departement,
+						mobileNumber: Number(mobile),
+						fixNumber: Number(fix),
+						firstName: values.firstName,
+						lastName: values.lastName,
+						email: values.email,
+						// pseudo: values.nomEntreprise,
+						password: password,
+						website: values.website,
+						pays: values.pays,
+						numberOfEmployees: values.numberOfEmployees,
+						companyAdresse: values.companyAdresse,
+						companyVille: "",
+						companyCodePostal: "",
+						companyPays: "",
+						civilite: values.civilite,
+						typeCompte: values.typeCompte,
+						tvaIntra: values.tvaIntra,
+						statut_moderation: false,
+						statut: "new",
+						isArchived: false,
+					},
 				},
-			},
-		});
-		console.log(tokens);
+			});
+			console.log(seller);
+			router.push("/dashboard");
+		} catch (error) {
+			alert("Some error has occured");
+		}
 	}
 
 	const form = useForm({
