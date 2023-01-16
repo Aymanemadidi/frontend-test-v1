@@ -166,15 +166,15 @@ function AdminsBar({
 					await updateStatut({
 						variables: {
 							_id: user._id,
-							updateBuyerInput: {
+							updateUserInput: {
 								isArchived: true,
 							},
 						},
 					});
 					// console.log("list:", list);
-					let test = list.buyers.filter((buyer: any) => buyer._id !== user._id);
+					let test = list.admins.filter((admin: any) => admin._id !== user._id);
 					// console.log("test: ", test);
-					setList({ buyers: test });
+					setList({ admins: test });
 					showNotification({
 						title: "Archivage",
 						message: "Archivage fait avec success",
