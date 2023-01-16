@@ -130,8 +130,8 @@ export default function Demo({ opened }: any) {
 	}, [opened]);
 
 	const UPDATE_STATUT = gql`
-		mutation updateBuyer($_id: String!, $updateBuyerInput: UpdateBuyerInput!) {
-			updateBuyer(_id: $_id, updateBuyerInput: $updateBuyerInput) {
+		mutation updateUser($_id: String!, $updateUserInput: UpdateUserInput!) {
+			updateUser(_id: $_id, updateUserInput: $updateUserInput) {
 				_id
 				firstName
 				email
@@ -185,7 +185,7 @@ export default function Demo({ opened }: any) {
 							await updateStatut({
 								variables: {
 									_id: s,
-									updateBuyerInput: {
+									updateUserInput: {
 										statut: e,
 									},
 								},
@@ -196,7 +196,7 @@ export default function Demo({ opened }: any) {
 							await updateStatut({
 								variables: {
 									_id: s,
-									updateBuyerInput: {
+									updateUserInput: {
 										isArchived: true,
 									},
 								},
