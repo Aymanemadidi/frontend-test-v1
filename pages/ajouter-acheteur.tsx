@@ -16,9 +16,13 @@ import bell from "../public/bell.svg";
 import { nationalities } from "../helpers/countries";
 import PhoneInput from "react-phone-input-2";
 import "react-phone-input-2/lib/material.css";
-import { CreateBuyerInput, useCreateBuyer } from "../hooks/useCreateBuyer";
+import {
+	CreateBuyerInput,
+	useCreateBuyerByAdm,
+} from "../hooks/useCreateBuyerByAdmin";
 import { IconChevronDown, IconChevronRight } from "@tabler/icons";
 import NotLoggedLayout from "../components/notLoggedLayout";
+import { useRouter } from "next/router";
 
 const initialValues: CreateBuyerInput = {
 	nomEntreprise: "",
@@ -78,46 +82,52 @@ function Demo() {
 
 	const [fixTel, setFixTel] = useState(0);
 	const [obj, setObj] = useState<CreateBuyerInput>(initialValues);
-	const [createBuyer] = useCreateBuyer();
+	const [createBuyerByAdm] = useCreateBuyerByAdm();
 	const [pageSelected, setPageSelected] = useState("general");
 	const [phoneCountry, setPhoneCountry] = useState("fr");
+	const router = useRouter();
 
 	async function handleSubmit(values: CreateBuyerInput) {
-		console.log(values);
-		const tokens = await createBuyer({
-			variables: {
-				createBuyerInput: {
-					nomEntreprise: values.nomEntreprise,
-					lastName: values.lastName,
-					numeroSiret: Number(values.numeroSiret),
-					codePostal: values.codePostal,
-					ville: values.ville,
-					role: "Seller",
-					dateOfBirth: values.dateOfBirth,
-					nationality: values.nationality,
-					adresse: values.adresse,
-					countryOfResidency: values.countryOfResidency,
-					departement: values.departement,
-					mobileNumber: Number(values.numPortable),
-					fixNumber: Number(values.numFixe),
-					firstName: values.firstName,
-					email: values.email,
-					// pseudo: values.nomEntreprise,
-					password: values.password,
-					website: values.website,
-					pays: values.pays,
-					companyAdresse: values.companyAdresse,
-					civilite: "",
-					tvaIntra: "",
-					companyCodePostal: values.codePostal,
-					companyVille: values.ville,
-					companyPays: values.companyPays,
-					statut: "new",
-					isArchived: false,
+		try {
+			console.log(values);
+			const buyers = await createBuyerByAdm({
+				variables: {
+					createBuyerInput: {
+						nomEntreprise: values.nomEntreprise,
+						lastName: values.lastName,
+						numeroSiret: Number(values.numeroSiret),
+						codePostal: values.codePostal,
+						ville: values.ville,
+						role: "Buyer",
+						dateOfBirth: values.dateOfBirth,
+						nationality: values.nationality,
+						adresse: values.adresse,
+						countryOfResidency: values.countryOfResidency,
+						departement: values.departement,
+						mobileNumber: Number(values.numPortable),
+						fixNumber: Number(values.numFixe),
+						firstName: values.firstName,
+						email: values.email,
+						// pseudo: values.nomEntreprise,
+						password: values.password,
+						website: values.website,
+						pays: values.pays,
+						companyAdresse: values.companyAdresse,
+						civilite: "",
+						tvaIntra: "",
+						companyCodePostal: values.codePostal,
+						companyVille: values.ville,
+						companyPays: values.companyPays,
+						statut: "new",
+						isArchived: false,
+					},
 				},
-			},
-		});
-		console.log(tokens);
+			});
+			console.log(buyers);
+			router.push("/acheteurs");
+		} catch (error) {
+			alert(error);
+		}
 	}
 
 	const form = useForm({

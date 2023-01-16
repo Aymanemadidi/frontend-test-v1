@@ -246,7 +246,7 @@ function UpdateSellerByAdmin({ seller, opened }: any) {
 								mobileNumber: Number(user.seller.mobileNumber),
 								fixNumber: Number(user.seller.fixNumber),
 								firstName: user.seller.firstName,
-								email: user.seller.email,
+								// email: user.seller.email,
 								password: user.seller.password,
 								// pseudo: user.seller.pseudo,
 								website: user.seller.website,
@@ -789,7 +789,7 @@ function UpdateSellerByAdmin({ seller, opened }: any) {
 						value={user.seller.countryOfResidency}
 						// {...form.getInputProps("countryOfResidence")}
 					/>
-					<TextInput
+					{/* <TextInput
 						classNames={{
 							root: "pl-3 pr-3 w-full",
 							wrapper: "w-full",
@@ -812,7 +812,7 @@ function UpdateSellerByAdmin({ seller, opened }: any) {
 						}
 						value={user.seller.email}
 						// {...form.getInputProps("email")}
-					/>
+					/> */}
 					<TextInput
 						classNames={{
 							root: "pl-3 pr-3 w-full",

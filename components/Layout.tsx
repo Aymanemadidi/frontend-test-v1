@@ -36,6 +36,7 @@ import lineIcon from "../public/line-icon.svg";
 import profileIcon from "../public/profile-icon.svg";
 import arrowDownIcon from "../public/arrow-down-icon.svg";
 import { NavItem, SelectedNavItem } from "./NavItem";
+import { NavbarNested } from "../components/Navside";
 
 import { gql, useMutation, useQuery } from "@apollo/client";
 import { useRouter } from "next/router";
@@ -146,67 +147,70 @@ export default function Layout({ children, access_token }: any) {
 				navbarOffsetBreakpoint="sm"
 				fixed
 				navbar={
-					<Navbar
-						p="md"
-						hiddenBreakpoint="sm"
-						hidden={!opened}
-						// width={{ sm: 250 }}
-						// className={`flex ${
-						// 	opened ? "w-[250px]" : "w-[60px]"
-						// } transition-[width] duration-1000`}
-						className={`flex ${opened ? "w-[200px]" : "w-[60px]"}`}
-						// sx={{ display: "flex", gap: "20px" }}
-					>
-						<NavItem
-							path="/all-sellers"
-							name="Tableau de bord"
-							icon={dashboard}
-							opened={opened}
-						/>
-						<NavItem
-							path="/client-side"
-							name="Mes commandes"
-							icon={ordersIcon}
-							opened={opened}
-						/>
-						<SelectedNavItem
-							path="/"
-							name="Mes produits"
-							icon={productsIcon}
-							gap={"20"}
-							opened={opened}
-						/>
-						<NavItem
-							path="/server-side"
-							name="Mes litiges"
-							icon={litigeIcon}
-							opened={opened}
-						/>
-						<NavItem
-							path="/client-side"
-							name="Mes commissions"
-							icon={comissionIcon}
-							opened={opened}
-						/>
-						<NavItem
-							path="/"
-							name="Ma finance"
-							icon={financeIcon}
-							opened={opened}
-						/>
-						<NavItem
-							path="/"
-							name="Mes promotions"
-							icon={promotionsIcon}
-							opened={opened}
-						/>
-						<NavItem
-							path="/"
-							name="Mes favoris"
-							icon={favorisIcon}
-							opened={opened}
-						/>
-					</Navbar>
+					// <Navbar
+					// 	p="md"
+					// 	hiddenBreakpoint="sm"
+					// 	hidden={!opened}
+					// 	// width={{ sm: 250 }}
+					// 	// className={`flex ${
+					// 	// 	opened ? "w-[250px]" : "w-[60px]"
+					// 	// } transition-[width] duration-1000`}
+					// 	className={`flex ${opened ? "w-[200px]" : "w-[60px]"}`}
+					// 	// sx={{ display: "flex", gap: "20px" }}
+					// >
+					// 	<NavItem
+					// 		path="/all-sellers"
+					// 		name="Tableau de bord"
+					// 		icon={dashboard}
+					// 		opened={opened}
+					// 	/>
+					// 	<NavItem
+					// 		path="/client-side"
+					// 		name="Mes commandes"
+					// 		icon={ordersIcon}
+					// 		opened={opened}
+					// 	/>
+					// 	<SelectedNavItem
+					// 		path="/"
+					// 		name="Mes produits"
+					// 		icon={productsIcon}
+					// 		gap={"20"}
+					// 		opened={opened}
+					// 	/>
+					// 	<NavItem
+					// 		path="/server-side"
+					// 		name="Mes litiges"
+					// 		icon={litigeIcon}
+					// 		opened={opened}
+					// 	/>
+					// 	<NavItem
+					// 		path="/client-side"
+					// 		name="Mes commissions"
+					// 		icon={comissionIcon}
+					// 		opened={opened}
+					// 	/>
+					// 	<NavItem
+					// 		path="/"
+					// 		name="Ma finance"
+					// 		icon={financeIcon}
+					// 		opened={opened}
+					// 	/>
+					// 	<NavItem
+					// 		path="/"
+					// 		name="Mes promotions"
+					// 		icon={promotionsIcon}
+					// 		opened={opened}
+					// 	/>
+					// 	<NavItem
+					// 		path="/"
+					// 		name="Mes favoris"
+					// 		icon={favorisIcon}
+					// 		opened={opened}
+					// 	/>
+					// </Navbar>
+					// <div className={`hidden lg:block`}>
+					<NavbarNested opened={opened} />
+					// </div>
 				}
 				header={
 					<Header
