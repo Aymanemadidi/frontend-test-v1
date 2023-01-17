@@ -21,18 +21,17 @@ import { LinksGroup } from "../components/NavbarLinksGroup";
 // import { Logo } from "./Logo";
 
 const mockdata = [
-	{ label: "Dashboard", icon: IconGauge, link: "/dashboard" },
+	{ label: "Tableau de bord", icon: IconGauge, link: "/dashboard" },
 	{
 		label: "Utilisateurs",
 		icon: IconUsers,
-		initiallyOpened: true,
 		links: [
 			{ label: "Tous", link: "/utilisateurs" },
 			{ label: "Administrateurs", link: "/administrateurs" },
 			{ label: "Vendeurs", link: "/vendeurs" },
 			{ label: "Vendeurs Pro", link: "/vendeursPro" },
 			{ label: "Acheteurs", link: "/acheteurs" },
-			{ label: "Utilisateurs Archivés", link: "/utilisateursArchives" },
+			{ label: "Archivés", link: "/utilisateursArchives" },
 			// { label: "Real time", link: "/" },
 		],
 	},
@@ -40,9 +39,9 @@ const mockdata = [
 		label: "Mes commandes",
 		icon: IconChecklist,
 		links: [
-			{ label: "Upcoming releases", link: "/utilisateurs" },
-			{ label: "Previous releases", link: "/acheteurs" },
-			{ label: "Releases schedule", link: "/vendeurs" },
+			{ label: "Toutes les commandes", link: "#" },
+			{ label: "Demandes de retour", link: "#" },
+			{ label: "Demandes de remboursement", link: "#" },
 		],
 	},
 	{

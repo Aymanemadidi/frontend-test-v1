@@ -563,7 +563,7 @@ export default function Demo({ opened }: any) {
 					data={[
 						{ value: "archive", label: "Archiver" },
 						{ value: "actif", label: "activer" },
-						{ value: "inactif", label: "desactiver" },
+						{ value: "inactif", label: "désactiver" },
 					]}
 				/>
 				<TextInput
@@ -633,8 +633,8 @@ export default function Demo({ opened }: any) {
 								{/* lg:table-cell */}
 								<th className="hidden lg:table-cell">Type</th>
 								<th className="hidden lg:table-cell ">Type du compte</th>
-								<th className="hidden lg:table-cell">Verifié</th>
-								<th className="hidden lg:table-cell ">enregistré le</th>
+								<th className="hidden lg:table-cell">Vérifié</th>
+								<th className="hidden lg:table-cell ">Enregistré le</th>
 								<th className=" ">Statut</th>
 								<th>Actions</th>
 							</tr>
@@ -642,7 +642,7 @@ export default function Demo({ opened }: any) {
 						<tbody className="">
 							{sellers.length === 0 ? (
 								<div className="ml-[25%]">
-									<div>No results found</div>
+									<div>Aucun vendeur trouvé !</div>
 								</div>
 							) : (
 								sellers.reverse()
