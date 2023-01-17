@@ -15,6 +15,7 @@ import {
 	IconPercentage,
 	IconPhoto,
 	IconCalculator,
+	IconBook,
 } from "@tabler/icons";
 import { UserButton } from "../components/UserButton";
 import { LinksGroup } from "../components/NavbarLinksGroup";
@@ -33,7 +34,6 @@ const mockdata = [
 			{ label: "Vendeurs Pro", link: "/vendeursPro" },
 			{ label: "Acheteurs", link: "/acheteurs" },
 			{ label: "Utilisateurs Archivés", link: "/utilisateursArchives" },
-			// { label: "Real time", link: "/" },
 		],
 	},
 	{
@@ -44,6 +44,11 @@ const mockdata = [
 			{ label: "Previous releases", link: "/acheteurs" },
 			{ label: "Releases schedule", link: "/vendeurs" },
 		],
+	},
+	{
+		label: "Catalogue",
+		icon: IconBook,
+		links: [{ label: "Marques", link: "/marques" }],
 	},
 	{
 		label: "Mes produits",

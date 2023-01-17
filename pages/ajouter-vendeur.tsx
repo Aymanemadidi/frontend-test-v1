@@ -53,6 +53,7 @@ const initialValues: CreateSellerInput = {
 	civilite: "",
 	tvaIntra: "",
 	typeCompte: "",
+	statutLegal: "",
 	countryOfResidence: "",
 	companyCodePostal: "",
 	companyVille: "",
@@ -130,6 +131,8 @@ function Demo() {
 						companyPays: "",
 						statut_moderation: false,
 						statut: "new",
+						typeCompte: values.typeCompte,
+						statutLegal: values.statutLegal,
 						isArchived: false,
 						isPro: router.query.isPro === "true" ? true : false,
 					},
@@ -169,6 +172,7 @@ function Demo() {
 			civilite: "",
 			tvaIntra: "",
 			typeCompte: "",
+			statutLegal: "",
 			countryOfResidence: "",
 			companyCodePostal: "",
 			companyVille: "",
@@ -384,6 +388,21 @@ function Demo() {
 								"w-full font-semibold placeholder:font-normal placeholder:text-gray-400 border-slate-200 mt-1",
 							label: "ml-2",
 						}}
+						label={"Statut legal"}
+						radius={25}
+						mt="sm"
+						placeholder="Statut legal"
+						withAsterisk
+						{...form.getInputProps("statutLegal")}
+					/>
+					<TextInput
+						classNames={{
+							root: "pl-3 pr-3 w-full",
+							wrapper: "w-full",
+							input:
+								"w-full font-semibold placeholder:font-normal placeholder:text-gray-400 border-slate-200 mt-1",
+							label: "ml-2",
+						}}
 						label={"Ville"}
 						radius={25}
 						mt="sm"
@@ -405,6 +424,31 @@ function Demo() {
 						placeholder="Departement"
 						withAsterisk
 						{...form.getInputProps("departement")}
+					/>
+					<Select
+						label="Type compte"
+						searchable
+						nothingFound="No options"
+						classNames={{
+							input:
+								"rounded-2xl font-normal placeholder:font-thin placeholder:text-gray-600 border-slate-200 mt-1",
+							label: "ml-1",
+						}}
+						className="ml-3 mt-3 flex flex-col gap-1 justify-start items-start"
+						maxDropdownHeight={280}
+						withAsterisk
+						data={[
+							{
+								label: "Entreprise",
+								value: "entreprise",
+							},
+							{
+								label: "Auto-Entrepreneur",
+								value: "autoEntrepreneurr",
+							},
+						]}
+						placeholder="Type de votre compte"
+						{...form.getInputProps("typeCompte")}
 					/>
 					<Select
 						label="Pays"
