@@ -27,6 +27,7 @@ import { DatePicker } from "@mantine/dates";
 import { useForm, zodResolver } from "@mantine/form";
 import { useCreateBuyer, CreateBuyerInput } from "../hooks/useCreateBuyer";
 import { useRouter } from "next/router";
+import { gql, useQuery } from "@apollo/client";
 
 function PasswordRequirement({
 	meets,
@@ -85,6 +86,36 @@ export default function Inscription() {
 	const [fix, setFix] = useState("");
 	const [createBuyer] = useCreateBuyer();
 	const router = useRouter();
+
+	const [list, setList] = useState<any>([]);
+	const [typeId, setTypeId] = useState("");
+	let dataTypes: any = [];
+	console.log("router.query: ", router.query);
+
+	const ALL_TYPES = gql`
+		query TypeUsers {
+			typeUsers {
+				_id
+				libelle
+				created_at
+				for_buyer
+				for_seller
+			}
+		}
+	`;
+
+	const allTypesResult = useQuery(ALL_TYPES, {
+		onCompleted: setList,
+		fetchPolicy: "no-cache",
+	});
+
+	if (allTypesResult.data) {
+		dataTypes = list.typeUsers
+			.filter((type: any) => type.for_buyer === true)
+			.map((type: any) => {
+				return { label: type.libelle, value: type._id };
+			});
+	}
 	const checks = requirements.map((requirement, index) => (
 		<PasswordRequirement
 			key={index}
@@ -147,7 +178,7 @@ export default function Inscription() {
 					},
 				},
 			});
-			router.push("/dashboard");
+			router.push("/tableau-de-bord");
 			console.log(buyer);
 		} catch (error) {
 			alert("Some error has occured");
@@ -316,10 +347,8 @@ export default function Inscription() {
 									// root: "w-1/3",
 									input: "rounded-lg",
 								}}
-								data={[
-									{ label: "Entreprise", value: "entreprise" },
-									{ label: "Auto-entrepreneur", value: "autoEntrepreneur" },
-								]}
+								data={dataTypes}
+								placeholder="Type de compte"
 								defaultValue={"Entreprise"}
 								{...form.getInputProps("typeCompte")}
 							/>

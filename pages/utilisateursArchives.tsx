@@ -14,6 +14,7 @@ import {
 } from "@mantine/core";
 import { keys } from "@mantine/utils";
 import { gql, useLazyQuery, useMutation, useQuery } from "@apollo/client";
+import "dayjs/locale/fr";
 // import client from "../apollo-client";
 // import SellersBar from "../components/SellersBar";
 import BuyersBar from "../components/BuyersBar";
@@ -332,20 +333,24 @@ export default function Demo({ opened }: any) {
 				seller {
 					statut
 					created_at
-					typeCompte
 					nomEntreprise
 					pseudo
 					isPro
 					statut_moderation
 					isArchived
+					type {
+						libelle
+					}
 				}
 				buyer {
 					statut
 					created_at
 					nomEntreprise
 					pseudo
-					typeCompte
 					isArchived
+					type {
+						libelle
+					}
 				}
 			}
 		}
@@ -390,20 +395,24 @@ export default function Demo({ opened }: any) {
 				seller {
 					statut
 					created_at
-					typeCompte
 					nomEntreprise
 					pseudo
 					isPro
 					statut_moderation
 					isArchived
+					type {
+						libelle
+					}
 				}
 				buyer {
 					statut
 					created_at
 					nomEntreprise
 					pseudo
-					typeCompte
 					isArchived
+					type {
+						libelle
+					}
 				}
 			}
 		}
@@ -654,14 +663,15 @@ export default function Demo({ opened }: any) {
 							/>
 							<DateRangePicker
 								// label="Book hotel"
+								locale="fr"
 								classNames={{
 									// root: "w-full",
 									root: "w-3/5",
 									input: "rounded-2xl lg:w-[350px]",
 									label: "font-light",
 								}}
-								placeholder="Dates"
-								label="Dates"
+								placeholder="min - max"
+								label="Date d’enregistrement min - max"
 								// placeholder="Pick dates range"
 								value={rangeValue}
 								onChange={setRangeValue}
@@ -816,7 +826,7 @@ export default function Demo({ opened }: any) {
 					]}
 				/>
 				<TextInput
-					placeholder="Search by any field"
+					placeholder="Recherche"
 					classNames={{
 						input: "rounded-2xl w-[200px] lg:w-[250px]",
 					}}

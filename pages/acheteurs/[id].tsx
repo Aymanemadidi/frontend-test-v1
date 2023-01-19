@@ -81,6 +81,8 @@ function UpdatebuyerByAdmin({ buyer, opened }: any) {
 	const [createBuyer] = useCreateBuyer();
 	const [updateBuyer] = useUpdateBuyer();
 	const [entName, setEntName] = useState("");
+	const [list, setList] = useState<any>([]);
+	let dataTypes: any[] = [];
 	const [user, setUser] = useState<any>({
 		buyer: {
 			_id: "",
@@ -106,6 +108,9 @@ function UpdatebuyerByAdmin({ buyer, opened }: any) {
 			tvaIntra: "",
 			typeCompte: "",
 			countryOfResidency: "",
+			type: {
+				libelle: "",
+			},
 		},
 	});
 	const router = useRouter();
@@ -136,6 +141,10 @@ function UpdatebuyerByAdmin({ buyer, opened }: any) {
 				companyAdresse
 				companyVille
 				companyCodePostal
+				type {
+					_id
+					libelle
+				}
 			}
 		}
 	`;
@@ -147,6 +156,34 @@ function UpdatebuyerByAdmin({ buyer, opened }: any) {
 			_id: query.id,
 		},
 	});
+
+	const ALL_TYPES = gql`
+		query TypeUsers {
+			typeUsers {
+				_id
+				libelle
+				created_at
+				for_buyer
+				for_seller
+			}
+		}
+	`;
+
+	const allTypesResult = useQuery(ALL_TYPES, {
+		onCompleted: setList,
+		fetchPolicy: "no-cache",
+	});
+
+	if (allTypesResult.data) {
+		dataTypes = list.typeUsers
+			.filter((type: any) => type.for_buyer === true)
+			.map((type: any) => {
+				return {
+					label: type.libelle,
+					value: type._id,
+				};
+			});
+	}
 
 	console.log(data);
 
@@ -187,6 +224,7 @@ function UpdatebuyerByAdmin({ buyer, opened }: any) {
 			labels: { confirm: "Confirmer", cancel: "Abandonner" },
 			onCancel: () => {},
 			onConfirm: async () => {
+				console.log("confirm");
 				try {
 					const buyer = await updateBuyer({
 						variables: {
@@ -199,7 +237,7 @@ function UpdatebuyerByAdmin({ buyer, opened }: any) {
 								ville: user.buyer.ville,
 								companyVille: user.buyer.companyVille,
 								companyCodePostal: user.buyer.companyCodePostal,
-								role: "buyer",
+								role: "Buyer",
 								dateOfBirth: user.buyer.dateOfBirth,
 								nationality: user.buyer.nationality,
 								adresse: user.buyer.adresse,
@@ -211,6 +249,7 @@ function UpdatebuyerByAdmin({ buyer, opened }: any) {
 								// email: user.buyer.email,
 								password: user.buyer.password,
 								// pseudo: user.buyer.pseudo,
+								typeCompte: user.buyer.typeCompte,
 								website: user.buyer.website,
 								pays: user.buyer.pays,
 							},
@@ -223,7 +262,9 @@ function UpdatebuyerByAdmin({ buyer, opened }: any) {
 						autoClose: 5000,
 						bottom: "630px",
 					});
-				} catch (error) {}
+				} catch (error) {
+					alert(error);
+				}
 			},
 		});
 	};
@@ -362,6 +403,42 @@ function UpdatebuyerByAdmin({ buyer, opened }: any) {
 						value={user.buyer.numeroSiret}
 					/>
 
+					<Select
+						allowDeselect
+						label="Type de compte"
+						placeholder="Type de compte"
+						searchable
+						nothingFound="No options"
+						classNames={{
+							input:
+								"rounded-2xl font-normal placeholder:font-thin placeholder:text-gray-600 border-slate-200 mt-1",
+							label: "ml-1",
+						}}
+						className="ml-3 mt-3 flex flex-col gap-1 justify-start items-start"
+						maxDropdownHeight={280}
+						data={dataTypes}
+						// data={[
+						// 	{ label: "test1", value: "test1V" },
+						// 	{ label: "test2", value: "test2V" },
+						// ]}
+						onChange={(e: any) => {
+							console.log("e: ", e);
+							setUser({
+								buyer: {
+									...user.buyer,
+									typeCompte: e,
+									type: {
+										_id: e,
+									},
+								},
+							});
+						}}
+						// value={user.seller.typeCompte}
+						value={user.buyer.type["_id"]}
+						// defaultValue={user.seller.type._id}
+						// {...form.getInputProps("nationality")}
+					/>
+
 					<TextInput
 						classNames={{
 							root: "pl-3 pr-3 w-full",
@@ -452,7 +529,7 @@ function UpdatebuyerByAdmin({ buyer, opened }: any) {
 								},
 							})
 						}
-						value={user.buyer.pays}
+						value={user.buyer.companyPays}
 					/>
 					<TextInput
 						classNames={{

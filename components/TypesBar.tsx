@@ -65,7 +65,7 @@ interface UpdateSellerInput {
 	statut: string;
 }
 
-function MarqueBar({
+function TypesBar({
 	user,
 	selection,
 	toggleRow,
@@ -83,6 +83,10 @@ function MarqueBar({
 	const [openedArchiveModal, setOpenedArchivedModal] = useState(false);
 	const [newLibelle, setNewLibelle] = useState(user.libelle);
 	const [updatedLibelle, setUpdatedLibelle] = useState(user.libelle);
+	const [forSeller, setForSeller] = useState(user.for_seller);
+	const [forBuyer, setForBuyer] = useState(user.for_buyer);
+	const [forUpdatedSeller, setForUpdatedSeller] = useState(user.for_seller);
+	const [forUpdatedBuyer, setForUpdatedBuyer] = useState(user.for_buyer);
 	const [err, setErr] = useState({ type: 0 });
 
 	const router = useRouter();
@@ -115,18 +119,20 @@ function MarqueBar({
 
 	console.log(user);
 
-	const ARCHIVE_MARQUE = gql`
-		mutation removeMarque($_id: String!) {
-			removeMarque(_id: $_id)
+	const ARCHIVE_TYPE_USER = gql`
+		mutation removeTypeUser($_id: String!) {
+			removeTypeUser(_id: $_id)
 		}
 	`;
 
-	const UPDATE_MARQUE = gql`
-		mutation updateMarque($updateMarqueInput: UpdateMarqueInput!) {
-			updateMarque(updateMarqueInput: $updateMarqueInput) {
+	const UPDATE_TYPE_USER = gql`
+		mutation updateTypeUser($updateTypeUserInput: UpdateTypeUserInput!) {
+			updateTypeUser(updateTypeUserInput: $updateTypeUserInput) {
 				_id
 				libelle
 				created_at
+				for_buyer
+				for_seller
 			}
 		}
 	`;
@@ -144,8 +150,10 @@ function MarqueBar({
 	// 	}
 	// `;
 
-	const [updateMarque, { error, loading, data }] = useMutation(UPDATE_MARQUE);
-	const [archiveMarque, archiveMarqueResult] = useMutation(ARCHIVE_MARQUE);
+	const [updateTypeUser, { error, loading, data }] =
+		useMutation(UPDATE_TYPE_USER);
+	const [archiveTypeUser, archiveTypeUserResult] =
+		useMutation(ARCHIVE_TYPE_USER);
 
 	function getSelectStyles(statut: string) {
 		if (statut === "new") {
@@ -264,18 +272,16 @@ function MarqueBar({
 	// 		},
 	// 	});
 
-	const marqueArchive = async (e: any) => {
+	const typeUserArchive = async (e: any) => {
 		e.preventDefault();
 		try {
-			const marqueArchived = await archiveMarque({
+			const typeUserArchived = await archiveTypeUser({
 				variables: {
 					_id: user._id,
 				},
 			});
-			// console.log("marqueArchived: ", marqueArchived.data.updateMarque._id);
-			let filtered = list.marques.filter((m: any) => m._id !== user._id);
-			// filtered.push(marqueArchived.data.updateMarque);
-			setList({ marques: [...filtered] });
+			let filtered = list.typeUsers.filter((m: any) => m._id !== user._id);
+			setList({ typeUsers: [...filtered] });
 			showNotification({
 				title: `${"Supression marque"}`,
 				message: `${"Supression marque avec success"}`,
@@ -304,24 +310,30 @@ function MarqueBar({
 		}
 	};
 
-	const marqueUpdate = async (e: any) => {
+	const typeUserUpdate = async (e: any) => {
 		e.preventDefault();
-		console.log("From new way: ", newLibelle);
+		console.log("From update: ");
 		try {
-			const marqueCreated = await updateMarque({
+			const typeUserCreated = await updateTypeUser({
 				variables: {
-					updateMarqueInput: {
+					updateTypeUserInput: {
 						_id: user._id,
 						libelle: newLibelle,
-						statut: "",
+						for_buyer: forBuyer,
+						for_seller: forSeller,
 					},
 				},
 			});
-			console.log("marqueCreated: ", marqueCreated.data.updateMarque._id);
-			let filtered = list.marques.filter(
-				(m: any) => m._id !== marqueCreated.data.updateMarque._id
+			setForUpdatedBuyer(forBuyer);
+			setForUpdatedSeller(forSeller);
+			console.log(
+				"typeUserCreated: ",
+				typeUserCreated.data.updateTypeUser.libelle
 			);
-			// filtered.push(marqueCreated.data.updateMarque);
+			// let filtered = list.typeUsers.filter(
+			// 	(m: any) => m._id !== typeUserCreated.data.typeUsers._id
+			// );
+			// filtered.push(typeUserCreated.data.updateMarque);
 			// setList({ marques: [...filtered] });
 			showNotification({
 				title: `${"Modification marque"}`,
@@ -330,7 +342,8 @@ function MarqueBar({
 				autoClose: 5000,
 				bottom: "630px",
 			});
-			setUpdatedLibelle(() => marqueCreated.data.updateMarque.libelle);
+			// setUpdatedLibelle("hello");
+			setUpdatedLibelle(() => typeUserCreated.data.updateTypeUser.libelle);
 			setOpenedModal(false);
 		} catch (e: any) {
 			if (e.message === "libelle unmodified") {
@@ -366,7 +379,7 @@ function MarqueBar({
 				className="shadow-xl"
 			>
 				<div>
-					<form onSubmit={(e) => marqueArchive(e)}>
+					<form onSubmit={(e) => typeUserArchive(e)}>
 						{/* <TextInput
 							label="Libelle"
 							value={newLibelle}
@@ -400,12 +413,11 @@ function MarqueBar({
 				className="shadow-xl"
 			>
 				<div>
-					<form onSubmit={(e) => marqueUpdate(e)}>
+					<form onSubmit={(e) => typeUserUpdate(e)}>
 						<TextInput
 							label="Libelle"
 							value={newLibelle}
 							onChange={(e) => {
-								setErr({ type: 0 });
 								setNewLibelle(e.target.value);
 							}}
 						/>
@@ -416,6 +428,18 @@ function MarqueBar({
 						) : (
 							""
 						)}
+						<div className="mt-1">
+							<Checkbox
+								checked={forSeller}
+								onChange={() => setForSeller(!forSeller)}
+								label={"Pour vendeur"}
+							/>
+							<Checkbox
+								checked={forBuyer}
+								onChange={() => setForBuyer(!forBuyer)}
+								label={"Pour Acheteur"}
+							/>
+						</div>
 						<div className="flex gap-3 mt-3 justify-end w-full">
 							<button
 								className="bg-gray-500 rounded-md px-3 py-2 text-white"
@@ -456,6 +480,28 @@ function MarqueBar({
 				<td className="hidden lg:table-cell text-xs font-light">
 					{updatedLibelle}
 				</td>
+				<td className="hidden lg:table-cell text-xs font-light">
+					{forUpdatedBuyer && forUpdatedSeller ? (
+						<div className="flex gap-1">
+							<span className="bg-purple-500 px-3 py-2 rounded-2xl text-xs text-white">
+								Vendeur
+							</span>
+							<span className="bg-blue-500 px-3 py-2 rounded-2xl text-xs text-white">
+								Acheteur
+							</span>
+						</div>
+					) : forUpdatedBuyer ? (
+						<span className="bg-blue-500 px-3 py-2 rounded-2xl text-xs text-white">
+							Acheteur
+						</span>
+					) : forUpdatedSeller ? (
+						<span className="bg-purple-500 px-3 py-2 rounded-2xl text-xs text-white">
+							Vendeur
+						</span>
+					) : (
+						""
+					)}
+				</td>
 				{/* <td className="hidden lg:table-cell text-xs font-light">
 				{user.typeVendeur ? "Vendeur Pro" : "Vendeur"}
 			</td> */}
@@ -489,4 +535,4 @@ function MarqueBar({
 	);
 }
 
-export default MarqueBar;
+export default TypesBar;

@@ -2,7 +2,7 @@ import { ReactElement, useState } from "react";
 import type { NextPage } from "next";
 import Head from "next/head";
 import Image from "next/image";
-import { gql, useMutation } from "@apollo/client";
+import { gql, useMutation, useQuery } from "@apollo/client";
 import client from "../apollo-client";
 
 import { useForm, zodResolver } from "@mantine/form";
@@ -85,7 +85,35 @@ function Demo() {
 	const [createBuyerByAdm] = useCreateBuyerByAdm();
 	const [pageSelected, setPageSelected] = useState("general");
 	const [phoneCountry, setPhoneCountry] = useState("fr");
+	const [list, setList] = useState<any>([]);
+	const [typeId, setTypeId] = useState("");
+	let dataTypes: any = [];
 	const router = useRouter();
+
+	const ALL_TYPES = gql`
+		query TypeUsers {
+			typeUsers {
+				_id
+				libelle
+				created_at
+				for_buyer
+				for_seller
+			}
+		}
+	`;
+
+	const allTypesResult = useQuery(ALL_TYPES, {
+		onCompleted: setList,
+		fetchPolicy: "no-cache",
+	});
+
+	if (allTypesResult.data) {
+		dataTypes = list.typeUsers
+			.filter((type: any) => type.for_buyer === true)
+			.map((type: any) => {
+				return { label: type.libelle, value: type._id };
+			});
+	}
 
 	async function handleSubmit(values: CreateBuyerInput) {
 		try {
@@ -118,7 +146,7 @@ function Demo() {
 						companyCodePostal: values.codePostal,
 						companyVille: values.ville,
 						companyPays: values.companyPays,
-						// typeCompte: values.typeCompte,
+						typeCompte: typeId,
 						statut: "new",
 						isArchived: false,
 					},
@@ -392,7 +420,7 @@ function Demo() {
 						withAsterisk
 						{...form.getInputProps("departement")}
 					/>
-					{/* <Select
+					<Select
 						label="Type compte"
 						searchable
 						nothingFound="No options"
@@ -404,19 +432,21 @@ function Demo() {
 						className="ml-3 mt-3 flex flex-col gap-1 justify-start items-start"
 						maxDropdownHeight={280}
 						withAsterisk
-						data={[
-							{
-								label: "Entreprise",
-								value: "entreprise",
-							},
-							{
-								label: "Auto-Entrepreneur",
-								value: "autoEntrepreneurr",
-							},
-						]}
+						// data={[
+						// 	{
+						// 		label: "Entreprise",
+						// 		value: "entreprise",
+						// 	},
+						// 	{
+						// 		label: "Auto-Entrepreneur",
+						// 		value: "autoEntrepreneurr",
+						// 	},
+						// ]}
+						data={dataTypes}
+						onChange={(e: any) => setTypeId(e)}
 						placeholder="Type de votre compte"
-						{...form.getInputProps("typeCompte")}
-					/> */}
+						// {...form.getInputProps("typeCompte")}
+					/>
 					<Select
 						label="Pays"
 						searchable

@@ -59,7 +59,7 @@ interface UpdateSellerInput {
 	statut: string;
 }
 
-function SellersBar({
+function VtBar({
 	user,
 	selection,
 	toggleRow,
@@ -295,7 +295,7 @@ function SellersBar({
 				{user.isPro ? "Vendeur Pro" : "Vendeur"}
 			</td>
 			<td className=" hidden lg:table-cell text-xs font-light">
-				{user.type?.libelle ? user.type.libelle : "no libelle"}
+				{user.type.libelle}
 			</td>
 			<td className="hidden lg:table-cell">
 				<p className="text-xs font-light">
@@ -387,4 +387,4 @@ function SellersBar({
 	);
 }
 
-export default SellersBar;
+export default VtBar;

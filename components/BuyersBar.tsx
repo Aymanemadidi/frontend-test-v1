@@ -298,7 +298,7 @@ function BuyersBar({
 				{user.typeVendeur ? "Vendeur Pro" : "Vendeur"}
 			</td> */}
 			<td className=" hidden lg:table-cell text-xs font-light">
-				{user.typeCompte ? "Auto Entrepreneur" : "Entreprise"}
+				{user.type.libelle}
 			</td>
 			<td className="hidden lg:table-cell">
 				<p className="text-xs font-light">

@@ -16,7 +16,7 @@ import {
 	IconUser,
 } from "@tabler/icons";
 import { FaqSimple } from "../components/Accordion";
-import { Th } from "../pages/vendeurs";
+import { Th } from "./vendeurs";
 
 const mockDate = "2023-01-08T23:00:00.000Z";
 
@@ -305,7 +305,7 @@ const Dashboard = () => {
 								]}
 							/>
 							{/* <TextInput
-								placeholder="Search by any field"
+								placeholder="Recherche"
 								classNames={{
 									input: "rounded-2xl w-[200px] lg:w-[250px]",
 								}}

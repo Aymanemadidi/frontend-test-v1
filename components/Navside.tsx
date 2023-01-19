@@ -22,11 +22,10 @@ import { LinksGroup } from "../components/NavbarLinksGroup";
 // import { Logo } from "./Logo";
 
 const mockdata = [
-	{ label: "Dashboard", icon: IconGauge, link: "/dashboard" },
+	{ label: "Dashboard", icon: IconGauge, link: "/tableau-de-bord" },
 	{
 		label: "Utilisateurs",
 		icon: IconUsers,
-		initiallyOpened: true,
 		links: [
 			{ label: "Tous", link: "/utilisateurs" },
 			{ label: "Administrateurs", link: "/administrateurs" },
@@ -48,7 +47,10 @@ const mockdata = [
 	{
 		label: "Catalogue",
 		icon: IconBook,
-		links: [{ label: "Marques", link: "/marques" }],
+		links: [
+			{ label: "Marques", link: "/marques" },
+			{ label: "Types utilisateurs", link: "/type-utilisateur" },
+		],
 	},
 	{
 		label: "Mes produits",

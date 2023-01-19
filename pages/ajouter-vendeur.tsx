@@ -2,7 +2,7 @@ import { ReactElement, useState } from "react";
 import type { NextPage } from "next";
 import Head from "next/head";
 import Image from "next/image";
-import { gql, useMutation } from "@apollo/client";
+import { gql, useMutation, useQuery } from "@apollo/client";
 import client from "../apollo-client";
 
 import { useForm, zodResolver } from "@mantine/form";
@@ -24,6 +24,7 @@ import {
 	CreateSellerInput,
 	useCreateSellerByAdm,
 } from "../hooks/useCreateSellerByAdmin";
+import { type } from "os";
 
 const d = new Date();
 
@@ -54,29 +55,15 @@ const initialValues: CreateSellerInput = {
 	tvaIntra: "",
 	typeCompte: "",
 	statutLegal: "",
-	countryOfResidence: "",
+	countryOfResidency: "",
 	companyCodePostal: "",
 	companyVille: "",
 	companyPays: "",
+	refundAdresse: "",
+	refundCodePostal: "",
+	refundVille: "",
+	refundPays: "",
 };
-
-const schema = z.object({
-	// nomEntreprise: z
-	// 	.string()
-	// 	.min(2, { message: "Name should have at least 2 letters" }),
-	// numerotSiret: z
-	// 	.string()
-	// 	.min(2, { message: "Name should have at least 2 letters" }),
-	// groupe: z.string().min(2, { message: "Name should have at least 2 letters" }),
-	// codeNAF: z
-	// 	.string()
-	// 	.min(2, { message: "Name should have at least 2 letters" }),
-	// codePostal: z
-	// 	.string()
-	// 	.min(2, { message: "Name should have at least 2 letters" }),
-	// ville: z.string().min(2, { message: "Name should have at least 2 letters" }),
-	// email: z.string().email({ message: "Invalid email" }),
-});
 
 function Demo() {
 	const data = nationalities.map(
@@ -86,14 +73,43 @@ function Demo() {
 		(item) => `${item.value?.charAt(0).toUpperCase()}${item.value?.slice(1)}`
 	);
 
-	enum SelectedPage {}
-
 	const [fixTel, setFixTel] = useState(0);
 	const [obj, setObj] = useState<CreateSellerInput>(initialValues);
 	const [createSellerByAdm] = useCreateSellerByAdm();
 	const [pageSelected, setPageSelected] = useState("general");
+	const [list, setList] = useState<any>([]);
+	const [typeId, setTypeId] = useState("");
+	// const [dataTypes, setDataTypes] = useState<any>([]);
+	let dataTypes: any = [];
 	const router = useRouter();
 	console.log("router.query: ", router.query);
+
+	const ALL_TYPES = gql`
+		query TypeUsers {
+			typeUsers {
+				_id
+				libelle
+				created_at
+				for_buyer
+				for_seller
+			}
+		}
+	`;
+
+	const allTypesResult = useQuery(ALL_TYPES, {
+		onCompleted: setList,
+		fetchPolicy: "no-cache",
+	});
+
+	if (allTypesResult.data) {
+		dataTypes = list.typeUsers
+			.filter((type: any) => type.for_seller === true)
+			.map((type: any) => {
+				return { label: type.libelle, value: type._id };
+			});
+	}
+
+	console.log("dataTypes: ", list.typeUsers);
 
 	async function handleSubmit(values: CreateSellerInput) {
 		try {
@@ -112,27 +128,30 @@ function Demo() {
 						dateOfBirth: values.dateOfBirth,
 						nationality: values.nationality,
 						adresse: values.adresse,
-						countryOfResidency: values.countryOfResidence,
+						countryOfResidency: values.countryOfResidency,
 						departement: values.departement,
 						mobileNumber: Number(values.numPortable),
 						fixNumber: Number(values.numFixe),
 						firstName: values.firstName,
 						email: values.email,
-						// pseudo: values.nomEntreprise,
 						password: values.password,
 						website: values.website,
 						pays: values.pays,
 						numberOfEmployees: "<10",
-						companyAdresse: "",
-						civilite: "",
-						tvaIntra: "",
-						companyCodePostal: "",
-						companyVille: "",
-						companyPays: "",
+						companyAdresse: values.companyAdresse,
+						tvaIntra: values.tvaIntra,
+						companyCodePostal: values.companyCodePostal,
+						companyVille: values.companyVille,
+						companyPays: values.companyPays,
 						statut_moderation: false,
 						statut: "new",
-						typeCompte: values.typeCompte,
+						typeCompte: typeId,
 						statutLegal: values.statutLegal,
+						civilite: values.civilite,
+						refundAdresse: values.refundAdresse,
+						refundCodePostal: values.refundCodePostal,
+						refundVille: values.refundVille,
+						refundPays: values.refundPays,
 						isArchived: false,
 						isPro: router.query.isPro === "true" ? true : false,
 					},
@@ -167,16 +186,20 @@ function Demo() {
 			pseudo: "",
 			password: "",
 			adresse: "",
-			companyAdresse: "",
 			numberOfEmployees: "",
 			civilite: "",
 			tvaIntra: "",
 			typeCompte: "",
 			statutLegal: "",
-			countryOfResidence: "",
+			countryOfResidency: "",
+			companyAdresse: "",
 			companyCodePostal: "",
 			companyVille: "",
 			companyPays: "",
+			refundAdresse: "",
+			refundCodePostal: "",
+			refundVille: "",
+			refundPays: "",
 		},
 
 		// functions will be used to validate values at corresponding key
@@ -437,18 +460,20 @@ function Demo() {
 						className="ml-3 mt-3 flex flex-col gap-1 justify-start items-start"
 						maxDropdownHeight={280}
 						withAsterisk
-						data={[
-							{
-								label: "Entreprise",
-								value: "entreprise",
-							},
-							{
-								label: "Auto-Entrepreneur",
-								value: "autoEntrepreneurr",
-							},
-						]}
+						// data={[
+						// 	{
+						// 		label: "Entreprise",
+						// 		value: "entreprise",
+						// 	},
+						// 	{
+						// 		label: "Auto-entrepreneur",
+						// 		value: "autoEntrepreneur",
+						// 	},
+						// ]}
+						data={dataTypes}
+						onChange={(e: any) => setTypeId(e)}
 						placeholder="Type de votre compte"
-						{...form.getInputProps("typeCompte")}
+						// {...form.getInputProps("typeCompte")}
 					/>
 					<Select
 						label="Pays"
@@ -531,6 +556,31 @@ function Demo() {
 						]}
 						withAsterisk
 					/> */}
+					<Select
+						label="Civilité"
+						searchable
+						nothingFound="No options"
+						classNames={{
+							input:
+								"rounded-2xl font-normal placeholder:font-thin placeholder:text-gray-600 border-slate-200 mt-1",
+							label: "ml-1",
+						}}
+						className="ml-3 mt-3 flex flex-col gap-1 justify-start items-start"
+						maxDropdownHeight={280}
+						withAsterisk
+						data={[
+							{
+								label: "Monsieur",
+								value: "m",
+							},
+							{
+								label: "Madame",
+								value: "mm",
+							},
+						]}
+						placeholder="Civilité"
+						{...form.getInputProps("civilite")}
+					/>
 					<TextInput
 						classNames={{
 							root: "pl-3 pr-3 w-full",
@@ -709,6 +759,87 @@ function Demo() {
 						placeholder="Code postal"
 						withAsterisk
 						{...form.getInputProps("codePostal")}
+					/>
+					<Select
+						label="Pays"
+						searchable
+						nothingFound="No options"
+						classNames={{
+							input:
+								"rounded-2xl font-normal placeholder:font-thin placeholder:text-gray-600 border-slate-200 mt-1",
+							label: "ml-1",
+						}}
+						className="ml-3 mt-3 flex flex-col gap-1 justify-start items-start"
+						maxDropdownHeight={280}
+						withAsterisk
+						data={data2}
+						placeholder="Pays"
+						{...form.getInputProps("pays")}
+					/>
+				</div>
+				<div className="flex flex-col items-start justify-start mt-5 pb-[25px] pt-[20px] bg-slate-100 w-4/5 rounded-2xl shadow-2xl">
+					<h2 className="ml-4 mb-2">Informations de retour</h2>
+
+					<TextInput
+						classNames={{
+							root: "pl-3 pr-3 w-full",
+							wrapper: "w-full",
+							input:
+								"w-full font-semibold placeholder:font-normal placeholder:text-gray-400 border-slate-200 mt-1",
+							label: "ml-2",
+						}}
+						label={"Adresse"}
+						radius={25}
+						mt="sm"
+						placeholder="Adresse"
+						withAsterisk
+						{...form.getInputProps("refundAdresse")}
+					/>
+					<TextInput
+						classNames={{
+							root: "pl-3 pr-3 w-full",
+							wrapper: "w-full",
+							input:
+								"w-full font-semibold placeholder:font-normal placeholder:text-gray-400 border-slate-200 mt-1",
+							label: "ml-2",
+						}}
+						label={"Ville"}
+						radius={25}
+						mt="sm"
+						placeholder="Ville"
+						withAsterisk
+						{...form.getInputProps("refundVille")}
+					/>
+					<TextInput
+						classNames={{
+							root: "pl-3 pr-3 w-full",
+							wrapper: "w-full",
+							input:
+								"w-full font-semibold placeholder:font-normal placeholder:text-gray-400 border-slate-200 mt-1",
+							label: "ml-2",
+						}}
+						label={"Code postal"}
+						radius={25}
+						mt="sm"
+						placeholder="Code postal"
+						withAsterisk
+						{...form.getInputProps("refundCodePostal")}
+					/>
+					<Select
+						label="Pays"
+						searchable
+						nothingFound="No options"
+						classNames={{
+							input:
+								"rounded-2xl font-normal placeholder:font-thin placeholder:text-gray-600 border-slate-200 mt-1",
+							label: "ml-1",
+						}}
+						className="ml-3 mt-3 flex flex-col gap-1 justify-start items-start"
+						maxDropdownHeight={280}
+						withAsterisk
+						data={data2}
+						placeholder="Pays"
+						{...form.getInputProps("refundPays")}
 					/>
 				</div>
 
