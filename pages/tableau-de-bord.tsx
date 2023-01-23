@@ -16,7 +16,7 @@ import {
 	IconUser,
 } from "@tabler/icons";
 import { FaqSimple } from "../components/Accordion";
-import { Th } from "./vendeurs";
+import { Th } from "./utilisateurs/vendeurs";
 
 const mockDate = "2023-01-08T23:00:00.000Z";
 

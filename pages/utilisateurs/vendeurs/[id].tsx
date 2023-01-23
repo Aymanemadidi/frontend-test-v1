@@ -3,7 +3,7 @@ import type { NextPage } from "next";
 import Head from "next/head";
 import Image from "next/image";
 import { gql, useMutation, useQuery } from "@apollo/client";
-import client from "../../apollo-client";
+import client from "../../../apollo-client";
 
 import { useForm, zodResolver } from "@mantine/form";
 import { NumberInput, TextInput, Button } from "@mantine/core";
@@ -11,19 +11,19 @@ import { Tooltip, Select } from "@mantine/core";
 import { DatePicker } from "@mantine/dates";
 import * as Yup from "yup";
 import { z } from "zod";
-import bell from "../../public/bell.svg";
+import bell from "../../../public/bell.svg";
 // import { DropzoneButton } from "../../components/DropZone";
-import { nationalities } from "../../helpers/countries";
+import { nationalities } from "../../../helpers/countries";
 import PhoneInput from "react-phone-input-2";
 import "react-phone-input-2/lib/material.css";
 import {
 	CreateSellerInput,
 	useCreateSeller,
-} from "../../hooks/useCreateSeller";
+} from "../../../hooks/useCreateSeller";
 import {
 	UpdateSellerInput,
 	useUpdateSeller,
-} from "../../hooks/useUpdateSeller";
+} from "../../../hooks/useUpdateSeller";
 import { useRouter } from "next/router";
 import { showNotification } from "@mantine/notifications";
 import { openConfirmModal } from "@mantine/modals";

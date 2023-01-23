@@ -12,13 +12,8 @@ import {
 	TextInput,
 	LoadingOverlay,
 } from "@mantine/core";
-import { keys } from "@mantine/utils";
-import { gql, useLazyQuery, useMutation, useQuery } from "@apollo/client";
+import { useLazyQuery, useMutation, useQuery } from "@apollo/client";
 import "dayjs/locale/fr";
-// import client from "../apollo-client";
-// import SellersBar from "../components/SellersBar";
-import BuyersBar from "../components/BuyersBar";
-// import { useSellers } from "../hooks/useSellerData";
 import {
 	IconSelector,
 	IconChevronDown,
@@ -32,7 +27,19 @@ import { useRouter } from "next/router";
 import dayjs from "dayjs";
 import { showNotification } from "@mantine/notifications";
 import { openConfirmModal } from "@mantine/modals";
-import UsersBar from "../components/UsersBar";
+import UsersBar from "../../components/UsersBar";
+import {
+	RowData,
+	ThProps,
+	sortData,
+	getStartAndEndFromRange,
+} from "../../utils/filtersUtils";
+import { ALL_USERS_NEW, GET_USERS_BY_OC } from "../../graphql/queries";
+import {
+	UPDATE_BUYER_STATUT,
+	UPDATE_SELLER_STATUT,
+	UPDATE_USER_STATUT,
+} from "../../graphql/mutations";
 
 const useStyles = createStyles((theme) => ({
 	th: {
@@ -57,30 +64,6 @@ const useStyles = createStyles((theme) => ({
 		borderRadius: 21,
 	},
 }));
-
-interface RowData {
-	nomEntreprise: string;
-	email: string;
-	numeroSiret: string;
-	statut_moderation: string;
-	typeVendeur: string;
-	typeCompte: string;
-	created_at: string;
-	statut: string;
-	pseudo: string;
-}
-
-interface TableSortProps {
-	data: RowData[];
-}
-
-interface ThProps {
-	children: React.ReactNode;
-	reversed: boolean;
-	sorted: boolean;
-	onSort(): void;
-	tailwind: string;
-}
 
 function Th({ children, reversed, sorted, onSort, tailwind = "" }: ThProps) {
 	const { classes } = useStyles();
@@ -133,46 +116,13 @@ export default function Demo({ opened }: any) {
 		setIsOpened(opened);
 	}, [opened]);
 
-	const UPDATE_USER_STATUT = gql`
-		mutation updateUser($_id: String!, $updateUserInput: UpdateUserInput!) {
-			updateUser(_id: $_id, updateUserInput: $updateUserInput) {
-				_id
-				firstName
-				email
-			}
-		}
-	`;
-
 	const [updateUserStatut, userStatutUpdateResult] =
 		useMutation(UPDATE_USER_STATUT);
-
-	const UPDATE_SELLER_STATUT = gql`
-		mutation updateSeller(
-			$_id: String!
-			$updateSellerInput: UpdateSellerInput!
-		) {
-			updateSeller(_id: $_id, updateSellerInput: $updateSellerInput) {
-				_id
-				firstName
-				email
-			}
-		}
-	`;
 
 	const [updateSellerStatut, sellerStatutUpdateResult] =
 		useMutation(UPDATE_SELLER_STATUT);
 
-	const UPDATE_STATUT = gql`
-		mutation updateBuyer($_id: String!, $updateBuyerInput: UpdateBuyerInput!) {
-			updateBuyer(_id: $_id, updateBuyerInput: $updateBuyerInput) {
-				_id
-				firstName
-				email
-			}
-		}
-	`;
-
-	const [updateStatut, statutUpdateResult] = useMutation(UPDATE_STATUT);
+	const [updateStatut, statutUpdateResult] = useMutation(UPDATE_BUYER_STATUT);
 
 	const openModal = (e: any) => {
 		return openConfirmModal({
@@ -323,42 +273,6 @@ export default function Demo({ opened }: any) {
 		});
 	};
 
-	const ALL_USERS_NEW = gql`
-		query users2 {
-			users2 {
-				_id
-				firstName
-				lastName
-				email
-				role
-				statut
-				isArchived
-				seller {
-					statut
-					created_at
-					nomEntreprise
-					pseudo
-					isPro
-					statut_moderation
-					isArchived
-					type {
-						libelle
-					}
-				}
-				buyer {
-					statut
-					created_at
-					nomEntreprise
-					pseudo
-					isArchived
-					type {
-						libelle
-					}
-				}
-			}
-		}
-	`;
-
 	// const ALL_USERS = gql`
 	// 	query users {
 	// 		users {
@@ -368,58 +282,6 @@ export default function Demo({ opened }: any) {
 	// 		}
 	// 	}
 	// `;
-
-	const GET_USERS_BY_OC = gql`
-		query UsersByOc(
-			$email: String!
-			$nomEntreprise: String!
-			$pseudo: String!
-			$startDate: String!
-			$endDate: String!
-			$statut: String!
-			$type: String!
-		) {
-			usersOcc(
-				email: $email
-				nomEntreprise: $nomEntreprise
-				pseudo: $pseudo
-				startDate: $startDate
-				endDate: $endDate
-				statut: $statut
-				type: $type
-			) {
-				_id
-				firstName
-				lastName
-				email
-				role
-				statut
-				isArchived
-				seller {
-					statut
-					created_at
-					nomEntreprise
-					pseudo
-					isPro
-					statut_moderation
-					isArchived
-					type {
-						libelle
-					}
-				}
-				buyer {
-					statut
-					created_at
-					nomEntreprise
-					pseudo
-					isArchived
-					type {
-						libelle
-					}
-				}
-			}
-		}
-	`;
 
 	// const newData = useQuery(ALL_USERS_NEW, {
 	// 	fetchPolicy: "no-cache",
@@ -479,20 +341,6 @@ export default function Demo({ opened }: any) {
 				: usersData.map((item: any) => item._id)
 		);
 
-	function filterData(data: RowData[], search: string) {
-		const query = search.toLowerCase().trim();
-		// console.log(data);
-		return data.filter((item) =>
-			keys(data[0]).some((key) => {
-				if (typeof item[key] === "string") {
-					return item[key].toLowerCase().includes(query);
-				} else if (typeof item[key] === "number") {
-					return item[key].toString().toLowerCase().includes(query);
-				}
-			})
-		);
-	}
-
 	const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
 		const { value } = event.currentTarget;
 		setSearch(value);
@@ -504,50 +352,6 @@ export default function Demo({ opened }: any) {
 		console.log(usersData);
 		setList({ users2: usersData });
 	};
-
-	function sortData(
-		data: RowData[],
-		payload: { sortBy: keyof RowData | null; reversed: boolean; search: string }
-	) {
-		const { sortBy } = payload;
-
-		if (!sortBy) {
-			return filterData(data, payload.search);
-		}
-
-		return filterData(
-			[...data].sort((a, b) => {
-				if (payload.reversed) {
-					return b[sortBy].localeCompare(a[sortBy]);
-				}
-
-				return a[sortBy].localeCompare(b[sortBy]);
-			}),
-			payload.search
-		);
-	}
-
-	function getStartAndEndFromRange(range: any) {
-		let results = ["", ""];
-		if (range[0] !== null && range[1] !== null) {
-			let y = range[0]?.getFullYear();
-			let m = range[0]?.getMonth();
-			let d = range[0]?.getDate();
-			// if (m) {
-			const start = `${y}/${m + 1}/${d}`;
-			results[0] = start;
-			// }
-			y = range[1]?.getFullYear();
-			m = range[1]?.getMonth();
-			d = range[1]?.getDate();
-			// if (m) {
-			const end = `${y}/${m + 1}/${d + 1}`;
-			results[1] = end;
-			// }
-		}
-		console.log("results: ", results);
-		return results;
-	}
 
 	console.log("users", list.users);
 
@@ -600,7 +404,15 @@ export default function Demo({ opened }: any) {
 					]}
 					onChange={(e) => {
 						if (e !== "") {
-							router.push(`/ajouter-${e}`);
+							let middle = "";
+							if (e?.includes("ven")) {
+								middle = "vendeurs";
+							} else if (e?.includes("ach")) {
+								middle = "acheteurs";
+							} else {
+								middle = "administrateurs";
+							}
+							router.push(`/utilisateurs/${middle}/ajouter-${e}`);
 						}
 					}}
 				/>

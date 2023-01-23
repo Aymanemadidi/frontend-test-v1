@@ -31,7 +31,8 @@ import { DateRangePicker, DateRangePickerValue } from "@mantine/dates";
 import dayjs from "dayjs";
 import { showNotification } from "@mantine/notifications";
 import { openConfirmModal } from "@mantine/modals";
-import TypesBar from "../components/TypesBar";
+import MarqueBar from "../../components/marqueBar";
+import MarqueModal from "../../components/MarqueModal";
 
 const useStyles = createStyles((theme) => ({
 	th: {
@@ -109,6 +110,11 @@ export default function Demo({ opened }: any) {
 	const [search, setSearch] = useState("");
 	const [sortBy, setSortBy] = useState<keyof RowData | null>(null);
 	const [reverseSortDirection, setReverseSortDirection] = useState(false);
+	const [emailToSearch, setEmailToSearch] = useState("");
+	const [nomEntrepriseToSearch, setNomEntrepriseToSearch] = useState("");
+	const [pseudoToSearch, setPseudoToSearch] = useState("");
+	// const [startDateToSearch, setStartDateToSearch] = useState("");
+	// const [endDateToSearch, setEndDateToSearch] = useState("");
 	const [statut, setStatut] = useState("");
 	const [rangeValue, setRangeValue] = useState<DateRangePickerValue>([
 		null,
@@ -120,8 +126,6 @@ export default function Demo({ opened }: any) {
 	const [openedModal, setOpenedModal] = useState(false);
 	const [openedArchiveModal, setOpenedArchiveModal] = useState(false);
 	const [openedArchiveAllModal, setOpenedArchiveAllModal] = useState(false);
-	const [forBuyer, setForBuyer] = useState(true);
-	const [forSeller, setForSeller] = useState(true);
 
 	// const router = useRouter();
 
@@ -131,27 +135,25 @@ export default function Demo({ opened }: any) {
 		setIsOpened(opened);
 	}, [opened]);
 
-	const CREATE_TYPE_USER = gql`
-		mutation createTypeUser($createTypeUserInput: CreateTypeUserInput!) {
-			createTypeUser(createTypeUserInput: $createTypeUserInput) {
+	const CREATE_MARQUE = gql`
+		mutation createMarque($createMarqueInput: CreateMarqueInput!) {
+			createMarque(createMarqueInput: $createMarqueInput) {
 				_id
 				libelle
 				created_at
-				for_buyer
-				for_seller
 			}
 		}
 	`;
 
-	const ARCHIVE_TYPE_USER = gql`
-		mutation removeTypeUser($_id: String!) {
-			removeTypeUser(_id: $_id)
+	const ARCHIVE_MARQUE = gql`
+		mutation removeMarque($_id: String!) {
+			removeMarque(_id: $_id)
 		}
 	`;
 
 	const REMOVE_ALL = gql`
-		mutation removeAllTypes {
-			removeAllTypes
+		mutation removeAll {
+			removeAll
 		}
 	`;
 
@@ -261,11 +263,11 @@ export default function Demo({ opened }: any) {
 	// 	});
 	// };
 
-	const [createTypeUser, statutCreatedType] = useMutation(CREATE_TYPE_USER);
-	const [archiveTypeUser, archiveTypeResult] = useMutation(ARCHIVE_TYPE_USER);
-	const [removeAllTypeUsers, removeAllResult] = useMutation(REMOVE_ALL);
+	const [createMarque, statutCreatedMarque] = useMutation(CREATE_MARQUE);
+	const [archiveMarque, archiveMarqueResult] = useMutation(ARCHIVE_MARQUE);
+	const [removeAllMarques, removeAllResult] = useMutation(REMOVE_ALL);
 
-	// const openCreatetypeUserModal = (e: any) => {
+	// const openCreateMarqueModal = (e: any) => {
 	// 	return openConfirmModal({
 	// 		className: "mt-[200px]",
 	// 		confirmProps: {
@@ -274,7 +276,7 @@ export default function Demo({ opened }: any) {
 	// 		cancelProps: {
 	// 			className: "rounded-2xl",
 	// 		},
-	// 		title: "Ajouter une typeUser",
+	// 		title: "Ajouter une marque",
 	// 		children: (
 	// 			<div className="flex justify-center m-auto w-full">
 	// 				<input
@@ -291,18 +293,18 @@ export default function Demo({ opened }: any) {
 	// 		onConfirm: async () => {
 	// 			console.log(newLibelle);
 	// 			// try {
-	// 			// 	const typeUserCreated = await createtypeUser({
+	// 			// 	const marqueCreated = await createMarque({
 	// 			// 		variables: {
-	// 			// 			createtypeUserInput: {
+	// 			// 			createMarqueInput: {
 	// 			// 				libelle: newLibelle,
 	// 			// 			},
 	// 			// 		},
 	// 			// 	});
 	// 			// 	setNewLibelle("");
-	// 			// 	// setList([...list, typeUserCreated.data]);
+	// 			// 	// setList([...list, marqueCreated.data]);
 	// 			// 	showNotification({
-	// 			// 		title: `${"Creation typeUser"}`,
-	// 			// 		message: `${"Creation typeUser avec success"}`,
+	// 			// 		title: `${"Creation marque"}`,
+	// 			// 		message: `${"Creation marque avec success"}`,
 	// 			// 		color: "green",
 	// 			// 		autoClose: 5000,
 	// 			// 		bottom: "630px",
@@ -311,7 +313,7 @@ export default function Demo({ opened }: any) {
 	// 			// 	setNewLibelle("");
 	// 			// 	alert(e);
 	// 			// 	showNotification({
-	// 			// 		title: "Creation typeUser impossible",
+	// 			// 		title: "Creation marque impossible",
 	// 			// 		message: "Une erreur s'est produite",
 	// 			// 		color: "red",
 	// 			// 		autoClose: 5000,
@@ -322,19 +324,17 @@ export default function Demo({ opened }: any) {
 	// 	});
 	// };
 
-	const ALL_TYPES = gql`
-		query TypeUsers {
-			typeUsers {
+	const ALL_marques = gql`
+		query Marques {
+			marques {
 				_id
 				libelle
 				created_at
-				for_buyer
-				for_seller
 			}
 		}
 	`;
 
-	const { error, loading, data } = useQuery(ALL_TYPES, {
+	const { error, loading, data } = useQuery(ALL_marques, {
 		onCompleted: setList,
 		fetchPolicy: "no-cache",
 	});
@@ -353,22 +353,18 @@ export default function Demo({ opened }: any) {
 		return <div>{error.message}</div>;
 	}
 
-	let typeUsersData = data?.typeUsers;
-	let typeUsers = [];
+	let marquesData = data?.marques;
+	let marques = [];
 	// if (results.data) {
-	// 	typeUsersData = results.data.typeUsersOcc;
+	// 	marquesData = results.data.marquesOcc;
 	// }
 
 	const setSorting = (field: keyof RowData) => {
 		const reversed = field === sortBy ? !reverseSortDirection : false;
 		setReverseSortDirection(reversed);
 		setSortBy(field);
-		typeUsersData = sortData(typeUsersData, {
-			sortBy: field,
-			reversed,
-			search,
-		});
-		setList({ typeUsers: typeUsersData });
+		marquesData = sortData(marquesData, { sortBy: field, reversed, search });
+		setList({ marques: marquesData });
 	};
 
 	const toggleRow = (id: string) =>
@@ -379,9 +375,9 @@ export default function Demo({ opened }: any) {
 		);
 	const toggleAll = () =>
 		setSelection((current) =>
-			current.length === typeUsersData.length
+			current.length === marquesData.length
 				? []
-				: typeUsersData.map((item: any) => item._id)
+				: marquesData.map((item: any) => item._id)
 		);
 
 	function filterData(data: RowData[], search: string) {
@@ -401,13 +397,13 @@ export default function Demo({ opened }: any) {
 	const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
 		const { value } = event.currentTarget;
 		setSearch(value);
-		typeUsersData = sortData(typeUsersData, {
+		marquesData = sortData(marquesData, {
 			sortBy,
 			reversed: reverseSortDirection,
 			search: value,
 		});
-		console.log(typeUsersData);
-		setList({ typeUsers: typeUsersData });
+		console.log(marquesData);
+		setList({ marques: marquesData });
 	};
 
 	function sortData(
@@ -454,13 +450,13 @@ export default function Demo({ opened }: any) {
 		return results;
 	}
 
-	console.log("typeUsers", list.typeUsers);
+	console.log("marques", list.marques);
 
-	typeUsers = list.typeUsers.map((user: any) => {
+	marques = list.marques.map((user: any) => {
 		// console.log("isArchived: ", user);
 		// if (!user.isArchived) {
 		return (
-			<TypesBar
+			<MarqueBar
 				key={user.libelle}
 				user={user}
 				selection={selection}
@@ -486,31 +482,31 @@ export default function Demo({ opened }: any) {
 		e.preventDefault();
 		let arr: string[] = [];
 		try {
-			const typeUserArchived = await removeAllTypeUsers();
-			// console.log("typeUserArchived: ", typeUserArchived.data.updatetypeUser._id);
-			// let filtered = list.typeUsers.filter((m: any) => m._id !== user._id);
-			// filtered.push(typeUserArchived.data.updatetypeUser);
-			setList({ typeUsers: [] });
+			const marqueArchived = await removeAllMarques();
+			// console.log("marqueArchived: ", marqueArchived.data.updateMarque._id);
+			// let filtered = list.marques.filter((m: any) => m._id !== user._id);
+			// filtered.push(marqueArchived.data.updateMarque);
+			setList({ marques: [] });
 			showNotification({
-				title: `${"Supression de tout les typeUsers"}`,
-				message: `${"Supression de tout les typeUsers avec success"}`,
+				title: `${"Supression de tout les marques"}`,
+				message: `${"Supression de tout les marques avec success"}`,
 				color: "green",
 				autoClose: 5000,
 				bottom: "630px",
 			});
-			// setUpdatedLibelle(() => typeUserCreated.data.updatetypeUser.libelle);
+			// setUpdatedLibelle(() => marqueCreated.data.updateMarque.libelle);
 			setOpenedArchiveAllModal(false);
 		} catch (e: any) {
 			// if (e.message === "libelle unmodified") {
 			// 	setErr({ type: 1 });
 			// }
-			// if (e.message === "Cette typeUser existe déjà") {
+			// if (e.message === "Cette marque existe déjà") {
 			// 	setErr({ type: 2 });
 			// }
 			// setNewLibelle("");
 			// alert(e);
 			showNotification({
-				title: "Supression typeUser impossible",
+				title: "Supression marque impossible",
 				message: "Une erreur s'est produite",
 				color: "red",
 				autoClose: 5000,
@@ -519,45 +515,45 @@ export default function Demo({ opened }: any) {
 		}
 	};
 
-	const typeUserArchive = async (e: any) => {
+	const marqueArchive = async (e: any) => {
 		e.preventDefault();
 		let arr: string[] = [];
 		try {
 			for (let s of selection) {
-				const typeUserArchived = await archiveTypeUser({
+				const marqueArchived = await archiveMarque({
 					variables: {
 						_id: s,
 					},
 				});
 				arr.push(s);
 			}
-			// console.log("typeUserArchived: ", typeUserArchived.data.updatetypeUser._id);
-			let test = list.typeUsers.filter(
-				(typeUser: any) => !arr.includes(typeUser._id)
+			// console.log("marqueArchived: ", marqueArchived.data.updateMarque._id);
+			let test = list.marques.filter(
+				(marque: any) => !arr.includes(marque._id)
 			);
-			// let filtered = list.typeUsers.filter((m: any) => m._id !== user._id);
-			// filtered.push(typeUserArchived.data.updatetypeUser);
-			setList({ typeUsers: test });
+			// let filtered = list.marques.filter((m: any) => m._id !== user._id);
+			// filtered.push(marqueArchived.data.updateMarque);
+			setList({ marques: test });
 			showNotification({
-				title: `${"Supression typeUser"}`,
-				message: `${"Supression typeUser avec success"}`,
+				title: `${"Supression marque"}`,
+				message: `${"Supression marque avec success"}`,
 				color: "green",
 				autoClose: 5000,
 				bottom: "630px",
 			});
-			// setUpdatedLibelle(() => typeUserCreated.data.updatetypeUser.libelle);
+			// setUpdatedLibelle(() => marqueCreated.data.updateMarque.libelle);
 			setOpenedArchiveModal(false);
 		} catch (e: any) {
 			// if (e.message === "libelle unmodified") {
 			// 	setErr({ type: 1 });
 			// }
-			// if (e.message === "Cette typeUser existe déjà") {
+			// if (e.message === "Cette marque existe déjà") {
 			// 	setErr({ type: 2 });
 			// }
 			// setNewLibelle("");
 			// alert(e);
 			showNotification({
-				title: "Supression typeUser impossible",
+				title: "Supression marque impossible",
 				message: "Une erreur s'est produite",
 				color: "red",
 				autoClose: 5000,
@@ -566,28 +562,23 @@ export default function Demo({ opened }: any) {
 		}
 	};
 
-	const typeUserCreate = async (e: any) => {
+	const marqueCreate = async (e: any) => {
 		e.preventDefault();
 		console.log("From new way: ", newLibelle);
 		try {
-			const typeUserCreated = await createTypeUser({
+			const marqueCreated = await createMarque({
 				variables: {
-					createTypeUserInput: {
+					createMarqueInput: {
 						libelle: newLibelle,
-						for_buyer: forBuyer,
-						for_seller: forSeller,
-						description: "",
 					},
 				},
 			});
-			console.log("typeUserCreated: ", typeUserCreated);
+			console.log("marqueCreated: ", marqueCreated);
 			setNewLibelle("");
-			setList({
-				typeUsers: [...list.typeUsers, typeUserCreated.data.createTypeUser],
-			});
+			setList({ marques: [...list.marques, marqueCreated.data.createMarque] });
 			showNotification({
-				title: `${"Creation typeUser"}`,
-				message: `${"Creation typeUser avec success"}`,
+				title: `${"Creation marque"}`,
+				message: `${"Creation marque avec success"}`,
 				color: "green",
 				autoClose: 5000,
 				bottom: "630px",
@@ -597,7 +588,7 @@ export default function Demo({ opened }: any) {
 			setNewLibelle("");
 			alert(e);
 			showNotification({
-				title: "Creation typeUser impossible",
+				title: "Creation marque impossible",
 				message: "Une erreur s'est produite",
 				color: "red",
 				autoClose: 5000,
@@ -613,8 +604,8 @@ export default function Demo({ opened }: any) {
 			<Modal
 				opened={openedArchiveAllModal}
 				onClose={() => setOpenedArchiveAllModal(false)}
-				// title={`Voulez vous vraimment archiver la typeUser ${user.libelle}?`}
-				title={<p>Voulez vous vraimment archiver ces typeUsers ?</p>}
+				// title={`Voulez vous vraimment archiver la marque ${user.libelle}?`}
+				title={<p>Voulez vous vraimment archiver ces marques ?</p>}
 				className="shadow-xl"
 			>
 				<div>
@@ -648,12 +639,12 @@ export default function Demo({ opened }: any) {
 			<Modal
 				opened={openedArchiveModal}
 				onClose={() => setOpenedArchiveModal(false)}
-				// title={`Voulez vous vraimment archiver la typeUser ${user.libelle}?`}
-				title={<p>Voulez vous vraimment archiver ces typeUsers ?</p>}
+				// title={`Voulez vous vraimment archiver la marque ${user.libelle}?`}
+				title={<p>Voulez vous vraimment archiver ces marques ?</p>}
 				className="shadow-xl"
 			>
 				<div>
-					<form onSubmit={(e) => typeUserArchive(e)}>
+					<form onSubmit={(e) => marqueArchive(e)}>
 						{/* <TextInput
 							label="Libelle"
 							value={newLibelle}
@@ -683,25 +674,13 @@ export default function Demo({ opened }: any) {
 			<Modal
 				opened={openedModal}
 				onClose={() => setOpenedModal(false)}
-				title="Ajouter une Type d'utilisateur"
+				title="Ajouter une marque"
 			>
-				<form onSubmit={(e) => typeUserCreate(e)}>
+				<form onSubmit={(e) => marqueCreate(e)}>
 					<TextInput
 						label="Libelle"
 						onChange={(e) => setNewLibelle(e.target.value)}
 					/>
-					<div className="mt-1">
-						<Checkbox
-							checked={forSeller}
-							onChange={() => setForSeller(!forSeller)}
-							label={"Pour vendeur"}
-						/>
-						<Checkbox
-							checked={forBuyer}
-							onChange={() => setForBuyer(!forBuyer)}
-							label={"Pour Acheteur"}
-						/>
-					</div>
 
 					<div className="flex gap-3 mt-3 justify-end w-full">
 						<button
@@ -722,8 +701,8 @@ export default function Demo({ opened }: any) {
 			</Modal>
 			{/* <div className="lg:w-[85%] lg:m-auto"> */}
 			<div className="flex gap-3">
-				<p className="text-2xl mb-3 font-semibold">Types d'utilisateurs</p>
-				{/* <button onClick={openCreatetypeUserModal}> */}
+				<p className="text-2xl mb-3 font-semibold">Marques</p>
+				{/* <button onClick={openCreateMarqueModal}> */}
 				<button onClick={() => setOpenedModal(true)}>
 					<IconCirclePlus size={35} />
 				</button>
@@ -810,7 +789,7 @@ export default function Demo({ opened }: any) {
 								// console.log(datax.data.sellersOcc);
 								// setSortedData(datax.data.sellersOcc);
 								// console.log("search by dates data: ", datax.data.sellersOcc);
-								setList({ typeUsers: datax.data.typeUsersOcc });
+								setList({ marques: datax.data.marquesOcc });
 							}}
 						>
 							Rechercher
@@ -867,18 +846,17 @@ export default function Demo({ opened }: any) {
 							<th style={{ width: 40 }}>
 								<Checkbox
 									onChange={toggleAll}
-									// checked={selection.length === typeUsersData.length}
+									// checked={selection.length === marquesData.length}
 									indeterminate={
 										false
 										// selection.length > 0 &&
-										// selection.length !== typeUsersData.length
+										// selection.length !== marquesData.length
 									}
 									transitionDuration={0}
 								/>
 							</th>
 							<th className="hidden lg:table-cell">ID</th>
 							<th className="hidden lg:table-cell">Libelle</th>
-							<th className="hidden lg:table-cell"></th>
 							{/* <Th
 									sorted={sortBy === "nomEntreprise"}
 									reversed={reverseSortDirection}
@@ -915,12 +893,12 @@ export default function Demo({ opened }: any) {
 						</tr>
 					</thead>
 					<tbody className="">
-						{typeUsers.length === 0 ? (
+						{marques.length === 0 ? (
 							<div className="ml-[25%]">
 								<div>No results found</div>
 							</div>
 						) : (
-							typeUsers.reverse()
+							marques.reverse()
 						)}
 					</tbody>
 				</Table>

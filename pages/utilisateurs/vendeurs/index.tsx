@@ -16,7 +16,8 @@ import { keys } from "@mantine/utils";
 import { gql, useLazyQuery, useMutation, useQuery } from "@apollo/client";
 import "dayjs/locale/fr";
 // import client from "../apollo-client";
-import SellersBar from "../components/SellersBar";
+import SellersBar from "../../../components/SellersBar";
+// import SellersBar from "../../../components/SellersBar";
 // import { useSellers } from "../hooks/useSellerData";
 import {
 	IconSelector,
@@ -30,6 +31,14 @@ import { DateRangePicker, DateRangePickerValue } from "@mantine/dates";
 import dayjs from "dayjs";
 import { showNotification } from "@mantine/notifications";
 import { openConfirmModal } from "@mantine/modals";
+import {
+	RowData,
+	ThProps,
+	sortData,
+	getStartAndEndFromRange,
+} from "../../../utils/filtersUtils";
+import { ALL_SELLERS, GET_SELLERS_BY_OC } from "../../../graphql/queries";
+import { UPDATE_SELLER_STATUT } from "../../../graphql/mutations";
 
 const useStyles = createStyles((theme) => ({
 	th: {
@@ -54,30 +63,6 @@ const useStyles = createStyles((theme) => ({
 		borderRadius: 21,
 	},
 }));
-
-interface RowData {
-	nomEntreprise: string;
-	email: string;
-	numeroSiret: string;
-	statut_moderation: string;
-	typeVendeur: string;
-	typeCompte: string;
-	created_at: string;
-	statut: string;
-	pseudo: string;
-}
-
-interface TableSortProps {
-	data: RowData[];
-}
-
-interface ThProps {
-	children: React.ReactNode;
-	reversed: boolean;
-	sorted: boolean;
-	onSort(): void;
-	tailwind: string;
-}
 
 export function Th({
 	children,
@@ -133,20 +118,7 @@ export default function Demo({ opened }: any) {
 		setIsOpened(opened);
 	}, [opened]);
 
-	const UPDATE_STATUT = gql`
-		mutation updateSeller(
-			$_id: String!
-			$updateSellerInput: UpdateSellerInput!
-		) {
-			updateSeller(_id: $_id, updateSellerInput: $updateSellerInput) {
-				_id
-				firstName
-				email
-			}
-		}
-	`;
-
-	const [updateStatut, statutUpdateResult] = useMutation(UPDATE_STATUT);
+	const [updateStatut, statutUpdateResult] = useMutation(UPDATE_SELLER_STATUT);
 
 	const openModal = (e: any) => {
 		return openConfirmModal({
@@ -209,16 +181,12 @@ export default function Demo({ opened }: any) {
 								},
 							});
 							arr.push(s);
-							// setList({ sellers: test });
-							// console.log("test: ", test);
 						}
-						// console.log("arr: ", arr);
 						test = list.sellers.filter(
 							(seller: any) => !arr.includes(seller.userId)
 						);
 
 						setList({ sellers: test });
-						// setList({ sellers: test });
 					}
 					setChangedByBulkIds(selection);
 					if (e !== "archive") setStatut(() => e);
@@ -235,10 +203,6 @@ export default function Demo({ opened }: any) {
 						color: "green",
 						autoClose: 5000,
 						bottom: "630px",
-						// top: "0px",
-						// classNames: {
-						// 	root: "translate-y-[-500px]",
-						// },
 					});
 				} catch (e) {
 					showNotification({
@@ -252,60 +216,6 @@ export default function Demo({ opened }: any) {
 			},
 		});
 	};
-
-	const ALL_SELLERS = gql`
-		query Sellers {
-			sellers {
-				_id
-				userId
-				email
-				nomEntreprise
-				numeroSiret
-				statut_moderation
-				isPro
-				created_at
-				statut
-				pseudo
-				isArchived
-				type {
-					libelle
-				}
-			}
-		}
-	`;
-
-	const GET_SELLERS_BY_OC = gql`
-		query SellersByOc(
-			$email: String!
-			$nomEntreprise: String!
-			$pseudo: String!
-			$startDate: String!
-			$endDate: String!
-		) {
-			sellersOcc(
-				email: $email
-				nomEntreprise: $nomEntreprise
-				pseudo: $pseudo
-				startDate: $startDate
-				endDate: $endDate
-			) {
-				_id
-				userId
-				email
-				nomEntreprise
-				numeroSiret
-				statut_moderation
-				isPro
-				created_at
-				statut
-				pseudo
-				isArchived
-				type {
-					libelle
-				}
-			}
-		}
-	`;
 
 	const { error, loading, data } = useQuery(ALL_SELLERS, {
 		onCompleted: setList,
@@ -354,20 +264,6 @@ export default function Demo({ opened }: any) {
 				: sellersData.map((item: any) => item.userId)
 		);
 
-	function filterData(data: RowData[], search: string) {
-		const query = search.toLowerCase().trim();
-		// console.log(data);
-		return data.filter((item) =>
-			keys(data[0]).some((key) => {
-				if (typeof item[key] === "string") {
-					return item[key].toLowerCase().includes(query);
-				} else if (typeof item[key] === "number") {
-					return item[key].toString().toLowerCase().includes(query);
-				}
-			})
-		);
-	}
-
 	const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
 		const { value } = event.currentTarget;
 		setSearch(value);
@@ -379,50 +275,6 @@ export default function Demo({ opened }: any) {
 		console.log(sellersData);
 		setList({ sellers: sellersData });
 	};
-
-	function sortData(
-		data: RowData[],
-		payload: { sortBy: keyof RowData | null; reversed: boolean; search: string }
-	) {
-		const { sortBy } = payload;
-
-		if (!sortBy) {
-			return filterData(data, payload.search);
-		}
-
-		return filterData(
-			[...data].sort((a, b) => {
-				if (payload.reversed) {
-					return b[sortBy].localeCompare(a[sortBy]);
-				}
-
-				return a[sortBy].localeCompare(b[sortBy]);
-			}),
-			payload.search
-		);
-	}
-
-	function getStartAndEndFromRange(range: any) {
-		let results = ["", ""];
-		if (range[0] !== null && range[1] !== null) {
-			let y = range[0]?.getFullYear();
-			let m = range[0]?.getMonth();
-			let d = range[0]?.getDate();
-			// if (m) {
-			const start = `${y}/${m + 1}/${d}`;
-			results[0] = start;
-			// }
-			y = range[1]?.getFullYear();
-			m = range[1]?.getMonth();
-			d = range[1]?.getDate();
-			// if (m) {
-			const end = `${y}/${m + 1}/${d + 1}`;
-			results[1] = end;
-			// }
-		}
-		console.log("results: ", results);
-		return results;
-	}
 
 	console.log("sellers", list.sellers);
 
@@ -451,7 +303,7 @@ export default function Demo({ opened }: any) {
 			{/* <div className="lg:w-[85%] lg:m-auto"> */}
 			<div className="flex gap-3">
 				<p className="text-2xl mb-3 font-semibold">Vendeurs</p>
-				<Link href={"/ajouter-vendeur"}>
+				<Link href={"/utilisateurs/vendeurs/ajouter-vendeur"}>
 					<IconCirclePlus size={35} />
 				</Link>
 			</div>

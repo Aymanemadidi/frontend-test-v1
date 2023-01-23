@@ -16,6 +16,7 @@ import {
 	IconPhoto,
 	IconCalculator,
 	IconBook,
+	IconTower,
 } from "@tabler/icons";
 import { UserButton } from "../components/UserButton";
 import { LinksGroup } from "../components/NavbarLinksGroup";
@@ -28,11 +29,11 @@ const mockdata = [
 		icon: IconUsers,
 		links: [
 			{ label: "Tous", link: "/utilisateurs" },
-			{ label: "Administrateurs", link: "/administrateurs" },
-			{ label: "Vendeurs", link: "/vendeurs" },
-			{ label: "Vendeurs Pro", link: "/vendeursPro" },
-			{ label: "Acheteurs", link: "/acheteurs" },
-			{ label: "Utilisateurs Archivés", link: "/utilisateursArchives" },
+			{ label: "Administrateurs", link: "/utilisateurs/administrateurs" },
+			{ label: "Vendeurs", link: "/utilisateurs/vendeurs" },
+			{ label: "Vendeurs Pro", link: "/utilisateurs/vendeurs/vendeursPro" },
+			{ label: "Acheteurs", link: "/utilisateurs/acheteurs" },
+			{ label: "Utilisateurs Archivés", link: "/utilisateurs/archives" },
 		],
 	},
 	{
@@ -45,11 +46,11 @@ const mockdata = [
 		],
 	},
 	{
-		label: "Catalogue",
-		icon: IconBook,
+		label: "Administration",
+		icon: IconTower,
 		links: [
-			{ label: "Marques", link: "/marques" },
-			{ label: "Types utilisateurs", link: "/type-utilisateur" },
+			{ label: "Marques", link: "/administration/marques" },
+			{ label: "Types utilisateurs", link: "/administration/type-utilisateur" },
 		],
 	},
 	{
