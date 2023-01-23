@@ -14,8 +14,9 @@ import {
 } from "@mantine/core";
 import { keys } from "@mantine/utils";
 import { gql, useLazyQuery, useMutation, useQuery } from "@apollo/client";
+import "dayjs/locale/fr";
 // import client from "../apollo-client";
-import SellersBar from "../components/SellersBar";
+import SellersBar from "../../../components/SellersBar";
 // import { useSellers } from "../hooks/useSellerData";
 import {
 	IconSelector,
@@ -29,6 +30,17 @@ import { DateRangePicker, DateRangePickerValue } from "@mantine/dates";
 import dayjs from "dayjs";
 import { showNotification } from "@mantine/notifications";
 import { openConfirmModal } from "@mantine/modals";
+import {
+	RowData,
+	ThProps,
+	sortData,
+	getStartAndEndFromRange,
+} from "../../../utils/filtersUtils";
+import { UPDATE_SELLER_STATUT as UPDATE_STATUT } from "../../../graphql/mutations";
+import {
+	ALL_SELLERS_PRO,
+	GET_SELLERS_BY_OC_PRO as GET_SELLERS_BY_OC,
+} from "../../../graphql/queries";
 
 const useStyles = createStyles((theme) => ({
 	th: {
@@ -53,30 +65,6 @@ const useStyles = createStyles((theme) => ({
 		borderRadius: 21,
 	},
 }));
-
-interface RowData {
-	nomEntreprise: string;
-	email: string;
-	numeroSiret: string;
-	statut_moderation: string;
-	typeVendeur: string;
-	typeCompte: string;
-	created_at: string;
-	statut: string;
-	pseudo: string;
-}
-
-interface TableSortProps {
-	data: RowData[];
-}
-
-interface ThProps {
-	children: React.ReactNode;
-	reversed: boolean;
-	sorted: boolean;
-	onSort(): void;
-	tailwind: string;
-}
 
 export function Th({
 	children,
@@ -131,19 +119,6 @@ export default function Demo({ opened }: any) {
 	useEffect(() => {
 		setIsOpened(opened);
 	}, [opened]);
-
-	const UPDATE_STATUT = gql`
-		mutation updateSeller(
-			$_id: String!
-			$updateSellerInput: UpdateSellerInput!
-		) {
-			updateSeller(_id: $_id, updateSellerInput: $updateSellerInput) {
-				_id
-				firstName
-				email
-			}
-		}
-	`;
 
 	const [updateStatut, statutUpdateResult] = useMutation(UPDATE_STATUT);
 
@@ -212,11 +187,11 @@ export default function Demo({ opened }: any) {
 							// console.log("test: ", test);
 						}
 						// console.log("arr: ", arr);
-						test = list.sellers.filter(
+						test = list.sellersPro.filter(
 							(seller: any) => !arr.includes(seller.userId)
 						);
 
-						setList({ sellers: test });
+						setList({ sellersPro: test });
 						// setList({ sellers: test });
 					}
 					setChangedByBulkIds(selection);
@@ -252,57 +227,7 @@ export default function Demo({ opened }: any) {
 		});
 	};
 
-	const ALL_SELLERS = gql`
-		query Sellers {
-			sellers {
-				_id
-				userId
-				email
-				nomEntreprise
-				numeroSiret
-				statut_moderation
-				isPro
-				typeCompte
-				created_at
-				statut
-				pseudo
-				isArchived
-			}
-		}
-	`;
-
-	const GET_SELLERS_BY_OC = gql`
-		query SellersByOc(
-			$email: String!
-			$nomEntreprise: String!
-			$pseudo: String!
-			$startDate: String!
-			$endDate: String!
-		) {
-			sellersOcc(
-				email: $email
-				nomEntreprise: $nomEntreprise
-				pseudo: $pseudo
-				startDate: $startDate
-				endDate: $endDate
-			) {
-				_id
-				userId
-				email
-				nomEntreprise
-				numeroSiret
-				statut_moderation
-				isPro
-				typeCompte
-				created_at
-				statut
-				pseudo
-				isArchived
-			}
-		}
-	`;
-
-	const { error, loading, data } = useQuery(ALL_SELLERS, {
+	const { error, loading, data } = useQuery(ALL_SELLERS_PRO, {
 		onCompleted: setList,
 		fetchPolicy: "no-cache",
 	});
@@ -322,8 +247,8 @@ export default function Demo({ opened }: any) {
 		return <div>{error.message}</div>;
 	}
 
-	let sellersData = data?.sellers;
-	let sellers = [];
+	let sellersData = data?.sellersPro;
+	let sellersPro = [];
 	if (results.data) {
 		sellersData = results.data.sellersOcc;
 	}
@@ -333,7 +258,7 @@ export default function Demo({ opened }: any) {
 		setReverseSortDirection(reversed);
 		setSortBy(field);
 		sellersData = sortData(sellersData, { sortBy: field, reversed, search });
-		setList({ sellers: sellersData });
+		setList({ sellersPro: sellersData });
 	};
 
 	const toggleRow = (id: string) =>
@@ -349,20 +274,6 @@ export default function Demo({ opened }: any) {
 				: sellersData.map((item: any) => item.userId)
 		);
 
-	function filterData(data: RowData[], search: string) {
-		const query = search.toLowerCase().trim();
-		// console.log(data);
-		return data.filter((item) =>
-			keys(data[0]).some((key) => {
-				if (typeof item[key] === "string") {
-					return item[key].toLowerCase().includes(query);
-				} else if (typeof item[key] === "number") {
-					return item[key].toString().toLowerCase().includes(query);
-				}
-			})
-		);
-	}
-
 	const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
 		const { value } = event.currentTarget;
 		setSearch(value);
@@ -372,56 +283,12 @@ export default function Demo({ opened }: any) {
 			search: value,
 		});
 		console.log(sellersData);
-		setList({ sellers: sellersData });
+		setList({ sellersPro: sellersData });
 	};
-
-	function sortData(
-		data: RowData[],
-		payload: { sortBy: keyof RowData | null; reversed: boolean; search: string }
-	) {
-		const { sortBy } = payload;
-
-		if (!sortBy) {
-			return filterData(data, payload.search);
-		}
-
-		return filterData(
-			[...data].sort((a, b) => {
-				if (payload.reversed) {
-					return b[sortBy].localeCompare(a[sortBy]);
-				}
-
-				return a[sortBy].localeCompare(b[sortBy]);
-			}),
-			payload.search
-		);
-	}
-
-	function getStartAndEndFromRange(range: any) {
-		let results = ["", ""];
-		if (range[0] !== null && range[1] !== null) {
-			let y = range[0]?.getFullYear();
-			let m = range[0]?.getMonth();
-			let d = range[0]?.getDate();
-			// if (m) {
-			const start = `${y}/${m + 1}/${d}`;
-			results[0] = start;
-			// }
-			y = range[1]?.getFullYear();
-			m = range[1]?.getMonth();
-			d = range[1]?.getDate();
-			// if (m) {
-			const end = `${y}/${m + 1}/${d + 1}`;
-			results[1] = end;
-			// }
-		}
-		console.log("results: ", results);
-		return results;
-	}
 
 	console.log("sellers", list.sellers);
 
-	sellers = list.sellers.map((user: any) => {
+	sellersPro = list.sellersPro.map((user: any) => {
 		console.log("isArchived: ", user);
 		if (!user.isArchived) {
 			return (
@@ -445,8 +312,13 @@ export default function Demo({ opened }: any) {
 		<div className={`${isOpened ? "lg:ml-[15%]" : ""} lg:m-auto lg:w-[85%]`}>
 			{/* <div className="lg:w-[85%] lg:m-auto"> */}
 			<div className="flex gap-3">
-				<p className="text-2xl mb-3 font-semibold">Vendeurs</p>
-				<Link href={"/ajouter-vendeur"}>
+				<p className="text-2xl mb-3 font-semibold">Vendeurs Pro</p>
+				<Link
+					href={{
+						pathname: "/utilisateurs/vendeurs/ajouter-vendeur",
+						query: { isPro: true },
+					}}
+				>
 					<IconCirclePlus size={35} />
 				</Link>
 			</div>
@@ -497,12 +369,13 @@ export default function Demo({ opened }: any) {
 							/>
 							<DateRangePicker
 								// label="Book hotel"
+								locale="fr"
 								classNames={{
 									// input: "w-[350px] rounded-2xl",
 									root: "w-full",
 									input: "rounded-2xl lg:w-[350px]",
 								}}
-								placeholder="Dates"
+								placeholder="Date d’enregistrement min - max"
 								// placeholder="Pick dates range"
 								value={rangeValue}
 								onChange={setRangeValue}
@@ -525,6 +398,7 @@ export default function Demo({ opened }: any) {
 										pseudo: pseudoToSearch,
 										startDate: ranges[0],
 										endDate: ranges[1],
+										isPro: true,
 									},
 								});
 								// console.log("ranges: ", ranges[0]);
@@ -532,7 +406,7 @@ export default function Demo({ opened }: any) {
 								// console.log(datax.data.sellersOcc);
 								// setSortedData(datax.data.sellersOcc);
 								// console.log("search by dates data: ", datax.data.sellersOcc);
-								setList({ sellers: datax.data.sellersOcc });
+								setList({ sellersPro: datax.data.sellersOcc });
 							}}
 						>
 							Rechercher
@@ -567,7 +441,7 @@ export default function Demo({ opened }: any) {
 					]}
 				/>
 				<TextInput
-					placeholder="Search by any field"
+					placeholder="Recherche"
 					classNames={{
 						input: "rounded-2xl w-[200px] lg:w-[250px]",
 					}}
@@ -640,12 +514,12 @@ export default function Demo({ opened }: any) {
 							</tr>
 						</thead>
 						<tbody className="">
-							{sellers.length === 0 ? (
+							{sellersPro.length === 0 ? (
 								<div className="ml-[25%]">
-									<div>Aucun vendeur trouvé !</div>
+									<div>Aucun vendeur pro trouvé !</div>
 								</div>
 							) : (
-								sellers.reverse()
+								sellersPro.reverse()
 							)}
 						</tbody>
 					</Table>

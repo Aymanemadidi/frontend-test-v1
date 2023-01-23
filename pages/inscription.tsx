@@ -23,6 +23,14 @@ export default function Inscription() {
 			>
 				Acheteur
 			</Button>
+			<Button
+				className="bg-green-500 w-[15%] min-w-[150px]"
+				leftIcon={<IconShoppingCart size={20} />}
+				rightIcon={<IconBuildingStore size={20} />}
+				onClick={() => router.push("/inscription-vendeur-acheteur")}
+			>
+				Vendeur-Acheteur
+			</Button>
 		</div>
 	);
 }

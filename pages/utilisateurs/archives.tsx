@@ -14,9 +14,10 @@ import {
 } from "@mantine/core";
 import { keys } from "@mantine/utils";
 import { gql, useLazyQuery, useMutation, useQuery } from "@apollo/client";
+import "dayjs/locale/fr";
 // import client from "../apollo-client";
 // import SellersBar from "../components/SellersBar";
-import BuyersBar from "../components/BuyersBar";
+import BuyersBar from "../../components/BuyersBar";
 // import { useSellers } from "../hooks/useSellerData";
 import {
 	IconSelector,
@@ -31,7 +32,19 @@ import { useRouter } from "next/router";
 import dayjs from "dayjs";
 import { showNotification } from "@mantine/notifications";
 import { openConfirmModal } from "@mantine/modals";
-import UsersBar from "../components/UsersBar";
+import UsersBar from "../../components/UsersBar";
+import {
+	RowData,
+	ThProps,
+	sortData,
+	getStartAndEndFromRange,
+} from "../../utils/filtersUtils";
+import { ALL_USERS_NEW, GET_USERS_BY_OC } from "../../graphql/queries";
+import {
+	UPDATE_BUYER_STATUT,
+	UPDATE_SELLER_STATUT,
+	UPDATE_USER_STATUT,
+} from "../../graphql/mutations";
 
 const useStyles = createStyles((theme) => ({
 	th: {
@@ -56,30 +69,6 @@ const useStyles = createStyles((theme) => ({
 		borderRadius: 21,
 	},
 }));
-
-interface RowData {
-	nomEntreprise: string;
-	email: string;
-	numeroSiret: string;
-	statut_moderation: string;
-	typeVendeur: string;
-	typeCompte: string;
-	created_at: string;
-	statut: string;
-	pseudo: string;
-}
-
-interface TableSortProps {
-	data: RowData[];
-}
-
-interface ThProps {
-	children: React.ReactNode;
-	reversed: boolean;
-	sorted: boolean;
-	onSort(): void;
-	tailwind: string;
-}
 
 function Th({ children, reversed, sorted, onSort, tailwind = "" }: ThProps) {
 	const { classes } = useStyles();
@@ -132,46 +121,13 @@ export default function Demo({ opened }: any) {
 		setIsOpened(opened);
 	}, [opened]);
 
-	const UPDATE_USER_STATUT = gql`
-		mutation updateUser($_id: String!, $updateUserInput: UpdateUserInput!) {
-			updateUser(_id: $_id, updateUserInput: $updateUserInput) {
-				_id
-				firstName
-				email
-			}
-		}
-	`;
-
 	const [updateUserStatut, userStatutUpdateResult] =
 		useMutation(UPDATE_USER_STATUT);
-
-	const UPDATE_SELLER_STATUT = gql`
-		mutation updateSeller(
-			$_id: String!
-			$updateSellerInput: UpdateSellerInput!
-		) {
-			updateSeller(_id: $_id, updateSellerInput: $updateSellerInput) {
-				_id
-				firstName
-				email
-			}
-		}
-	`;
 
 	const [updateSellerStatut, sellerStatutUpdateResult] =
 		useMutation(UPDATE_SELLER_STATUT);
 
-	const UPDATE_STATUT = gql`
-		mutation updateBuyer($_id: String!, $updateBuyerInput: UpdateBuyerInput!) {
-			updateBuyer(_id: $_id, updateBuyerInput: $updateBuyerInput) {
-				_id
-				firstName
-				email
-			}
-		}
-	`;
-
-	const [updateStatut, statutUpdateResult] = useMutation(UPDATE_STATUT);
+	const [updateStatut, statutUpdateResult] = useMutation(UPDATE_BUYER_STATUT);
 
 	const openModal = (e: any) => {
 		return openConfirmModal({
@@ -196,10 +152,7 @@ export default function Demo({ opened }: any) {
 							<span className="text-red-400">Inactif</span> ?
 						</p>
 					) : (
-						<p>
-							Voulez vous rendre ces utilisateurs{" "}
-							<span className="text-red-400">Archivé</span> ?
-						</p>
+						<p>Voulez vous restaurer ces utilisateurs </p>
 					)}
 				</p>
 			),
@@ -250,7 +203,7 @@ export default function Demo({ opened }: any) {
 									variables: {
 										_id: s[0],
 										updateBuyerInput: {
-											isArchived: true,
+											isArchived: false,
 										},
 									},
 								});
@@ -259,7 +212,7 @@ export default function Demo({ opened }: any) {
 									variables: {
 										_id: s[0],
 										updateSellerInput: {
-											isArchived: true,
+											isArchived: false,
 										},
 									},
 								});
@@ -268,7 +221,7 @@ export default function Demo({ opened }: any) {
 									variables: {
 										_id: s[0],
 										updateUserInput: {
-											isArchived: true,
+											isArchived: false,
 										},
 									},
 								});
@@ -321,96 +274,6 @@ export default function Demo({ opened }: any) {
 			},
 		});
 	};
-
-	const ALL_USERS_NEW = gql`
-		query users2 {
-			users2 {
-				_id
-				firstName
-				lastName
-				email
-				role
-				statut
-				isArchived
-				seller {
-					statut
-					created_at
-					typeCompte
-					nomEntreprise
-					pseudo
-					isPro
-					statut_moderation
-					isArchived
-				}
-				buyer {
-					statut
-					created_at
-					nomEntreprise
-					pseudo
-					typeCompte
-					isArchived
-				}
-			}
-		}
-	`;
-
-	// const ALL_USERS = gql`
-	// 	query users {
-	// 		users {
-	// 			_id
-	// 			email
-	// 			role
-	// 		}
-	// 	}
-	// `;
-
-	const GET_USERS_BY_OC = gql`
-		query UsersByOc(
-			$email: String!
-			$nomEntreprise: String!
-			$pseudo: String!
-			$startDate: String!
-			$endDate: String!
-			$statut: String!
-			$type: String!
-		) {
-			usersOcc(
-				email: $email
-				nomEntreprise: $nomEntreprise
-				pseudo: $pseudo
-				startDate: $startDate
-				endDate: $endDate
-				statut: $statut
-				type: $type
-			) {
-				_id
-				firstName
-				lastName
-				email
-				role
-				statut
-				isArchived
-				seller {
-					statut
-					created_at
-					typeCompte
-					nomEntreprise
-					pseudo
-					isPro
-					statut_moderation
-					isArchived
-				}
-				buyer {
-					statut
-					created_at
-					nomEntreprise
-					pseudo
-					typeCompte
-					isArchived
-				}
-			}
-		}
-	`;
 
 	// const newData = useQuery(ALL_USERS_NEW, {
 	// 	fetchPolicy: "no-cache",
@@ -470,20 +333,6 @@ export default function Demo({ opened }: any) {
 				: usersData.map((item: any) => item._id)
 		);
 
-	function filterData(data: RowData[], search: string) {
-		const query = search.toLowerCase().trim();
-		// console.log(data);
-		return data.filter((item) =>
-			keys(data[0]).some((key) => {
-				if (typeof item[key] === "string") {
-					return item[key].toLowerCase().includes(query);
-				} else if (typeof item[key] === "number") {
-					return item[key].toString().toLowerCase().includes(query);
-				}
-			})
-		);
-	}
-
 	const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
 		const { value } = event.currentTarget;
 		setSearch(value);
@@ -496,60 +345,16 @@ export default function Demo({ opened }: any) {
 		setList({ users2: usersData });
 	};
 
-	function sortData(
-		data: RowData[],
-		payload: { sortBy: keyof RowData | null; reversed: boolean; search: string }
-	) {
-		const { sortBy } = payload;
-
-		if (!sortBy) {
-			return filterData(data, payload.search);
-		}
-
-		return filterData(
-			[...data].sort((a, b) => {
-				if (payload.reversed) {
-					return b[sortBy].localeCompare(a[sortBy]);
-				}
-
-				return a[sortBy].localeCompare(b[sortBy]);
-			}),
-			payload.search
-		);
-	}
-
-	function getStartAndEndFromRange(range: any) {
-		let results = ["", ""];
-		if (range[0] !== null && range[1] !== null) {
-			let y = range[0]?.getFullYear();
-			let m = range[0]?.getMonth();
-			let d = range[0]?.getDate();
-			// if (m) {
-			const start = `${y}/${m + 1}/${d}`;
-			results[0] = start;
-			// }
-			y = range[1]?.getFullYear();
-			m = range[1]?.getMonth();
-			d = range[1]?.getDate();
-			// if (m) {
-			const end = `${y}/${m + 1}/${d + 1}`;
-			results[1] = end;
-			// }
-		}
-		console.log("results: ", results);
-		return results;
-	}
-
 	console.log("users", list.users);
 
 	users = list.users2.map((user: any) => {
-		// console.log("isArchived: ", user);
+		console.log("isArchived: ", user);
 		if (
 			user.seller
-				? !user.seller.isArchived
+				? user.seller.isArchived
 				: user.buyer
-				? !user.buyer.isArchived
-				: !user.isArchived
+				? user.buyer.isArchived
+				: user.isArchived
 		) {
 			return (
 				<UsersBar
@@ -573,28 +378,7 @@ export default function Demo({ opened }: any) {
 		<div className={`${isOpened ? "lg:ml-[15%]" : ""} lg:m-auto lg:w-[85%]`}>
 			{/* <div className="lg:w-[85%] lg:m-auto"> */}
 			<div className="flex gap-3">
-				<p className="text-2xl mb-3 font-semibold">Tous les utilisateurs</p>
-				<Select
-					// label="Ajouter"
-					classNames={{
-						// root: "basis-3/5",
-						input: "rounded-2xl",
-					}}
-					mb="md"
-					icon={<IconPlus size={14} stroke={1.5} />}
-					placeholder="Ajouter"
-					data={[
-						{ label: "Un Vendeur", value: "vendeur" },
-						{ label: "Un Vendeur Pro", value: "vendeur?isPro=true" },
-						{ label: "Un Acheteur", value: "acheteur" },
-						{ label: "Un Administrateur", value: "administrateur" },
-					]}
-					onChange={(e) => {
-						if (e !== "") {
-							router.push(`/ajouter-${e}`);
-						}
-					}}
-				/>
+				<p className="text-2xl mb-3 font-semibold">Utilisateurs archivés</p>
 				{/* <Link href={"/ajouter-acheteur"}>
 					<IconCirclePlus size={35} />
 				</Link> */}
@@ -678,14 +462,15 @@ export default function Demo({ opened }: any) {
 							/>
 							<DateRangePicker
 								// label="Book hotel"
+								locale="fr"
 								classNames={{
 									// root: "w-full",
 									root: "w-3/5",
 									input: "rounded-2xl lg:w-[350px]",
 									label: "font-light",
 								}}
-								placeholder="Dates"
-								label="Dates"
+								placeholder="min - max"
+								label="Date d’enregistrement min - max"
 								// placeholder="Pick dates range"
 								value={rangeValue}
 								onChange={setRangeValue}
@@ -784,7 +569,6 @@ export default function Demo({ opened }: any) {
 									console.log("rangeValue:", rangeValue);
 									let ranges = getStartAndEndFromRange(rangeValue);
 									console.log("ranges", ranges);
-									console.log("email to search: ", emailToSearch);
 									const datax = await getAllUsersByOc({
 										variables: {
 											email: emailToSearch,
@@ -835,13 +619,13 @@ export default function Demo({ opened }: any) {
 						openModal(e); // this actually works just need to update the ui
 					}}
 					data={[
-						{ value: "archive", label: "Archiver" },
+						{ value: "restore", label: "restaurer" },
 						{ value: "actif", label: "activer" },
 						{ value: "inactif", label: "desactiver" },
 					]}
 				/>
 				<TextInput
-					placeholder="Search by any field"
+					placeholder="Recherche"
 					classNames={{
 						input: "rounded-2xl w-[200px] lg:w-[250px]",
 					}}

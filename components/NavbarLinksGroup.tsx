@@ -94,7 +94,8 @@ export function LinksGroup({
 	));
 
 	return (
-		<Link href={label === "Dashboard" ? "/dashboard" : ""}>
+		// <Link href={label === "Dashboard" ? "/dashboard": ""}>
+		<Link href={label === "Dashboard" ? "/tableau-de-bord" : "#"}>
 			<UnstyledButton
 				onClick={() => setOpened((o: any) => !o)}
 				className={classes.control}
