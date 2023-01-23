@@ -15,25 +15,25 @@ import {
 	IconPercentage,
 	IconPhoto,
 	IconCalculator,
+	IconBook,
+	IconTower,
 } from "@tabler/icons";
 import { UserButton } from "../components/UserButton";
 import { LinksGroup } from "../components/NavbarLinksGroup";
 // import { Logo } from "./Logo";
 
 const mockdata = [
-	{ label: "Dashboard", icon: IconGauge, link: "/dashboard" },
+	{ label: "Dashboard", icon: IconGauge, link: "/tableau-de-bord" },
 	{
 		label: "Utilisateurs",
 		icon: IconUsers,
-		initiallyOpened: true,
 		links: [
 			{ label: "Tous", link: "/utilisateurs" },
-			{ label: "Administrateurs", link: "/administrateurs" },
-			{ label: "Vendeurs", link: "/vendeurs" },
-			{ label: "Vendeurs Pro", link: "/vendeursPro" },
-			{ label: "Acheteurs", link: "/acheteurs" },
-			{ label: "Utilisateurs Archivés", link: "/utilisateursArchives" },
-			// { label: "Real time", link: "/" },
+			{ label: "Administrateurs", link: "/utilisateurs/administrateurs" },
+			{ label: "Vendeurs", link: "/utilisateurs/vendeurs" },
+			{ label: "Vendeurs Pro", link: "/utilisateurs/vendeurs/vendeursPro" },
+			{ label: "Acheteurs", link: "/utilisateurs/acheteurs" },
+			{ label: "Utilisateurs Archivés", link: "/utilisateurs/archives" },
 		],
 	},
 	{
@@ -43,6 +43,14 @@ const mockdata = [
 			{ label: "Upcoming releases", link: "/utilisateurs" },
 			{ label: "Previous releases", link: "/acheteurs" },
 			{ label: "Releases schedule", link: "/vendeurs" },
+		],
+	},
+	{
+		label: "Administration",
+		icon: IconTower,
+		links: [
+			{ label: "Marques", link: "/administration/marques" },
+			{ label: "Types utilisateurs", link: "/administration/type-utilisateur" },
 		],
 	},
 	{

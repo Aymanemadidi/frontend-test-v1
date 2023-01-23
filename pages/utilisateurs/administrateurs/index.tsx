@@ -14,8 +14,10 @@ import {
 } from "@mantine/core";
 import { keys } from "@mantine/utils";
 import { gql, useLazyQuery, useMutation, useQuery } from "@apollo/client";
+import "dayjs/locale/fr";
 // import client from "../apollo-client";
-import SellersBar from "../components/SellersBar";
+// import SellersBar from "../components/SellersBar";
+import BuyersBar from "../../../components/BuyersBar";
 // import { useSellers } from "../hooks/useSellerData";
 import {
 	IconSelector,
@@ -29,6 +31,16 @@ import { DateRangePicker, DateRangePickerValue } from "@mantine/dates";
 import dayjs from "dayjs";
 import { showNotification } from "@mantine/notifications";
 import { openConfirmModal } from "@mantine/modals";
+import UsersBar from "../../../components/UsersBar";
+import AdminsBar from "../../../components/AdminsBar";
+import {
+	RowData,
+	ThProps,
+	sortData,
+	getStartAndEndFromRange,
+} from "../../../utils/filtersUtils";
+import { UPDATE_USER_STATUT } from "../../../graphql/mutations";
+import { ALL_ADMINS, GET_ADMINS_BY_OC } from "../../../graphql/queries";
 
 const useStyles = createStyles((theme) => ({
 	th: {
@@ -54,37 +66,7 @@ const useStyles = createStyles((theme) => ({
 	},
 }));
 
-interface RowData {
-	nomEntreprise: string;
-	email: string;
-	numeroSiret: string;
-	statut_moderation: string;
-	typeVendeur: string;
-	typeCompte: string;
-	created_at: string;
-	statut: string;
-	pseudo: string;
-}
-
-interface TableSortProps {
-	data: RowData[];
-}
-
-interface ThProps {
-	children: React.ReactNode;
-	reversed: boolean;
-	sorted: boolean;
-	onSort(): void;
-	tailwind: string;
-}
-
-export function Th({
-	children,
-	reversed,
-	sorted,
-	onSort,
-	tailwind = "",
-}: ThProps) {
+function Th({ children, reversed, sorted, onSort, tailwind = "" }: ThProps) {
 	const { classes } = useStyles();
 	const Icon = sorted
 		? reversed
@@ -113,7 +95,7 @@ export default function Demo({ opened }: any) {
 	const [sortBy, setSortBy] = useState<keyof RowData | null>(null);
 	const [reverseSortDirection, setReverseSortDirection] = useState(false);
 	const [emailToSearch, setEmailToSearch] = useState("");
-	const [nomEntrepriseToSearch, setNomEntrepriseToSearch] = useState("");
+	const [statutToSearch, setStatutToSearch] = useState("");
 	const [pseudoToSearch, setPseudoToSearch] = useState("");
 	// const [startDateToSearch, setStartDateToSearch] = useState("");
 	// const [endDateToSearch, setEndDateToSearch] = useState("");
@@ -132,20 +114,7 @@ export default function Demo({ opened }: any) {
 		setIsOpened(opened);
 	}, [opened]);
 
-	const UPDATE_STATUT = gql`
-		mutation updateSeller(
-			$_id: String!
-			$updateSellerInput: UpdateSellerInput!
-		) {
-			updateSeller(_id: $_id, updateSellerInput: $updateSellerInput) {
-				_id
-				firstName
-				email
-			}
-		}
-	`;
-
-	const [updateStatut, statutUpdateResult] = useMutation(UPDATE_STATUT);
+	const [updateStatut, statutUpdateResult] = useMutation(UPDATE_USER_STATUT);
 
 	const openModal = (e: any) => {
 		return openConfirmModal({
@@ -191,7 +160,7 @@ export default function Demo({ opened }: any) {
 							await updateStatut({
 								variables: {
 									_id: s,
-									updateSellerInput: {
+									updateUserInput: {
 										statut: e,
 									},
 								},
@@ -202,7 +171,7 @@ export default function Demo({ opened }: any) {
 							await updateStatut({
 								variables: {
 									_id: s,
-									updateSellerInput: {
+									updateUserInput: {
 										isArchived: true,
 									},
 								},
@@ -212,11 +181,9 @@ export default function Demo({ opened }: any) {
 							// console.log("test: ", test);
 						}
 						// console.log("arr: ", arr);
-						test = list.sellers.filter(
-							(seller: any) => !arr.includes(seller.userId)
-						);
+						test = list.admins.filter((admin: any) => !arr.includes(admin._id));
 
-						setList({ sellers: test });
+						setList({ admins: test });
 						// setList({ sellers: test });
 					}
 					setChangedByBulkIds(selection);
@@ -240,9 +207,10 @@ export default function Demo({ opened }: any) {
 						// },
 					});
 				} catch (e) {
+					alert(e);
 					showNotification({
 						title: "Changement de statut impossible",
-						message: "Vendeur non moderer",
+						message: "Une erreur s'est produite",
 						color: "red",
 						autoClose: 5000,
 						bottom: "630px",
@@ -252,61 +220,11 @@ export default function Demo({ opened }: any) {
 		});
 	};
 
-	const ALL_SELLERS = gql`
-		query Sellers {
-			sellers {
-				_id
-				userId
-				email
-				nomEntreprise
-				numeroSiret
-				statut_moderation
-				isPro
-				typeCompte
-				created_at
-				statut
-				pseudo
-				isArchived
-			}
-		}
-	`;
-
-	const GET_SELLERS_BY_OC = gql`
-		query SellersByOc(
-			$email: String!
-			$nomEntreprise: String!
-			$pseudo: String!
-			$startDate: String!
-			$endDate: String!
-		) {
-			sellersOcc(
-				email: $email
-				nomEntreprise: $nomEntreprise
-				pseudo: $pseudo
-				startDate: $startDate
-				endDate: $endDate
-			) {
-				_id
-				userId
-				email
-				nomEntreprise
-				numeroSiret
-				statut_moderation
-				isPro
-				typeCompte
-				created_at
-				statut
-				pseudo
-				isArchived
-			}
-		}
-	`;
-
-	const { error, loading, data } = useQuery(ALL_SELLERS, {
+	const { error, loading, data } = useQuery(ALL_ADMINS, {
 		onCompleted: setList,
 		fetchPolicy: "no-cache",
 	});
-	const [getEmailsBySearch, results] = useLazyQuery(GET_SELLERS_BY_OC);
+	const [getEmailsBySearch, results] = useLazyQuery(GET_ADMINS_BY_OC);
 
 	if (loading) {
 		return (
@@ -322,18 +240,18 @@ export default function Demo({ opened }: any) {
 		return <div>{error.message}</div>;
 	}
 
-	let sellersData = data?.sellers;
-	let sellers = [];
+	let adminsData = data?.admins;
+	let admins = [];
 	if (results.data) {
-		sellersData = results.data.sellersOcc;
+		adminsData = results.data.adminsOcc;
 	}
 
 	const setSorting = (field: keyof RowData) => {
 		const reversed = field === sortBy ? !reverseSortDirection : false;
 		setReverseSortDirection(reversed);
 		setSortBy(field);
-		sellersData = sortData(sellersData, { sortBy: field, reversed, search });
-		setList({ sellers: sellersData });
+		adminsData = sortData(adminsData, { sortBy: field, reversed, search });
+		setList({ admins: adminsData });
 	};
 
 	const toggleRow = (id: string) =>
@@ -344,88 +262,30 @@ export default function Demo({ opened }: any) {
 		);
 	const toggleAll = () =>
 		setSelection((current) =>
-			current.length === sellersData.length
+			current.length === adminsData.length
 				? []
-				: sellersData.map((item: any) => item.userId)
+				: adminsData.map((item: any) => item._id)
 		);
-
-	function filterData(data: RowData[], search: string) {
-		const query = search.toLowerCase().trim();
-		// console.log(data);
-		return data.filter((item) =>
-			keys(data[0]).some((key) => {
-				if (typeof item[key] === "string") {
-					return item[key].toLowerCase().includes(query);
-				} else if (typeof item[key] === "number") {
-					return item[key].toString().toLowerCase().includes(query);
-				}
-			})
-		);
-	}
 
 	const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
 		const { value } = event.currentTarget;
 		setSearch(value);
-		sellersData = sortData(sellersData, {
+		adminsData = sortData(adminsData, {
 			sortBy,
 			reversed: reverseSortDirection,
 			search: value,
 		});
-		console.log(sellersData);
-		setList({ sellers: sellersData });
+		console.log(adminsData);
+		setList({ admins: adminsData });
 	};
 
-	function sortData(
-		data: RowData[],
-		payload: { sortBy: keyof RowData | null; reversed: boolean; search: string }
-	) {
-		const { sortBy } = payload;
+	console.log("admins", list.admins);
 
-		if (!sortBy) {
-			return filterData(data, payload.search);
-		}
-
-		return filterData(
-			[...data].sort((a, b) => {
-				if (payload.reversed) {
-					return b[sortBy].localeCompare(a[sortBy]);
-				}
-
-				return a[sortBy].localeCompare(b[sortBy]);
-			}),
-			payload.search
-		);
-	}
-
-	function getStartAndEndFromRange(range: any) {
-		let results = ["", ""];
-		if (range[0] !== null && range[1] !== null) {
-			let y = range[0]?.getFullYear();
-			let m = range[0]?.getMonth();
-			let d = range[0]?.getDate();
-			// if (m) {
-			const start = `${y}/${m + 1}/${d}`;
-			results[0] = start;
-			// }
-			y = range[1]?.getFullYear();
-			m = range[1]?.getMonth();
-			d = range[1]?.getDate();
-			// if (m) {
-			const end = `${y}/${m + 1}/${d + 1}`;
-			results[1] = end;
-			// }
-		}
-		console.log("results: ", results);
-		return results;
-	}
-
-	console.log("sellers", list.sellers);
-
-	sellers = list.sellers.map((user: any) => {
-		console.log("isArchived: ", user);
+	admins = list.admins.map((user: any) => {
+		// console.log("isArchived: ", user);
 		if (!user.isArchived) {
 			return (
-				<SellersBar
+				<AdminsBar
 					key={user.email}
 					user={user}
 					selection={selection}
@@ -445,8 +305,8 @@ export default function Demo({ opened }: any) {
 		<div className={`${isOpened ? "lg:ml-[15%]" : ""} lg:m-auto lg:w-[85%]`}>
 			{/* <div className="lg:w-[85%] lg:m-auto"> */}
 			<div className="flex gap-3">
-				<p className="text-2xl mb-3 font-semibold">Vendeurs</p>
-				<Link href={"/ajouter-vendeur"}>
+				<p className="text-2xl mb-3 font-semibold">Administrateurs</p>
+				<Link href={"/utilisateurs/administrateurs/ajouter-administrateur"}>
 					<IconCirclePlus size={35} />
 				</Link>
 			</div>
@@ -466,23 +326,36 @@ export default function Demo({ opened }: any) {
 							autoComplete="off"
 							onChange={(e) => setEmailToSearch(e.currentTarget.value)}
 						/>
-						<TextInput
+						<Select
 							classNames={{
-								input: " rounded-2xl lg:w-[280px]",
+								root: "hidden lg:block",
+								input: " rounded-2xl lg:w-[230px]",
+								label: "font-light",
 								// input: "w-[280px] rounded-2xl",
 							}}
 							// placeholder="Search by nom de société"
-							placeholder="Société"
+							placeholder="Statut"
+							// label="Statut"
 							mb="md"
 							icon={<IconSearch size={14} stroke={1.5} />}
-							value={nomEntrepriseToSearch}
+							value={statutToSearch}
 							autoComplete="off"
-							onChange={(e) => setNomEntrepriseToSearch(e.currentTarget.value)}
+							onChange={(e) => {
+								if (e !== null) {
+									setStatutToSearch(e);
+								}
+							}}
+							data={[
+								{ label: "Actif", value: "actif" },
+								{ label: "Inactif", value: "inactif" },
+								// { label: "Nouveau", value: "new" },
+								{ label: "Tout", value: "" },
+							]}
 						/>
 					</div>
 					<div className="flex flex-col lg:flex-row lg:justify-between items-start">
 						<div className="flex gap-2">
-							<TextInput
+							{/* <TextInput
 								classNames={{
 									// input: "w-[250px] rounded-2xl",
 									root: "basis-3/5",
@@ -494,15 +367,16 @@ export default function Demo({ opened }: any) {
 								icon={<IconSearch size={14} stroke={1.5} />}
 								value={pseudoToSearch}
 								onChange={(e) => setPseudoToSearch(e.currentTarget.value)}
-							/>
+							/> */}
 							<DateRangePicker
 								// label="Book hotel"
+								locale="fr"
 								classNames={{
 									// input: "w-[350px] rounded-2xl",
 									root: "w-full",
 									input: "rounded-2xl lg:w-[350px]",
 								}}
-								placeholder="Dates"
+								placeholder="Date d’enregistrement min - max"
 								// placeholder="Pick dates range"
 								value={rangeValue}
 								onChange={setRangeValue}
@@ -521,18 +395,17 @@ export default function Demo({ opened }: any) {
 								const datax = await getEmailsBySearch({
 									variables: {
 										email: emailToSearch,
-										nomEntreprise: nomEntrepriseToSearch,
-										pseudo: pseudoToSearch,
 										startDate: ranges[0],
 										endDate: ranges[1],
+										statut: statutToSearch,
 									},
 								});
 								// console.log("ranges: ", ranges[0]);
 								// console.log("ranges: ", ranges[1]);
-								// console.log(datax.data.sellersOcc);
+								// console.log("datax", datax);
 								// setSortedData(datax.data.sellersOcc);
 								// console.log("search by dates data: ", datax.data.sellersOcc);
-								setList({ sellers: datax.data.sellersOcc });
+								setList({ admins: datax.data.adminsOcc });
 							}}
 						>
 							Rechercher
@@ -567,7 +440,7 @@ export default function Demo({ opened }: any) {
 					]}
 				/>
 				<TextInput
-					placeholder="Search by any field"
+					placeholder="Recherche"
 					classNames={{
 						input: "rounded-2xl w-[200px] lg:w-[250px]",
 					}}
@@ -593,26 +466,26 @@ export default function Demo({ opened }: any) {
 								<th style={{ width: 40 }}>
 									<Checkbox
 										onChange={toggleAll}
-										checked={selection.length === sellersData.length}
+										checked={selection.length === adminsData.length}
 										indeterminate={
 											false
 											// selection.length > 0 &&
-											// selection.length !== sellersData.length
+											// selection.length !== buyersData.length
 										}
 										transitionDuration={0}
 									/>
 								</th>
 								<th className="hidden lg:table-cell">ID</th>
-								<th className="lg:hidden">Société</th>
-								<Th
+								{/* <th className="lg:hidden">Société</th> */}
+								{/* <Th
 									sorted={sortBy === "nomEntreprise"}
 									reversed={reverseSortDirection}
 									onSort={() => setSorting("nomEntreprise")}
 									tailwind={"hidden lg:table-cell"}
 								>
 									<p className="">Société</p>
-								</Th>
-								<Th
+								</Th> */}
+								{/* <Th
 									sorted={sortBy === "pseudo"}
 									reversed={reverseSortDirection}
 									onSort={() => setSorting("pseudo")}
@@ -620,7 +493,7 @@ export default function Demo({ opened }: any) {
 									tailwind={"hidden lg:table-cell"}
 								>
 									Pseudo
-								</Th>
+								</Th> */}
 								<Th
 									sorted={sortBy === "email"}
 									reversed={reverseSortDirection}
@@ -631,21 +504,21 @@ export default function Demo({ opened }: any) {
 									E-mail
 								</Th>
 								{/* lg:table-cell */}
-								<th className="hidden lg:table-cell">Type</th>
-								<th className="hidden lg:table-cell ">Type du compte</th>
-								<th className="hidden lg:table-cell">Verifié</th>
+								{/* <th className="hidden lg:table-cell">Type</th> */}
+								{/* <th className="hidden lg:table-cell ">Type du compte</th> */}
+								{/* <th className="hidden lg:table-cell">Verifié</th> */}
 								<th className="hidden lg:table-cell ">enregistré le</th>
 								<th className=" ">Statut</th>
 								<th>Actions</th>
 							</tr>
 						</thead>
 						<tbody className="">
-							{sellers.length === 0 ? (
+							{admins.length === 0 ? (
 								<div className="ml-[25%]">
 									<div>No results found</div>
 								</div>
 							) : (
-								sellers.reverse()
+								admins.reverse()
 							)}
 						</tbody>
 					</Table>

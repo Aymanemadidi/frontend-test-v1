@@ -24,10 +24,11 @@ import { nationalities } from "../helpers/countries";
 import PhoneInput from "react-phone-input-2";
 import "react-phone-input-2/lib/material.css";
 import { DatePicker } from "@mantine/dates";
+import { CreateSellerInput, useCreateSeller } from "../hooks/useCreateSeller";
 import { useForm, zodResolver } from "@mantine/form";
-import { useCreateBuyer, CreateBuyerInput } from "../hooks/useCreateBuyer";
 import { useRouter } from "next/router";
 import { gql, useQuery } from "@apollo/client";
+import { useCreateBuyer } from "../hooks/useCreateBuyer";
 
 function PasswordRequirement({
 	meets,
@@ -69,7 +70,7 @@ function getStrength(password: string) {
 	return Math.max(100 - (100 / (requirements.length + 1)) * multiplier, 0);
 }
 
-export default function Inscription() {
+export default function InscriptionVendeur() {
 	const data = nationalities.map(
 		(item) => `${item.label?.charAt(0).toUpperCase()}${item.label?.slice(1)}`
 	);
@@ -84,11 +85,12 @@ export default function Inscription() {
 	const [opened, setOpened] = useState(false);
 	const [mobile, setMobile] = useState("");
 	const [fix, setFix] = useState("");
+	const [createSeller] = useCreateSeller();
 	const [createBuyer] = useCreateBuyer();
 	const router = useRouter();
-
 	const [list, setList] = useState<any>([]);
 	const [typeId, setTypeId] = useState("");
+	// const [dataTypes, setDataTypes] = useState<any>([]);
 	let dataTypes: any = [];
 	console.log("router.query: ", router.query);
 
@@ -110,12 +112,11 @@ export default function Inscription() {
 	});
 
 	if (allTypesResult.data) {
-		dataTypes = list.typeUsers
-			.filter((type: any) => type.for_buyer === true)
-			.map((type: any) => {
-				return { label: type.libelle, value: type._id };
-			});
+		dataTypes = list.typeUsers.map((type: any) => {
+			return { label: type.libelle, value: type._id };
+		});
 	}
+
 	const checks = requirements.map((requirement, index) => (
 		<PasswordRequirement
 			key={index}
@@ -142,8 +143,51 @@ export default function Inscription() {
 			/>
 		));
 
-	async function handleSubmit(values: CreateBuyerInput) {
+	async function handleSubmit(values: CreateSellerInput) {
 		try {
+			const seller = await createSeller({
+				variables: {
+					createSellerInput: {
+						nomEntreprise: values.nomEntreprise,
+						numeroSiret: Number(values.numeroSiret),
+						groupe: values.groupe,
+						codeNAF: values.codeNAF,
+						codePostal: values.codePostal,
+						ville: values.ville,
+						role: "BuyerSeller",
+						IBAN: values.IBAN,
+						dateOfBirth: values.dateOfBirth,
+						nationality: values.nationality,
+						adresse: values.adresse,
+						countryOfResidency: values.countryOfResidence,
+						departement: values.departement,
+						mobileNumber: Number(mobile),
+						fixNumber: Number(fix),
+						firstName: values.firstName,
+						lastName: values.lastName,
+						email: values.email,
+						// pseudo: values.nomEntreprise,
+						password: password,
+						website: values.website,
+						pays: values.pays,
+						numberOfEmployees: values.numberOfEmployees,
+						companyAdresse: values.companyAdresse,
+						companyVille: "",
+						companyCodePostal: "",
+						companyPays: "",
+						civilite: values.civilite,
+						typeCompte: values.typeCompte,
+						tvaIntra: values.tvaIntra,
+						refundAdresse: "",
+						refundVille: "",
+						refundCodePostal: "",
+						refundPays: "",
+						statut_moderation: false,
+						statut: "new",
+						isArchived: false,
+					},
+				},
+			});
 			const buyer = await createBuyer({
 				variables: {
 					createBuyerInput: {
@@ -151,11 +195,11 @@ export default function Inscription() {
 						numeroSiret: Number(values.numeroSiret),
 						codePostal: values.codePostal,
 						ville: values.ville,
-						role: "Seller",
+						role: "BuyerSeller",
 						dateOfBirth: values.dateOfBirth,
 						nationality: values.nationality,
 						adresse: values.adresse,
-						countryOfResidency: values.countryOfResidency,
+						countryOfResidency: values.countryOfResidence,
 						departement: values.departement,
 						mobileNumber: Number(mobile),
 						fixNumber: Number(fix),
@@ -178,8 +222,8 @@ export default function Inscription() {
 					},
 				},
 			});
+			console.log(seller);
 			router.push("/tableau-de-bord");
-			console.log(buyer);
 		} catch (error) {
 			alert("Some error has occured");
 		}
@@ -190,10 +234,12 @@ export default function Inscription() {
 			nomEntreprise: "",
 			numeroSiret: "",
 			groupe: "",
+			codeNAF: "",
 			codePostal: "",
 			ville: "",
 			departement: "",
 			pays: "",
+			IBAN: "",
 			numFixe: "",
 			numPortable: "",
 			dateOfBirth: "",
@@ -205,14 +251,20 @@ export default function Inscription() {
 			pseudo: "",
 			password: "",
 			adresse: "",
-			companyAdresse: "",
+			numberOfEmployees: "",
 			civilite: "",
 			tvaIntra: "",
 			typeCompte: "",
-			countryOfResidency: "",
+			countryOfResidence: "",
+			companyAdresse: "",
 			companyVille: "",
 			companyCodePostal: "",
 			companyPays: "",
+			statutLegal: "",
+			refundAdresse: "",
+			refundVille: "",
+			refundCodePostal: "",
+			refundPays: "",
 		},
 
 		// functions will be used to validate values at corresponding key
@@ -368,7 +420,7 @@ export default function Inscription() {
 						/>
 					</div>
 					<div className="flex flex-col md:flex-row w-full gap-2">
-						<div className="md:w-1/2 w-full">
+						<div className="md:w-1/3 w-full">
 							<TextInput
 								// icon={<IconAt />}
 								placeholder="Ville ou est basé votre société"
@@ -381,22 +433,34 @@ export default function Inscription() {
 								{...form.getInputProps("companyVille")}
 							/>
 						</div>
-						<div className="md:w-1/2 w-full">
+						<div className="md:w-1/3 w-full">
 							<TextInput
 								// icon={<IconAt />}
 								placeholder="Code postal de votre société"
-								label={"Code postal"}
-								withAsterisk
+								label={"Code Postal"}
 								classNames={{
 									// root: "w-1/3",
 									input: "rounded-lg",
 								}}
+								withAsterisk
 								{...form.getInputProps("companyCodePostal")}
+							/>
+						</div>
+						<div className="md:w-1/3 w-full">
+							<TextInput
+								// icon={<IconAt />}
+								placeholder="Votre site web"
+								label={"Site Web"}
+								classNames={{
+									// root: "w-1/3",
+									input: "rounded-lg",
+								}}
+								{...form.getInputProps("website")}
 							/>
 						</div>
 					</div>
 					<div className="flex flex-col md:flex-row w-full gap-2">
-						<div className="md:w-1/2 w-full">
+						<div className="md:w-1/3 w-full">
 							<Select
 								// icon={<IconAt />}
 								label={"Pays"}
@@ -411,7 +475,7 @@ export default function Inscription() {
 								{...form.getInputProps("companyPays")}
 							/>
 						</div>
-						<div className="md:w-1/2 w-full">
+						<div className="md:w-1/3 w-full">
 							<TextInput
 								// icon={<IconAt />}
 								placeholder="Département"
@@ -421,6 +485,25 @@ export default function Inscription() {
 									input: "rounded-lg",
 								}}
 								{...form.getInputProps("departement")}
+							/>
+						</div>
+						<div className="md:w-1/3 w-full">
+							<Select
+								// icon={<IconAt />}
+								placeholder="Nombre de salariés"
+								label={"Nombre de salariés"}
+								classNames={{
+									// root: "w-1/3",
+									input: "rounded-lg",
+								}}
+								withAsterisk
+								data={[
+									{ value: "<10", label: "Moins de 10" },
+									{ value: "11-249", label: "Entre 11 et 249" },
+									{ value: "250-4999", label: "Entre 250 et 4999" },
+									{ value: ">4999", label: "plus de 4999" },
+								]}
+								{...form.getInputProps("numberOfEmployees")}
 							/>
 						</div>
 					</div>
@@ -714,7 +797,7 @@ export default function Inscription() {
 	);
 }
 
-Inscription.getLayout = (page: ReactElement) => {
+InscriptionVendeur.getLayout = (page: ReactElement) => {
 	return <NotLoggedLayout>{page}</NotLoggedLayout>;
 };
 

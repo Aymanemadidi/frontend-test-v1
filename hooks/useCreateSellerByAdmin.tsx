@@ -29,7 +29,12 @@ export interface CreateSellerInput {
 	civilite: string;
 	tvaIntra: string;
 	typeCompte: string;
-	countryOfResidence: string;
+	statutLegal: string;
+	countryOfResidency: string;
+	refundAdresse: string;
+	refundCodePostal: string;
+	refundVille: string;
+	refundPays: string;
 }
 
 interface Tokens {
