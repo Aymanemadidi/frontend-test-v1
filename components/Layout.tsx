@@ -462,7 +462,7 @@ export default function Layout({ children, access_token }: any) {
 															Mes achats
 														</Menu.Item>
 														<Menu.Item icon={<IconSettings size={14} />}>
-															Settings
+															Parametres
 														</Menu.Item>
 														<Menu.Item icon={<IconBuildingStore size={14} />}>
 															Ma boutique

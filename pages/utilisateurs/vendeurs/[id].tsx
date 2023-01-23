@@ -3,7 +3,7 @@ import type { NextPage } from "next";
 import Head from "next/head";
 import Image from "next/image";
 import { gql, useMutation, useQuery } from "@apollo/client";
-import client from "../../apollo-client";
+import client from "../../../apollo-client";
 
 import { useForm, zodResolver } from "@mantine/form";
 import { NumberInput, TextInput, Button } from "@mantine/core";
@@ -11,19 +11,19 @@ import { Tooltip, Select } from "@mantine/core";
 import { DatePicker } from "@mantine/dates";
 import * as Yup from "yup";
 import { z } from "zod";
-import bell from "../../public/bell.svg";
+import bell from "../../../public/bell.svg";
 // import { DropzoneButton } from "../../components/DropZone";
-import { nationalities } from "../../helpers/countries";
+import { nationalities } from "../../../helpers/countries";
 import PhoneInput from "react-phone-input-2";
 import "react-phone-input-2/lib/material.css";
 import {
 	CreateSellerInput,
 	useCreateSeller,
-} from "../../hooks/useCreateSeller";
+} from "../../../hooks/useCreateSeller";
 import {
 	UpdateSellerInput,
 	useUpdateSeller,
-} from "../../hooks/useUpdateSeller";
+} from "../../../hooks/useUpdateSeller";
 import { useRouter } from "next/router";
 import { showNotification } from "@mantine/notifications";
 import { openConfirmModal } from "@mantine/modals";
@@ -76,11 +76,16 @@ const initialValues: CreateSellerInput = {
 	numberOfEmployees: "",
 	civilite: "",
 	tvaIntra: "",
-	typeCompte: "entreprise",
+	typeCompte: "",
+	statutLegal: "",
 	countryOfResidence: "",
 	companyCodePostal: "",
 	companyPays: "",
 	companyVille: "",
+	refundAdresse: "",
+	refundCodePostal: "",
+	refundVille: "",
+	refundPays: "",
 };
 
 const schema = z.object({
@@ -114,6 +119,9 @@ function UpdateSellerByAdmin({ seller, opened }: any) {
 	const [createSeller] = useCreateSeller();
 	const [updateSeller] = useUpdateSeller();
 	const [entName, setEntName] = useState("");
+	const [typeId, setTypeId] = useState("");
+	const [list, setList] = useState<any>([]);
+	let dataTypes: any = [];
 	const [user, setUser] = useState<any>({
 		seller: {
 			_id: "",
@@ -142,7 +150,18 @@ function UpdateSellerByAdmin({ seller, opened }: any) {
 			civilite: "",
 			tvaIntra: "",
 			typeCompte: "",
+			statutLegal: "",
 			countryOfResidence: "",
+			companyVille: "",
+			companyCodePostal: "",
+			companyPays: "",
+			refundAdresse: "",
+			refundCodePostal: "",
+			refundVille: "",
+			refundPays: "",
+			type: {
+				libelle: "",
+			},
 		},
 	});
 	const router = useRouter();
@@ -159,7 +178,12 @@ function UpdateSellerByAdmin({ seller, opened }: any) {
 				groupe
 				codeNAF
 				codePostal
+				companyCodePostal
+				companyAdresse
+				statutLegal
+				companyPays
 				ville
+				companyVille
 				departement
 				pays
 				IBAN
@@ -173,6 +197,15 @@ function UpdateSellerByAdmin({ seller, opened }: any) {
 				mobileNumber
 				fixNumber
 				adresse
+				civilite
+				refundAdresse
+				refundCodePostal
+				refundVille
+				refundPays
+				type {
+					_id
+					libelle
+				}
 			}
 		}
 	`;
@@ -184,6 +217,34 @@ function UpdateSellerByAdmin({ seller, opened }: any) {
 			_id: query.id,
 		},
 	});
+
+	const ALL_TYPES = gql`
+		query TypeUsers {
+			typeUsers {
+				_id
+				libelle
+				created_at
+				for_buyer
+				for_seller
+			}
+		}
+	`;
+
+	const allTypesResult = useQuery(ALL_TYPES, {
+		onCompleted: setList,
+		fetchPolicy: "no-cache",
+	});
+
+	if (allTypesResult.data) {
+		dataTypes = list.typeUsers
+			.filter((type: any) => type.for_seller === true)
+			.map((type: any) => {
+				return {
+					label: type.libelle,
+					value: type._id,
+				};
+			});
+	}
 
 	console.log(data);
 
@@ -246,11 +307,18 @@ function UpdateSellerByAdmin({ seller, opened }: any) {
 								mobileNumber: Number(user.seller.mobileNumber),
 								fixNumber: Number(user.seller.fixNumber),
 								firstName: user.seller.firstName,
-								// email: user.seller.email,
+								typeCompte: user.seller.typeCompte,
+								companyVille: user.seller.companyVille,
+								companyCodePostal: user.seller.companyCodePostal,
+								statutLegal: user.seller.statutLegal,
 								password: user.seller.password,
-								// pseudo: user.seller.pseudo,
 								website: user.seller.website,
 								pays: user.seller.pays,
+								civilite: user.seller.civilite,
+								refundAdresse: user.seller.refundAdresse,
+								refundCodePostal: user.seller.refundCodePostal,
+								refundVille: user.seller.refundVille,
+								refundPays: user.seller.refundPays,
 							},
 						},
 					});
@@ -469,11 +537,11 @@ function UpdateSellerByAdmin({ seller, opened }: any) {
 							setUser({
 								seller: {
 									...user.seller,
-									codePostal: e.currentTarget.value,
+									companyCodePostal: e.currentTarget.value,
 								},
 							})
 						}
-						value={user.seller.codePostal}
+						value={user.seller.companyCodePostal}
 						// {...form.getInputProps("codePostal")}
 					/>
 					<TextInput
@@ -497,8 +565,32 @@ function UpdateSellerByAdmin({ seller, opened }: any) {
 								},
 							})
 						}
-						value={user.seller.ville}
+						value={user.seller.companyVille}
 						// {...form.getInputProps("ville")}
+					/>
+					<TextInput
+						classNames={{
+							root: "pl-3 pr-3 w-full",
+							wrapper: "w-full",
+							input:
+								"w-full font-semibold placeholder:font-normal placeholder:text-gray-400 border-slate-200 mt-1",
+							label: "ml-2",
+						}}
+						label={"Adresse"}
+						radius={25}
+						mt="sm"
+						placeholder="Adresse"
+						withAsterisk
+						onChange={(e) =>
+							setUser({
+								seller: {
+									...user.seller,
+									companyAdresse: e.currentTarget.value,
+								},
+							})
+						}
+						value={user.seller.companyAdresse}
+						// {...form.getInputProps("adresse")}
 					/>
 					<TextInput
 						classNames={{
@@ -532,6 +624,65 @@ function UpdateSellerByAdmin({ seller, opened }: any) {
 								"w-full font-semibold placeholder:font-normal placeholder:text-gray-400 border-slate-200 mt-1",
 							label: "ml-2",
 						}}
+						label={"Statut legal"}
+						radius={25}
+						mt="sm"
+						placeholder="Statut legal"
+						withAsterisk
+						onChange={(e) =>
+							setUser({
+								seller: {
+									...user.seller,
+									statutLegal: e.currentTarget.value,
+								},
+							})
+						}
+						value={user.seller.statutLegal}
+						// {...form.getInputProps("departement")}
+					/>
+					<Select
+						allowDeselect
+						label="Type de compte"
+						placeholder="Type de compte"
+						searchable
+						nothingFound="No options"
+						classNames={{
+							input:
+								"rounded-2xl font-normal placeholder:font-thin placeholder:text-gray-600 border-slate-200 mt-1",
+							label: "ml-1",
+						}}
+						className="ml-3 mt-3 flex flex-col gap-1 justify-start items-start"
+						maxDropdownHeight={280}
+						data={dataTypes}
+						// data={[
+						// 	{ label: "test1", value: "test1V" },
+						// 	{ label: "test2", value: "test2V" },
+						// ]}
+						onChange={(e: any) => {
+							console.log("e: ", e);
+							setUser({
+								seller: {
+									...user.seller,
+									typeCompte: e,
+									type: {
+										_id: e,
+									},
+								},
+							});
+						}}
+						// value={user.seller.typeCompte}
+						value={user.seller.type["_id"]}
+						// defaultValue={user.seller.type._id}
+						// {...form.getInputProps("nationality")}
+					/>
+					<TextInput
+						classNames={{
+							root: "pl-3 pr-3 w-full",
+							wrapper: "w-full",
+							input:
+								"w-full font-semibold placeholder:font-normal placeholder:text-gray-400 border-slate-200 mt-1",
+							label: "ml-2",
+						}}
 						label={"Pays"}
 						radius={25}
 						mt="sm"
@@ -541,11 +692,11 @@ function UpdateSellerByAdmin({ seller, opened }: any) {
 							setUser({
 								seller: {
 									...user.seller,
-									pays: e.currentTarget.value,
+									companyPays: e.currentTarget.value,
 								},
 							})
 						}
-						value={user.seller.pays}
+						value={user.seller.companyPays}
 						// {...form.getInputProps("pays")}
 					/>
 					<TextInput
@@ -670,6 +821,39 @@ function UpdateSellerByAdmin({ seller, opened }: any) {
 							})
 						}
 					/> */}
+					<Select
+						label="Civilité"
+						searchable
+						nothingFound="No options"
+						classNames={{
+							input:
+								"rounded-2xl font-normal placeholder:font-thin placeholder:text-gray-600 border-slate-200 mt-1",
+							label: "ml-1",
+						}}
+						className="ml-3 mt-3 flex flex-col gap-1 justify-start items-start"
+						maxDropdownHeight={280}
+						withAsterisk
+						placeholder="Civilité"
+						data={[
+							{
+								label: "Monsieur",
+								value: "m",
+							},
+							{
+								label: "Madame",
+								value: "mm",
+							},
+						]}
+						onChange={(e) =>
+							setUser({
+								seller: {
+									...user.seller,
+									civilite: e,
+								},
+							})
+						}
+						value={user.seller.civilite}
+					/>
 					<TextInput
 						classNames={{
 							root: "pl-3 pr-3 w-full",
@@ -930,6 +1114,7 @@ function UpdateSellerByAdmin({ seller, opened }: any) {
 								},
 							})
 						}
+						value={user.seller.ville}
 					/>
 					<TextInput
 						classNames={{
@@ -944,15 +1129,113 @@ function UpdateSellerByAdmin({ seller, opened }: any) {
 						mt="sm"
 						placeholder="Code postal"
 						withAsterisk
-						// onChange={(e) =>
-						// 	setUser({
-						// 		seller: {
-						// 			...user.seller,
-						// 			nomEntreprise: e.currentTarget.value,
-						// 		},
-						// 	})
-						// }
-						// {...form.getInputProps("pseudo")}
+						onChange={(e) =>
+							setUser({
+								seller: {
+									...user.seller,
+									codePostal: e.currentTarget.value,
+								},
+							})
+						}
+						value={user.seller.codePostal}
+					/>
+				</div>
+				<div className="flex flex-col items-start justify-start mt-5 pb-[25px] pt-[20px] bg-slate-100 w-4/5 rounded-2xl shadow-2xl">
+					<h2 className="ml-4 mb-2">Informations de retour</h2>
+					<TextInput
+						classNames={{
+							root: "pl-3 pr-3 w-full",
+							wrapper: "w-full",
+							input:
+								"w-full font-semibold placeholder:font-normal placeholder:text-gray-400 border-slate-200 mt-1",
+							label: "ml-2",
+						}}
+						label={"Adresse"}
+						radius={25}
+						mt="sm"
+						placeholder="Adresse"
+						withAsterisk
+						onChange={(e) =>
+							setUser({
+								seller: {
+									...user.seller,
+									refundAdresse: e.currentTarget.value,
+								},
+							})
+						}
+						value={user.seller.refundAdresse}
+						// {...form.getInputProps("adresse")}
+					/>
+					<TextInput
+						classNames={{
+							root: "pl-3 pr-3 w-full",
+							wrapper: "w-full",
+							input:
+								"w-full font-semibold placeholder:font-normal placeholder:text-gray-400 border-slate-200 mt-1",
+							label: "ml-2",
+						}}
+						label={"Ville"}
+						radius={25}
+						mt="sm"
+						placeholder="Ville"
+						withAsterisk
+						onChange={(e) =>
+							setUser({
+								seller: {
+									...user.seller,
+									refundVille: e.currentTarget.value,
+								},
+							})
+						}
+						value={user.seller.refundVille}
+					/>
+					<TextInput
+						classNames={{
+							root: "pl-3 pr-3 w-full",
+							wrapper: "w-full",
+							input:
+								"w-full font-semibold placeholder:font-normal placeholder:text-gray-400 border-slate-200 mt-1",
+							label: "ml-2",
+						}}
+						label={"Code postal"}
+						radius={25}
+						mt="sm"
+						placeholder="Code postal"
+						withAsterisk
+						onChange={(e) =>
+							setUser({
+								seller: {
+									...user.seller,
+									refundCodePostal: e.currentTarget.value,
+								},
+							})
+						}
+						value={user.seller.refundCodePostal}
+					/>
+					<Select
+						label="Pays"
+						placeholder="Pays"
+						searchable
+						nothingFound="No options"
+						classNames={{
+							input:
+								"rounded-2xl font-normal placeholder:font-thin placeholder:text-gray-600 border-slate-200 mt-1",
+							label: "ml-1",
+						}}
+						className="ml-3 mt-3 flex flex-col gap-1 justify-start items-start"
+						maxDropdownHeight={280}
+						withAsterisk
+						onChange={(e) =>
+							setUser({
+								seller: {
+									...user.seller,
+									refundPays: e,
+								},
+							})
+						}
+						data={CountriesData2}
+						value={user.seller.refundPays}
+						// {...form.getInputProps("countryOfResidence")}
 					/>
 				</div>
 

@@ -27,6 +27,7 @@ import { DatePicker } from "@mantine/dates";
 import { CreateSellerInput, useCreateSeller } from "../hooks/useCreateSeller";
 import { useForm, zodResolver } from "@mantine/form";
 import { useRouter } from "next/router";
+import { gql, useQuery } from "@apollo/client";
 
 function PasswordRequirement({
 	meets,
@@ -85,6 +86,36 @@ export default function InscriptionVendeur() {
 	const [fix, setFix] = useState("");
 	const [createSeller] = useCreateSeller();
 	const router = useRouter();
+	const [list, setList] = useState<any>([]);
+	const [typeId, setTypeId] = useState("");
+	// const [dataTypes, setDataTypes] = useState<any>([]);
+	let dataTypes: any = [];
+	console.log("router.query: ", router.query);
+
+	const ALL_TYPES = gql`
+		query TypeUsers {
+			typeUsers {
+				_id
+				libelle
+				created_at
+				for_buyer
+				for_seller
+			}
+		}
+	`;
+
+	const allTypesResult = useQuery(ALL_TYPES, {
+		onCompleted: setList,
+		fetchPolicy: "no-cache",
+	});
+
+	if (allTypesResult.data) {
+		dataTypes = list.typeUsers
+			.filter((type: any) => type.for_seller === true)
+			.map((type: any) => {
+				return { label: type.libelle, value: type._id };
+			});
+	}
 
 	const checks = requirements.map((requirement, index) => (
 		<PasswordRequirement
@@ -147,6 +178,10 @@ export default function InscriptionVendeur() {
 						civilite: values.civilite,
 						typeCompte: values.typeCompte,
 						tvaIntra: values.tvaIntra,
+						refundAdresse: "",
+						refundVille: "",
+						refundCodePostal: "",
+						refundPays: "",
 						statut_moderation: false,
 						statut: "new",
 						isArchived: false,
@@ -154,7 +189,7 @@ export default function InscriptionVendeur() {
 				},
 			});
 			console.log(seller);
-			router.push("/dashboard");
+			router.push("/tableau-de-bord");
 		} catch (error) {
 			alert("Some error has occured");
 		}
@@ -182,15 +217,20 @@ export default function InscriptionVendeur() {
 			pseudo: "",
 			password: "",
 			adresse: "",
-			companyAdresse: "",
 			numberOfEmployees: "",
 			civilite: "",
 			tvaIntra: "",
 			typeCompte: "",
 			countryOfResidence: "",
+			companyAdresse: "",
 			companyVille: "",
 			companyCodePostal: "",
 			companyPays: "",
+			statutLegal: "",
+			refundAdresse: "",
+			refundVille: "",
+			refundCodePostal: "",
+			refundPays: "",
 		},
 
 		// functions will be used to validate values at corresponding key
@@ -325,10 +365,8 @@ export default function InscriptionVendeur() {
 									// root: "w-1/3",
 									input: "rounded-lg",
 								}}
-								data={[
-									{ label: "Entreprise", value: "entreprise" },
-									{ label: "Auto-entrepreneur", value: "autoEntrepreneur" },
-								]}
+								data={dataTypes}
+								placeholder="Type de compte"
 								defaultValue={"Entreprise"}
 								{...form.getInputProps("typeCompte")}
 							/>

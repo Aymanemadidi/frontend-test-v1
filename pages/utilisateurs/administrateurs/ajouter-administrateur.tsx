@@ -3,7 +3,7 @@ import type { NextPage } from "next";
 import Head from "next/head";
 import Image from "next/image";
 import { gql, useMutation } from "@apollo/client";
-import client from "../apollo-client";
+import client from "../../../apollo-client";
 
 import { useForm, zodResolver } from "@mantine/form";
 import { NumberInput, TextInput, Button } from "@mantine/core";
@@ -13,12 +13,12 @@ import * as Yup from "yup";
 import { z } from "zod";
 import bell from "../public/bell.svg";
 // import { DropzoneButton } from "../components/DropZone";
-import { nationalities } from "../helpers/countries";
+import { nationalities } from "../../../helpers/countries";
 import PhoneInput from "react-phone-input-2";
 import "react-phone-input-2/lib/material.css";
-import { CreateUserInput, useCreateUser } from "../hooks/useCreateAdmin";
+import { CreateUserInput, useCreateUser } from "../../../hooks/useCreateAdmin";
 import { IconChevronDown, IconChevronRight } from "@tabler/icons";
-import NotLoggedLayout from "../components/notLoggedLayout";
+import NotLoggedLayout from "../../../components/notLoggedLayout";
 import { useRouter } from "next/router";
 
 const initialValues: any = {
@@ -80,7 +80,7 @@ function Demo() {
 				},
 			});
 			console.log(user);
-			router.push("/administrateurs");
+			router.push("/utilisateurs/administrateurs");
 		} catch (error) {
 			alert(error);
 		}
