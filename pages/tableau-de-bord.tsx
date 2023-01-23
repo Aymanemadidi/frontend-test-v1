@@ -388,10 +388,6 @@ const Dashboard = () => {
 					<FaqSimple />
 				</div>
 			</div>
-			{/* <div className="flex gap-4 w-[75%] mr-[100px]">
-				<div className="w-1/2"></div>
-				<div className="w-1/2">lorem10</div>
-			</div> */}
 		</div>
 	);
 };
