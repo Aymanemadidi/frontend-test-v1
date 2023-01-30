@@ -16,7 +16,6 @@ import { showNotification } from "@mantine/notifications";
 import { openConfirmModal, openModal } from "@mantine/modals";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { usePrevious } from "@mantine/hooks";
 
 let statutes = ["new", "actif", "attente", "inactif"];
 
@@ -66,7 +65,7 @@ interface UpdateSellerInput {
 	statut: string;
 }
 
-function TypesBar({
+function MarqueBar({
 	user,
 	selection,
 	toggleRow,
@@ -79,19 +78,16 @@ function TypesBar({
 	// const [statutModeration, setStatutModeration] = useState(
 	// 	user.statut_moderation
 	// );
-	const selected = selection.includes(user.userId);
+	console.log(selection);
+	const selected = selection.includes(user._id);
+	// console.log("selected: ", selected);
 	const [openedModal, setOpenedModal] = useState(false);
-	const [optionalModal, setOptionalModal] = useState(false);
 	const [openedArchiveModal, setOpenedArchivedModal] = useState(false);
-	const [newLibelle, setNewLibelle] = useState(user.libelle);
-	const [updatedLibelle, setUpdatedLibelle] = useState(user.libelle);
-	const [forSeller, setForSeller] = useState(user.for_seller);
-	const [forBuyer, setForBuyer] = useState(user.for_buyer);
-	const prevForBuyer = usePrevious(forBuyer);
-	const [forWhoChanged, setForWhoChanged] = useState(0);
-	const [forUpdatedSeller, setForUpdatedSeller] = useState(user.for_seller);
-	const [forUpdatedBuyer, setForUpdatedBuyer] = useState(user.for_buyer);
+	const [newLibelle, setNewLibelle] = useState(user.mode_paiement);
+	const [updatedLibelle, setUpdatedLibelle] = useState(user.mode_paiement);
+	const [modeStatut, setModeStatut] = useState(user.statut);
 	const [err, setErr] = useState({ type: 0 });
+	// const selected = selection.includes(user.u);
 
 	const router = useRouter();
 
@@ -123,36 +119,40 @@ function TypesBar({
 
 	console.log(user);
 
-	const ARCHIVE_TYPE_USER = gql`
-		mutation removeTypeUser($_id: String!) {
-			removeTypeUser(_id: $_id)
+	const ARCHIVE_MODE = gql`
+		mutation removeModesPaiement($_id: String!) {
+			removeModesPaiement(_id: $_id)
 		}
 	`;
 
-	const UPDATE_TYPE_USER = gql`
-		mutation updateTypeUser($updateTypeUserInput: UpdateTypeUserInput!) {
-			updateTypeUser(updateTypeUserInput: $updateTypeUserInput) {
+	const UPDATE_MODE = gql`
+		mutation updateModesPaiement(
+			$updateModesPaiementInput: UpdateModesPaiementInput!
+		) {
+			updateModesPaiement(updateModesPaiementInput: $updateModesPaiementInput) {
 				_id
-				libelle
+				mode_paiement
+				statut
 				created_at
-				for_buyer
-				for_seller
 			}
 		}
 	`;
 
-	const CHECK_TYPE = gql`
-		query usersWithType($type: String!) {
-			usersWithType(type: $type)
-		}
-	`;
+	// const UPDATE_STATUT = gql`
+	// 	mutation updateSeller(
+	// 		$_id: String!
+	// 		$updateSellerInput: UpdateSellerInput!
+	// 	) {
+	// 		updateSeller(_id: $_id, updateSellerInput: $updateSellerInput) {
+	// 			_id
+	// 			firstName
+	// 			email
+	// 		}
+	// 	}
+	// `;
 
-	const [checkType, results] = useLazyQuery(CHECK_TYPE);
-
-	const [updateTypeUser, { error, loading, data }] =
-		useMutation(UPDATE_TYPE_USER);
-	const [archiveTypeUser, archiveTypeUserResult] =
-		useMutation(ARCHIVE_TYPE_USER);
+	const [updateMode, { error, loading, data }] = useMutation(UPDATE_MODE);
+	const [archiveMode, archiveMarqueResult] = useMutation(ARCHIVE_MODE);
 
 	function getSelectStyles(statut: string) {
 		if (statut === "new") {
@@ -166,19 +166,126 @@ function TypesBar({
 		}
 	}
 
-	const typeUserArchive = async (e: any) => {
+	// const archiveModal = (e: any) =>
+	// 	openConfirmModal({
+	// 		className: "mt-[200px]",
+	// 		confirmProps: {
+	// 			className: "bg-green-500 hover:bg-green-600 rounded-2xl",
+	// 		},
+	// 		cancelProps: {
+	// 			className: "rounded-2xl",
+	// 		},
+	// 		title: "Veuillez confirmer l'archivage",
+	// 		children: (
+	// 			<p>
+	// 				<p>Voulez vous archivé cet utilisateur</p>
+	// 			</p>
+	// 		),
+	// 		labels: { confirm: "Confirmer", cancel: "Abandonner" },
+	// 		onCancel: () => {},
+	// 		onConfirm: async () => {
+	// 			try {
+	// 				await updateStatut({
+	// 					variables: {
+	// 						_id: user.userId,
+	// 						updateBuyerInput: {
+	// 							isArchived: true,
+	// 						},
+	// 					},
+	// 				});
+	// 				// console.log("list:", list);
+	// 				let test = list.buyers.filter(
+	// 					(buyer: any) => buyer.userId !== user.userId
+	// 				);
+	// 				// console.log("test: ", test);
+	// 				setList({ buyers: test });
+	// 				showNotification({
+	// 					title: "Archivage",
+	// 					message: "Archivage fait avec success",
+	// 					color: "green",
+	// 					autoClose: 5000,
+	// 					bottom: "630px",
+	// 					// top: "0px",
+	// 					// classNames: {
+	// 					// 	root: "translate-y-[-500px]",
+	// 					// },
+	// 				});
+	// 			} catch (error) {
+	// 				showNotification({
+	// 					title: "Archivahe impossible",
+	// 					message: "Erreur",
+	// 					color: "red",
+	// 					autoClose: 5000,
+	// 					bottom: "630px",
+	// 				});
+	// 			}
+	// 		},
+	// 	});
+
+	const openModal = (e: any) =>
+		openConfirmModal({
+			className: "mt-[200px]",
+			confirmProps: {
+				className: "bg-green-500 hover:bg-green-600 rounded-2xl",
+			},
+			cancelProps: {
+				className: "rounded-2xl",
+			},
+			title: "Veuillez confirmer le changement de statut",
+			children: (
+				<p>
+					{e === "actif" ? (
+						<p>
+							Voulez vous rendre cet utilisateur{" "}
+							<span className="text-green-500">Actif</span> ?
+						</p>
+					) : (
+						<p>
+							Voulez vous rendre cet utilisateur{" "}
+							<span className="text-red-400">Inactif</span> ?
+						</p>
+					)}
+				</p>
+			),
+			labels: { confirm: "Confirmer", cancel: "Abandonner" },
+			onCancel: () => {
+				setModeStatut(modeStatut);
+			},
+			onConfirm: async () => {
+				await updateMode({
+					variables: {
+						updateModesPaiementInput: {
+							_id: user._id,
+							statut: e,
+						},
+					},
+				});
+				setModeStatut(() => e);
+				showNotification({
+					title: "Changement de statut",
+					message: "Statut changé avec success",
+					color: "green",
+					autoClose: 5000,
+					bottom: "630px",
+				});
+			},
+		});
+
+	const modeArchive = async (e: any) => {
 		e.preventDefault();
 		try {
-			const typeUserArchived = await archiveTypeUser({
+			const modeArchived = await archiveMode({
 				variables: {
 					_id: user._id,
 				},
 			});
-			let filtered = list.typeUsers.filter((m: any) => m._id !== user._id);
-			setList({ typeUsers: [...filtered] });
+			// console.log("marqueArchived: ", marqueArchived.data.updateMarque._id);
+			let filtered = list.modesPaiement.filter((m: any) => m._id !== user._id);
+			// filtered.push(marqueArchived.data.updateMarque);
+			setList({ modesPaiement: [...filtered] });
 			showNotification({
-				title: `${"Supression marque"}`,
-				message: `${"Supression marque avec success"}`,
+				title: `${"Supression mode de paiement"}`,
+				message: `${"Supression mode de paiement avec success"}`,
 				color: "green",
 				autoClose: 5000,
 				bottom: "630px",
@@ -186,17 +293,11 @@ function TypesBar({
 			// setUpdatedLibelle(() => marqueCreated.data.updateMarque.libelle);
 			setOpenedModal(false);
 		} catch (e: any) {
-			if (e.message === "libelle unmodified") {
-				setErr({ type: 1 });
-			}
-			if (e.message === "Cette marque existe déjà") {
-				setErr({ type: 2 });
-			}
 			// setNewLibelle("");
 			// alert(e);
 			showNotification({
-				title: "Supression marque impossible",
-				message: "Une erreur s'est produite",
+				title: "Supression mode de paiement impossible",
+				message: e.message,
 				color: "red",
 				autoClose: 5000,
 				bottom: "630px",
@@ -204,30 +305,24 @@ function TypesBar({
 		}
 	};
 
-	const typeUserUpdate = async (e: any) => {
+	const modeUpdate = async (e: any) => {
 		e.preventDefault();
-		console.log("From update: ");
+		console.log("From new way: ", newLibelle);
 		try {
-			const typeUserCreated = await updateTypeUser({
+			const modeCreated = await updateMode({
 				variables: {
-					updateTypeUserInput: {
+					updateModesPaiementInput: {
 						_id: user._id,
-						libelle: newLibelle,
-						for_buyer: forBuyer,
-						for_seller: forSeller,
+						mode_paiement: newLibelle,
+						statut: "",
 					},
 				},
 			});
-			setForUpdatedBuyer(forBuyer);
-			setForUpdatedSeller(forSeller);
-			console.log(
-				"typeUserCreated: ",
-				typeUserCreated.data.updateTypeUser.libelle
+			console.log("marqueCreated: ", modeCreated.data.updateModesPaiement._id);
+			let filtered = list.modesPaiement.filter(
+				(m: any) => m._id !== modeCreated.data.updateModesPaiement._id
 			);
-			// let filtered = list.typeUsers.filter(
-			// 	(m: any) => m._id !== typeUserCreated.data.typeUsers._id
-			// );
-			// filtered.push(typeUserCreated.data.updateMarque);
+			// filtered.push(marqueCreated.data.updateMarque);
 			// setList({ marques: [...filtered] });
 			showNotification({
 				title: `${"Modification marque"}`,
@@ -236,22 +331,16 @@ function TypesBar({
 				autoClose: 5000,
 				bottom: "630px",
 			});
-			// setUpdatedLibelle("hello");
-			setUpdatedLibelle(() => typeUserCreated.data.updateTypeUser.libelle);
-			setOptionalModal(false);
+			setUpdatedLibelle(
+				() => modeCreated.data.updateModesPaiement.mode_paiement
+			);
 			setOpenedModal(false);
 		} catch (e: any) {
-			if (e.message === "libelle unmodified") {
-				setErr({ type: 1 });
-			}
-			if (e.message === "Cette marque existe déjà") {
-				setErr({ type: 2 });
-			}
 			// setNewLibelle("");
 			// alert(e);
 			showNotification({
 				title: "Modification marque impossible",
-				message: "Une erreur s'est produite",
+				message: e.message,
 				color: "red",
 				autoClose: 5000,
 				bottom: "630px",
@@ -274,7 +363,7 @@ function TypesBar({
 				className="shadow-xl"
 			>
 				<div>
-					<form onSubmit={(e) => typeUserArchive(e)}>
+					<form onSubmit={(e) => modeArchive(e)}>
 						{/* <TextInput
 							label="Libelle"
 							value={newLibelle}
@@ -308,106 +397,26 @@ function TypesBar({
 				className="shadow-xl"
 			>
 				<div>
-					<form
-						onSubmit={async (e) => {
-							const checkArr: any = await checkType({
-								variables: {
-									type: newLibelle,
-								},
-							});
-							if (
-								(user.for_buyer === true &&
-									forBuyer === false &&
-									checkArr.data.usersWithType[1] !== "0") ||
-								(user.for_seller === true &&
-									forSeller === false &&
-									checkArr.data.usersWithType[0] !== "0")
-							) {
-								setOptionalModal(true);
-							} else {
-								typeUserUpdate(e);
-							}
-						}}
-					>
+					<form onSubmit={(e) => modeUpdate(e)}>
 						<TextInput
 							label="Libelle"
 							value={newLibelle}
 							onChange={(e) => {
+								setErr({ type: 0 });
 								setNewLibelle(e.target.value);
 							}}
 						/>
-						<div className="mt-1">
-							<Checkbox
-								checked={forSeller}
-								onChange={() => {
-									setForSeller(!forSeller);
-									if (forSeller === user.for_seller) {
-										setForWhoChanged(forWhoChanged - 1);
-									} else {
-										setForWhoChanged(forWhoChanged + 1);
-									}
-								}}
-								label={"Pour vendeur"}
-							/>
-							<Checkbox
-								checked={forBuyer}
-								onChange={() => {
-									setForBuyer(!forBuyer);
-									if (forBuyer === user.for_buyer) {
-										setForWhoChanged(forWhoChanged - 1);
-									} else {
-										setForWhoChanged(forWhoChanged + 1);
-									}
-								}}
-								label={"Pour Acheteur"}
-							/>
-						</div>
+						{err.type === 1 ? (
+							<span className="text-red-500">Libelle n'as pas été changer</span>
+						) : err.type === 2 ? (
+							<span className="text-red-500">Libelle deja utilisé</span>
+						) : (
+							""
+						)}
 						<div className="flex gap-3 mt-3 justify-end w-full">
 							<button
 								className="bg-gray-500 rounded-md px-3 py-2 text-white"
-								onClick={() => {
-									setForWhoChanged(0);
-									setOpenedModal(false);
-								}}
-								type="button"
-							>
-								Abondonner
-							</button>
-							<button
-								type="submit"
-								className="bg-green-500 rounded-md px-3 py-2 text-white"
-							>
-								Confirmer
-							</button>
-						</div>
-					</form>
-				</div>
-			</Modal>
-			<Modal
-				opened={optionalModal}
-				onClose={() => setOptionalModal(false)}
-				title="Introduce yourself!"
-				className="shadow-xl"
-			>
-				<div>
-					<form
-						onSubmit={(e) => {
-							typeUserUpdate(e);
-						}}
-					>
-						<p>
-							<span className="font-semibold text-red-500">Attention!</span> Ce
-							Type est deja utilisé par des utilisateurs
-						</p>
-						<div className="flex gap-3 mt-3 justify-end w-full">
-							<button
-								className="bg-gray-500 rounded-md px-3 py-2 text-white"
-								onClick={() => {
-									setForWhoChanged(0);
-									setForSeller(user.for_seller);
-									setForBuyer(user.for_buyer);
-									setOptionalModal(false);
-								}}
+								onClick={() => setOpenedModal(false)}
 								type="button"
 							>
 								Abondonner
@@ -444,28 +453,6 @@ function TypesBar({
 				<td className="hidden lg:table-cell text-xs font-light">
 					{updatedLibelle}
 				</td>
-				<td className="hidden lg:table-cell text-xs font-light">
-					{forUpdatedBuyer && forUpdatedSeller ? (
-						<div className="flex gap-1">
-							<span className="bg-purple-500 px-3 py-2 rounded-2xl text-xs text-white">
-								Vendeur
-							</span>
-							<span className="bg-blue-500 px-3 py-2 rounded-2xl text-xs text-white">
-								Acheteur
-							</span>
-						</div>
-					) : forUpdatedBuyer ? (
-						<span className="bg-blue-500 px-3 py-2 rounded-2xl text-xs text-white">
-							Acheteur
-						</span>
-					) : forUpdatedSeller ? (
-						<span className="bg-purple-500 px-3 py-2 rounded-2xl text-xs text-white">
-							Vendeur
-						</span>
-					) : (
-						""
-					)}
-				</td>
 				{/* <td className="hidden lg:table-cell text-xs font-light">
 				{user.typeVendeur ? "Vendeur Pro" : "Vendeur"}
 			</td> */}
@@ -475,14 +462,54 @@ function TypesBar({
 						{jour}/{mois}/{annee}
 					</p>
 				</td>
-				<td className="flex gap-3">
-					<button
-						onClick={() => {
-							// setForBuyer(user.for_buyer);
-							// setForSeller(user.for_seller);
-							setOpenedModal(true);
+				<td>
+					<Select
+						classNames={{
+							input: `${getSelectStyles(
+								modeStatut
+							)} text-white rounded-2xl text-xs font-normal`,
 						}}
-					>
+						rightSection={<IconChevronDown size={14} color={"white"} />}
+						rightSectionWidth={30}
+						// defaultValue={"modeStatut"}
+						value={modeStatut}
+						// defaultValue={user.statut_moderation === "true" ? "actif" : user.statut}
+						onChange={async (e: any) => {
+							openModal(e);
+						}}
+						data={
+							modeStatut === "new"
+								? [
+										{
+											value: "actif",
+											label: getLabel("actif"),
+										},
+										{
+											value: "new",
+											label: getLabel("new"),
+										},
+										// { value: "attente", label: getLabel("attente") },
+										{
+											value: "inactif",
+											label: getLabel("inactif"),
+										},
+								  ]
+								: [
+										{
+											value: "actif",
+											label: getLabel("actif"),
+										},
+										// { value: "attente", label: getLabel("attente") },
+										{
+											value: "inactif",
+											label: getLabel("inactif"),
+										},
+								  ]
+						}
+					/>
+				</td>
+				<td className="flex gap-3">
+					<button onClick={() => setOpenedModal(true)}>
 						<Image
 							className={`translate-y-2`}
 							alt="edit"
@@ -505,4 +532,4 @@ function TypesBar({
 	);
 }
 
-export default TypesBar;
+export default MarqueBar;
