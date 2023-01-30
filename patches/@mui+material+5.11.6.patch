@@ -1,0 +1,32 @@
+diff --git a/node_modules/@mui/material/Table/Table.js b/node_modules/@mui/material/Table/Table.js
+index 08f4a83..3b0bdaa 100644
+--- a/node_modules/@mui/material/Table/Table.js
++++ b/node_modules/@mui/material/Table/Table.js
+@@ -20,6 +20,8 @@ const useUtilityClasses = ownerState => {
+   };
+   return composeClasses(slots, getTableUtilityClass, classes);
+ };
++
++console.log("heeeeeeere")
+ const TableRoot = styled('table', {
+   name: 'MuiTable',
+   slot: 'Root',
+@@ -37,12 +39,12 @@ const TableRoot = styled('table', {
+   width: '100%',
+   borderCollapse: 'collapse',
+   borderSpacing: 0,
+-  '& caption': _extends({}, theme.typography.body2, {
+-    padding: theme.spacing(2),
+-    color: (theme.vars || theme).palette.text.secondary,
+-    textAlign: 'left',
+-    captionSide: 'bottom'
+-  })
++  // '& caption': _extends({}, theme.typography?.body2, {
++  //   padding: theme.spacing(2),
++  //   color: (theme.vars || theme).palette.text.secondary,
++  //   textAlign: 'left',
++  //   captionSide: 'bottom'
++  // })
+ }, ownerState.stickyHeader && {
+   borderCollapse: 'separate'
+ }));

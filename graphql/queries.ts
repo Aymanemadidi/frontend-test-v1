@@ -219,8 +219,8 @@ export const GET_USERS_BY_OC = gql`
 `;
 
 export const ALL_USERS_NEW = gql`
-	query users2 {
-		users2 {
+	query usersWithAgregation {
+		usersWithAgregation {
 			_id
 			firstName
 			lastName

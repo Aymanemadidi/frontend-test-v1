@@ -487,9 +487,6 @@ export default function Demo({ opened }: any) {
 		let arr: string[] = [];
 		try {
 			const typeUserArchived = await removeAllTypeUsers();
-			// console.log("typeUserArchived: ", typeUserArchived.data.updatetypeUser._id);
-			// let filtered = list.typeUsers.filter((m: any) => m._id !== user._id);
-			// filtered.push(typeUserArchived.data.updatetypeUser);
 			setList({ typeUsers: [] });
 			showNotification({
 				title: `${"Supression de tout les typeUsers"}`,
@@ -498,17 +495,8 @@ export default function Demo({ opened }: any) {
 				autoClose: 5000,
 				bottom: "630px",
 			});
-			// setUpdatedLibelle(() => typeUserCreated.data.updatetypeUser.libelle);
 			setOpenedArchiveAllModal(false);
 		} catch (e: any) {
-			// if (e.message === "libelle unmodified") {
-			// 	setErr({ type: 1 });
-			// }
-			// if (e.message === "Cette typeUser existe déjà") {
-			// 	setErr({ type: 2 });
-			// }
-			// setNewLibelle("");
-			// alert(e);
 			showNotification({
 				title: "Supression typeUser impossible",
 				message: "Une erreur s'est produite",

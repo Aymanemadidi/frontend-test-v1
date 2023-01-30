@@ -6,8 +6,20 @@ import Layout from "../components/Layout";
 import { MantineProvider } from "@mantine/core";
 import { ModalsProvider } from "@mantine/modals";
 import { NotificationsProvider } from "@mantine/notifications";
+import { StyledEngineProvider, ThemeProvider } from "@mui/material/styles";
+import CssBaseline from "@mui/material/CssBaseline";
+import { CacheProvider, EmotionCache } from "@emotion/react";
+import theme from "../theme";
+import createEmotionCache from "../createEmotionCache";
 
 import NotLoggedLayout from "../components/notLoggedLayout";
+
+// Client-side cache, shared for the whole session of the user in the browser.
+const clientSideEmotionCache = createEmotionCache();
+
+interface MyAppProps extends AppProps {
+	emotionCache?: EmotionCache;
+}
 
 // function MyApp({ Component, pageProps }: AppProps) {
 // 	return (
@@ -34,22 +46,30 @@ type AppPropsWithLayout = AppProps & {
 	Component: NextPageWithLayout;
 };
 
-const App = ({ Component, pageProps, accessToken }: any) => {
+const App = ({
+	Component,
+	pageProps,
+	emotionCache = clientSideEmotionCache,
+}: any) => {
 	// use the getLayout defined in each page
 	// if it doesn't exist, provide a fallback
 	const getLayout = Component.getLayout;
 
 	if (getLayout) {
 		return getLayout(
-			<ApolloProvider client={client}>
-				<MantineProvider>
-					<ModalsProvider>
-						<NotificationsProvider>
-							<Component {...pageProps} accessToken={accessToken} />
-						</NotificationsProvider>
-					</ModalsProvider>
-				</MantineProvider>
-			</ApolloProvider>
+			<CacheProvider value={emotionCache}>
+				<ApolloProvider client={client}>
+					<MantineProvider>
+						<ModalsProvider>
+							<NotificationsProvider>
+								<ThemeProvider theme={theme}>
+									<Component {...pageProps} />
+								</ThemeProvider>
+							</NotificationsProvider>
+						</ModalsProvider>
+					</MantineProvider>
+				</ApolloProvider>
+			</CacheProvider>
 		);
 	} else {
 		return (
@@ -57,8 +77,10 @@ const App = ({ Component, pageProps, accessToken }: any) => {
 				<MantineProvider>
 					<ModalsProvider>
 						<NotificationsProvider>
-							<Layout accessToken={accessToken}>
-								<Component {...pageProps} />;
+							<Layout>
+								<ThemeProvider theme={theme}>
+									<Component {...pageProps} />;
+								</ThemeProvider>
 							</Layout>
 						</NotificationsProvider>
 					</ModalsProvider>

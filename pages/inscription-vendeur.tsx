@@ -154,7 +154,7 @@ export default function InscriptionVendeur() {
 						codeNAF: values.codeNAF,
 						codePostal: values.codePostal,
 						ville: values.ville,
-						role: "Seller",
+						// role: "Seller",
 						IBAN: values.IBAN,
 						dateOfBirth: values.dateOfBirth,
 						nationality: values.nationality,

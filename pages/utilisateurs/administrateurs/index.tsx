@@ -436,7 +436,7 @@ export default function Demo({ opened }: any) {
 					data={[
 						{ value: "archive", label: "Archiver" },
 						{ value: "actif", label: "activer" },
-						{ value: "inactif", label: "désactiver" },
+						{ value: "inactif", label: "desactiver" },
 					]}
 				/>
 				<TextInput
@@ -507,7 +507,7 @@ export default function Demo({ opened }: any) {
 								{/* <th className="hidden lg:table-cell">Type</th> */}
 								{/* <th className="hidden lg:table-cell ">Type du compte</th> */}
 								{/* <th className="hidden lg:table-cell">Verifié</th> */}
-								<th className="hidden lg:table-cell ">Enregistré le</th>
+								<th className="hidden lg:table-cell ">enregistré le</th>
 								<th className=" ">Statut</th>
 								<th>Actions</th>
 							</tr>
@@ -515,7 +515,7 @@ export default function Demo({ opened }: any) {
 						<tbody className="">
 							{admins.length === 0 ? (
 								<div className="ml-[25%]">
-									<div>Aucun administrateur trouvé !</div>
+									<div>No results found</div>
 								</div>
 							) : (
 								admins.reverse()
