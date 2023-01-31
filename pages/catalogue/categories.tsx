@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import {
 	Table,
@@ -11,13 +11,13 @@ import {
 	Select,
 	TextInput,
 	LoadingOverlay,
+	Accordion,
 } from "@mantine/core";
 import { keys } from "@mantine/utils";
 import { gql, useLazyQuery, useMutation, useQuery } from "@apollo/client";
 import "dayjs/locale/fr";
 // import client from "../apollo-client";
 // import SellersBar from "../components/SellersBar";
-import BuyersBar from "../../../components/BuyersBar";
 // import { useSellers } from "../hooks/useSellerData";
 import {
 	IconSelector,
@@ -36,10 +36,7 @@ import {
 	ThProps,
 	sortData,
 	getStartAndEndFromRange,
-} from "../../../utils/filtersUtils";
-import { ALL_BUYERS, GET_BUYERS_BY_OC } from "../../../graphql/queries";
-import { UPDATE_BUYER_STATUT } from "../../../graphql/mutations";
-import { OpenedContext } from "../../../components/Layout";
+} from "../../utils/filtersUtils";
 
 const useStyles = createStyles((theme) => ({
 	th: {
@@ -88,6 +85,14 @@ function Th({ children, reversed, sorted, onSort, tailwind = "" }: ThProps) {
 	);
 }
 
+function MyAcc({ children }: any) {
+	return (
+		<Accordion>
+			<tr>{children}</tr>
+		</Accordion>
+	);
+}
+
 export default function Demo({ opened }: any) {
 	const [selection, setSelection] = useState([]);
 	const [search, setSearch] = useState("");
@@ -103,198 +108,202 @@ export default function Demo({ opened }: any) {
 		null,
 		null,
 	]);
-	const isOpened = useContext(OpenedContext);
+	const [isOpened, setIsOpened] = useState(opened);
 	const [changedByBulkIds, setChangedByBulkIds] = useState<any>([]);
 	// const router = useRouter();
 
 	const [list, setList] = useState<any>([]);
 
-	const [updateStatut, statutUpdateResult] = useMutation(UPDATE_BUYER_STATUT);
+	useEffect(() => {
+		setIsOpened(opened);
+	}, [opened]);
 
-	const openModal = (e: any) => {
-		return openConfirmModal({
-			className: "mt-[200px]",
-			confirmProps: {
-				className: "bg-green-500 hover:bg-green-600 rounded-2xl",
-			},
-			cancelProps: {
-				className: "rounded-2xl",
-			},
-			title: "Veuillez confirmer le changement de statut",
-			children: (
-				<p>
-					{e === "actif" ? (
-						<p>
-							Voulez vous rendre ces utilisateurs{" "}
-							<span className="text-green-500">Actif</span> ?
-						</p>
-					) : e === "inactif" ? (
-						<p>
-							Voulez vous rendre ces utilisateurs{" "}
-							<span className="text-red-400">Inactif</span> ?
-						</p>
-					) : (
-						<p>
-							Voulez vous rendre ces utilisateurs{" "}
-							<span className="text-red-400">Archivé</span> ?
-						</p>
-					)}
-				</p>
-			),
-			labels: { confirm: "Confirmer", cancel: "Abandonner" },
-			onCancel: () => {
-				setStatut(statut);
-			},
-			onConfirm: async () => {
-				try {
-					let s: any;
-					let test: any;
-					let arr: number[] = [];
-					if (e === "actif" || e === "inactif") {
-						for (s of selection) {
-							await updateStatut({
-								variables: {
-									_id: s,
-									updateBuyerInput: {
-										statut: e,
-									},
-								},
-							});
-						}
-					} else {
-						for (s of selection) {
-							await updateStatut({
-								variables: {
-									_id: s,
-									updateBuyerInput: {
-										isArchived: true,
-									},
-								},
-							});
-							arr.push(s);
-							// setList({ sellers: test });
-							// console.log("test: ", test);
-						}
-						// console.log("arr: ", arr);
-						test = list.buyers.filter(
-							(buyer: any) => !arr.includes(buyer.userId)
-						);
+	// const [updateStatut, statutUpdateResult] = useMutation(UPDATE_BUYER_STATUT);
 
-						setList({ buyers: test });
-						// setList({ sellers: test });
-					}
-					setChangedByBulkIds(selection);
-					if (e !== "archive") setStatut(() => e);
-					setSelection([]);
-					showNotification({
-						title: `${
-							e !== "archive" ? "Changement de multiple statut" : "Archivage"
-						}`,
-						message: `${
-							e !== "archive"
-								? "Statuts changé avec success"
-								: "Archivage fait avec success"
-						}`,
-						color: "green",
-						autoClose: 5000,
-						bottom: "630px",
-						// top: "0px",
-						// classNames: {
-						// 	root: "translate-y-[-500px]",
-						// },
-					});
-				} catch (e) {
-					alert(e);
-					showNotification({
-						title: "Changement de statut impossible",
-						message: "Une erreur s'est produite",
-						color: "red",
-						autoClose: 5000,
-						bottom: "630px",
-					});
-				}
-			},
-		});
-	};
+	// const openModal = (e: any) => {
+	// 	return openConfirmModal({
+	// 		className: "mt-[200px]",
+	// 		confirmProps: {
+	// 			className: "bg-green-500 hover:bg-green-600 rounded-2xl",
+	// 		},
+	// 		cancelProps: {
+	// 			className: "rounded-2xl",
+	// 		},
+	// 		title: "Veuillez confirmer le changement de statut",
+	// 		children: (
+	// 			<p>
+	// 				{e === "actif" ? (
+	// 					<p>
+	// 						Voulez vous rendre ces utilisateurs{" "}
+	// 						<span className="text-green-500">Actif</span> ?
+	// 					</p>
+	// 				) : e === "inactif" ? (
+	// 					<p>
+	// 						Voulez vous rendre ces utilisateurs{" "}
+	// 						<span className="text-red-400">Inactif</span> ?
+	// 					</p>
+	// 				) : (
+	// 					<p>
+	// 						Voulez vous rendre ces utilisateurs{" "}
+	// 						<span className="text-red-400">Archivé</span> ?
+	// 					</p>
+	// 				)}
+	// 			</p>
+	// 		),
+	// 		labels: { confirm: "Confirmer", cancel: "Abandonner" },
+	// 		onCancel: () => {
+	// 			setStatut(statut);
+	// 		},
+	// 		onConfirm: async () => {
+	// 			try {
+	// 				let s: any;
+	// 				let test: any;
+	// 				let arr: number[] = [];
+	// 				if (e === "actif" || e === "inactif") {
+	// 					for (s of selection) {
+	// 						await updateStatut({
+	// 							variables: {
+	// 								_id: s,
+	// 								updateBuyerInput: {
+	// 									statut: e,
+	// 								},
+	// 							},
+	// 						});
+	// 					}
+	// 				} else {
+	// 					for (s of selection) {
+	// 						await updateStatut({
+	// 							variables: {
+	// 								_id: s,
+	// 								updateBuyerInput: {
+	// 									isArchived: true,
+	// 								},
+	// 							},
+	// 						});
+	// 						arr.push(s);
+	// 						// setList({ sellers: test });
+	// 						// console.log("test: ", test);
+	// 					}
+	// 					// console.log("arr: ", arr);
+	// 					test = list.buyers.filter(
+	// 						(buyer: any) => !arr.includes(buyer.userId)
+	// 					);
 
-	const { error, loading, data } = useQuery(ALL_BUYERS, {
-		onCompleted: setList,
-		fetchPolicy: "no-cache",
-	});
-	const [getEmailsBySearch, results] = useLazyQuery(GET_BUYERS_BY_OC);
+	// 					setList({ buyers: test });
+	// 					// setList({ sellers: test });
+	// 				}
+	// 				setChangedByBulkIds(selection);
+	// 				if (e !== "archive") setStatut(() => e);
+	// 				setSelection([]);
+	// 				showNotification({
+	// 					title: `${
+	// 						e !== "archive" ? "Changement de multiple statut" : "Archivage"
+	// 					}`,
+	// 					message: `${
+	// 						e !== "archive"
+	// 							? "Statuts changé avec success"
+	// 							: "Archivage fait avec success"
+	// 					}`,
+	// 					color: "green",
+	// 					autoClose: 5000,
+	// 					bottom: "630px",
+	// 					// top: "0px",
+	// 					// classNames: {
+	// 					// 	root: "translate-y-[-500px]",
+	// 					// },
+	// 				});
+	// 			} catch (e) {
+	// 				alert(e);
+	// 				showNotification({
+	// 					title: "Changement de statut impossible",
+	// 					message: "Une erreur s'est produite",
+	// 					color: "red",
+	// 					autoClose: 5000,
+	// 					bottom: "630px",
+	// 				});
+	// 			}
+	// 		},
+	// 	});
+	// };
 
-	if (loading) {
-		return (
-			<div className="flex justify-center">
-				<LoadingOverlay visible />;
-			</div>
-		);
-	}
+	// const { error, loading, data } = useQuery(ALL_BUYERS, {
+	// 	onCompleted: setList,
+	// 	fetchPolicy: "no-cache",
+	// });
+	// const [getEmailsBySearch, results] = useLazyQuery(GET_BUYERS_BY_OC);
 
-	if (error) {
-		// router.push("/login");
+	// if (loading) {
+	// 	return (
+	// 		<div className="flex justify-center">
+	// 			<LoadingOverlay visible />;
+	// 		</div>
+	// 	);
+	// }
 
-		return <div>{error.message}</div>;
-	}
+	// if (error) {
+	// 	// router.push("/login");
 
-	let buyersData = data?.buyers;
-	let buyers = [];
-	if (results.data) {
-		buyersData = results.data.buyersOcc;
-	}
+	// 	return <div>{error.message}</div>;
+	// }
 
-	const setSorting = (field: keyof RowData) => {
-		const reversed = field === sortBy ? !reverseSortDirection : false;
-		setReverseSortDirection(reversed);
-		setSortBy(field);
-		buyersData = sortData(buyersData, { sortBy: field, reversed, search });
-		setList({ sellers: buyersData });
-	};
+	// let buyersData = data?.buyers;
+	// let buyers = [];
+	// if (results.data) {
+	// 	buyersData = results.data.buyersOcc;
+	// }
 
-	const toggleRow = (id: string) =>
-		setSelection((current: any) =>
-			current.includes(id)
-				? current.filter((item: any) => item !== id)
-				: [...current, id]
-		);
-	const toggleAll = () =>
-		setSelection((current) =>
-			current.length === buyersData.length
-				? []
-				: buyersData.map((item: any) => item.userId)
-		);
+	// const setSorting = (field: keyof RowData) => {
+	// 	const reversed = field === sortBy ? !reverseSortDirection : false;
+	// 	setReverseSortDirection(reversed);
+	// 	setSortBy(field);
+	// 	buyersData = sortData(buyersData, { sortBy: field, reversed, search });
+	// 	setList({ sellers: buyersData });
+	// };
 
-	const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-		const { value } = event.currentTarget;
-		setSearch(value);
-		buyersData = sortData(buyersData, {
-			sortBy,
-			reversed: reverseSortDirection,
-			search: value,
-		});
-		console.log(buyersData);
-		setList({ buyers: buyersData });
-	};
+	// const toggleRow = (id: string) =>
+	// 	setSelection((current: any) =>
+	// 		current.includes(id)
+	// 			? current.filter((item: any) => item !== id)
+	// 			: [...current, id]
+	// 	);
+	// const toggleAll = () =>
+	// 	setSelection((current) =>
+	// 		current.length === buyersData.length
+	// 			? []
+	// 			: buyersData.map((item: any) => item.userId)
+	// 	);
 
-	console.log("buyers", list.buyers);
+	// const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+	// 	const { value } = event.currentTarget;
+	// 	setSearch(value);
+	// 	buyersData = sortData(buyersData, {
+	// 		sortBy,
+	// 		reversed: reverseSortDirection,
+	// 		search: value,
+	// 	});
+	// 	console.log(buyersData);
+	// 	setList({ buyers: buyersData });
+	// };
 
-	buyers = list.buyers.map((user: any) => {
-		console.log("isArchived: ", user);
-		if (!user.isArchived) {
-			return (
-				<BuyersBar
-					key={user.email}
-					user={user}
-					selection={selection}
-					toggleRow={toggleRow}
-					statut={statut === "" ? user.statut : statut}
-					ids={changedByBulkIds}
-					setList={setList}
-					list={list}
-				/>
-			);
-		}
-	});
+	// console.log("buyers", list.buyers);
+
+	// buyers = list.buyers.map((user: any) => {
+	// 	console.log("isArchived: ", user);
+	// 	if (!user.isArchived) {
+	// 		return (
+	// 			<BuyersBar
+	// 				key={user.email}
+	// 				user={user}
+	// 				selection={selection}
+	// 				toggleRow={toggleRow}
+	// 				statut={statut === "" ? user.statut : statut}
+	// 				ids={changedByBulkIds}
+	// 				setList={setList}
+	// 				list={list}
+	// 			/>
+	// 		);
+	// 	}
+	// });
 
 	// console.log("opened: ", opened);
 
@@ -307,7 +316,7 @@ export default function Demo({ opened }: any) {
 					<IconCirclePlus size={35} />
 				</Link>
 			</div>
-			<form className="">
+			{/* <form className="">
 				<div className="flex flex-col px-5 pt-5 py-2 bg-white rounded-2xl shadow-sm mb-2">
 					<div className="flex gap-2">
 						<TextInput
@@ -397,8 +406,8 @@ export default function Demo({ opened }: any) {
 						</button>
 					</div>
 				</div>
-			</form>
-			<div className="flex gap-1 lg:justify-between mt-3">
+			</form> */}
+			{/* <div className="flex gap-1 lg:justify-between mt-3">
 				<Select
 					classNames={{
 						input:
@@ -435,80 +444,86 @@ export default function Demo({ opened }: any) {
 					onChange={handleSearchChange}
 					type="text"
 				/>
-			</div>
-			{results.loading ? (
+			</div> */}
+			{/* {results.loading ? (
 				<div className="flex justify-center">
 					<LoadingOverlay
 						visible
 						loaderProps={{ size: "xl", color: "green", variant: "bars" }}
 					/>
 				</div>
-			) : (
-				<div className="bg-white shadow-sm rounded-xl px-4 py-4">
-					<Table>
-						<thead>
-							<tr className="">
-								<th style={{ width: 40 }}>
-									<Checkbox
-										onChange={toggleAll}
-										checked={selection.length === buyersData.length}
-										indeterminate={
-											false
-											// selection.length > 0 &&
-											// selection.length !== buyersData.length
-										}
-										transitionDuration={0}
-									/>
-								</th>
-								<th className="hidden lg:table-cell">ID</th>
-								<th className="lg:hidden">Société</th>
-								<Th
-									sorted={sortBy === "nomEntreprise"}
-									reversed={reverseSortDirection}
-									onSort={() => setSorting("nomEntreprise")}
-									tailwind={"hidden lg:table-cell"}
-								>
-									<p className="">Société</p>
-								</Th>
-								<Th
-									sorted={sortBy === "pseudo"}
-									reversed={reverseSortDirection}
-									onSort={() => setSorting("pseudo")}
-									// tailwind={"hidden md:table-cell"}
-									tailwind={"hidden lg:table-cell"}
-								>
-									Pseudo
-								</Th>
-								<Th
-									sorted={sortBy === "email"}
-									reversed={reverseSortDirection}
-									onSort={() => setSorting("email")}
-									tailwind={"hidden lg:table-cell"}
-									// tailwind={"hidden md:table-cell"}
-								>
-									E-mail
-								</Th>
-								{/* lg:table-cell */}
-								{/* <th className="hidden lg:table-cell">Type</th> */}
-								<th className="hidden lg:table-cell ">Type du compte</th>
-								<th className="hidden lg:table-cell">Verifié</th>
-								<th className="hidden lg:table-cell ">enregistré le</th>
-								<th className=" ">Statut</th>
-								<th>Actions</th>
-							</tr>
-						</thead>
-						<tbody className="">
-							{buyers.length === 0 ? (
-								<div className="ml-[25%]">
-									<div>No results found</div>
+			) : ( */}
+			<div className="bg-white flex flex-col items-start shadow-sm rounded-xl px-4 py-4">
+				<table className="table-auto">
+					<thead>
+						<tr>
+							<th>Song</th>
+							<th>Artist</th>
+							<th>Year</th>
+						</tr>
+					</thead>
+					<tbody>
+						<Accordion>
+							<td>
+								<td>test</td>
+								<td>test</td>
+								<td>test</td>
+							</td>
+							<td>
+								<td>test</td>
+								<td>test</td>
+								<td>test</td>
+							</td>
+							<td>
+								<td>test</td>
+								<td>test</td>
+								<td>test</td>
+							</td>
+							<td></td>
+						</Accordion>
+					</tbody>
+				</table>
+				{/* <div className="flex justify-between w-full">
+					<div>
+						<Checkbox />
+					</div>
+					<div>
+						<span>Position</span>
+					</div>
+					<div>
+						<span>Nom categorie</span>
+					</div>
+					<div>
+						<span>Produits</span>
+					</div>
+					<div>
+						<span>Produits actif</span>
+					</div>
+					<div>
+						<span>Statut</span>
+					</div>
+					<div>
+						<span>Actions</span>
+					</div>
+				</div> */}
+				{/* <div className="flex justify-start w-full">
+					<Accordion className="w-full -translate-x-5" chevronPosition="left">
+						<Accordion.Item value="customization">
+							<Accordion.Control>
+								<div className="flex justify-between">
+									<div className="ml-[110px]">test</div>
+									<div>test</div>
+									<div>test</div>
+									<div>test</div>
+									<div>test</div>
+									<div>test</div>
 								</div>
-							) : (
-								buyers.reverse()
-							)}
-						</tbody>
-					</Table>
-				</div>
-			)}
+							</Accordion.Control>
+							<Accordion.Panel>test</Accordion.Panel>
+						</Accordion.Item>
+					</Accordion>
+				</div> */}
+			</div>
 		</div>
 	);
 }

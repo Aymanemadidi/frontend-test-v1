@@ -23,7 +23,6 @@ import { LinksGroup } from "../components/NavbarLinksGroup";
 // import { Logo } from "./Logo";
 
 const mockdata = [
-
 	{ label: "Dashboard", icon: IconGauge, link: "/tableau-de-bord" },
 	{
 		label: "Utilisateurs",
@@ -41,9 +40,9 @@ const mockdata = [
 		label: "Mes commandes",
 		icon: IconChecklist,
 		links: [
-			{ label: "Toutes les commandes", link: "#" },
-			{ label: "Demandes de retour", link: "#" },
-			{ label: "Demandes de remboursement", link: "#" },
+			{ label: "Upcoming releases", link: "/utilisateurs" },
+			{ label: "Previous releases", link: "/acheteurs" },
+			{ label: "Releases schedule", link: "/vendeurs" },
 		],
 	},
 	{
@@ -52,6 +51,7 @@ const mockdata = [
 		links: [
 			{ label: "Marques", link: "/administration/marques" },
 			{ label: "Types utilisateurs", link: "/administration/type-utilisateur" },
+			{ label: "Modes paiement", link: "/administration/modes-paiement" },
 		],
 	},
 	{

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import Link from "next/link";
 import {
 	Table,
@@ -45,6 +45,7 @@ import {
 	UPDATE_SELLER_STATUT,
 	UPDATE_USER_STATUT,
 } from "../../graphql/mutations";
+import { OpenedContext } from "../../components/Layout";
 
 const useStyles = createStyles((theme) => ({
 	th: {
@@ -111,15 +112,11 @@ export default function Demo({ opened }: any) {
 		null,
 		null,
 	]);
-	const [isOpened, setIsOpened] = useState(opened);
+	const isOpened = useContext(OpenedContext);
 	const [changedByBulkIds, setChangedByBulkIds] = useState<any>([]);
 	const router = useRouter();
 
 	const [list, setList] = useState<any>([]);
-
-	useEffect(() => {
-		setIsOpened(opened);
-	}, [opened]);
 
 	const [updateUserStatut, userStatutUpdateResult] =
 		useMutation(UPDATE_USER_STATUT);
@@ -230,14 +227,14 @@ export default function Demo({ opened }: any) {
 							// setList({ sellers: test });
 						}
 						// console.log("arr: ", arr);
-						test = list.users2.filter(
+						test = list.usersWithAgregation.filter(
 							(user2: any) =>
 								!arr.some((element: any) => element.includes(user2._id))
 						);
 
 						console.log("test: ", test);
 
-						setList({ users2: test });
+						setList({ usersWithAgregation: test });
 						// setList({ sellers: test });
 					}
 					setChangedByBulkIds(selection);
@@ -304,7 +301,7 @@ export default function Demo({ opened }: any) {
 
 	console.log("newUsers: ", data);
 
-	let usersData = data?.users2;
+	let usersData = data?.usersWithAgregation;
 	let users = [];
 	if (results.data) {
 		usersData = results.data.usersOcc;
@@ -315,7 +312,7 @@ export default function Demo({ opened }: any) {
 		setReverseSortDirection(reversed);
 		setSortBy(field);
 		usersData = sortData(usersData, { sortBy: field, reversed, search });
-		setList({ users2: usersData });
+		setList({ usersWithAgregation: usersData });
 	};
 
 	const toggleRow = (arr: [id: string, role: string]) => {
@@ -342,12 +339,12 @@ export default function Demo({ opened }: any) {
 			search: value,
 		});
 		console.log(usersData);
-		setList({ users2: usersData });
+		setList({ usersWithAgregation: usersData });
 	};
 
 	console.log("users", list.users);
 
-	users = list.users2.map((user: any) => {
+	users = list.usersWithAgregation.map((user: any) => {
 		console.log("isArchived: ", user);
 		if (
 			user.seller
@@ -582,7 +579,7 @@ export default function Demo({ opened }: any) {
 									});
 
 									console.log(datax);
-									setList({ users2: datax.data.usersOcc });
+									setList({ usersWithAgregation: datax.data.usersOcc });
 									// console.log("ranges: ", ranges[0]);
 									// console.log("ranges: ", ranges[1]);
 									// console.log(datax.data.sellersOcc);

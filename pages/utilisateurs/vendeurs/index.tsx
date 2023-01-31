@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import Link from "next/link";
 import {
 	Table,
@@ -39,6 +39,7 @@ import {
 } from "../../../utils/filtersUtils";
 import { ALL_SELLERS, GET_SELLERS_BY_OC } from "../../../graphql/queries";
 import { UPDATE_SELLER_STATUT } from "../../../graphql/mutations";
+import { OpenedContext } from "../../../components/Layout";
 
 const useStyles = createStyles((theme) => ({
 	th: {
@@ -93,7 +94,8 @@ export function Th({
 	);
 }
 
-export default function Demo({ opened }: any) {
+// export default function Demo({ opened }: any) {
+export default function Demo() {
 	const [selection, setSelection] = useState([]);
 	const [search, setSearch] = useState("");
 	const [sortBy, setSortBy] = useState<keyof RowData | null>(null);
@@ -108,15 +110,16 @@ export default function Demo({ opened }: any) {
 		null,
 		null,
 	]);
-	const [isOpened, setIsOpened] = useState(opened);
+	const isOpened = useContext(OpenedContext);
+	// const [isOpened, setIsOpened] = useState(opened);
 	const [changedByBulkIds, setChangedByBulkIds] = useState<any>([]);
 	// const router = useRouter();
 
 	const [list, setList] = useState<any>([]);
 
-	useEffect(() => {
-		setIsOpened(opened);
-	}, [opened]);
+	// useEffect(() => {
+	// 	setIsOpened(opened);
+	// }, [opened]);
 
 	const [updateStatut, statutUpdateResult] = useMutation(UPDATE_SELLER_STATUT);
 
@@ -420,7 +423,7 @@ export default function Demo({ opened }: any) {
 					data={[
 						{ value: "archive", label: "Archiver" },
 						{ value: "actif", label: "activer" },
-						{ value: "inactif", label: "désactiver" },
+						{ value: "inactif", label: "desactiver" },
 					]}
 				/>
 				<TextInput
@@ -490,8 +493,8 @@ export default function Demo({ opened }: any) {
 								{/* lg:table-cell */}
 								<th className="hidden lg:table-cell">Type</th>
 								<th className="hidden lg:table-cell ">Type du compte</th>
-								<th className="hidden lg:table-cell">Vérifié</th>
-								<th className="hidden lg:table-cell ">Enregistré le</th>
+								<th className="hidden lg:table-cell">Verifié</th>
+								<th className="hidden lg:table-cell ">enregistré le</th>
 								<th className=" ">Statut</th>
 								<th>Actions</th>
 							</tr>
@@ -499,7 +502,7 @@ export default function Demo({ opened }: any) {
 						<tbody className="">
 							{sellers.length === 0 ? (
 								<div className="ml-[25%]">
-									<div>Aucun vendeur trouvé !</div>
+									<div>No results found</div>
 								</div>
 							) : (
 								sellers.reverse()

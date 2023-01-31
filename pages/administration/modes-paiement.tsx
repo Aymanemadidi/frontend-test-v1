@@ -31,7 +31,7 @@ import { DateRangePicker, DateRangePickerValue } from "@mantine/dates";
 import dayjs from "dayjs";
 import { showNotification } from "@mantine/notifications";
 import { openConfirmModal } from "@mantine/modals";
-import TypesBar from "../../components/TypesBar";
+import ModesPaiementBar from "../../components/modesPaiementBar";
 import { OpenedContext } from "../../components/Layout";
 
 const useStyles = createStyles((theme) => ({
@@ -110,6 +110,11 @@ export default function Demo({ opened }: any) {
 	const [search, setSearch] = useState("");
 	const [sortBy, setSortBy] = useState<keyof RowData | null>(null);
 	const [reverseSortDirection, setReverseSortDirection] = useState(false);
+	const [emailToSearch, setEmailToSearch] = useState("");
+	const [nomEntrepriseToSearch, setNomEntrepriseToSearch] = useState("");
+	const [pseudoToSearch, setPseudoToSearch] = useState("");
+	// const [startDateToSearch, setStartDateToSearch] = useState("");
+	// const [endDateToSearch, setEndDateToSearch] = useState("");
 	const [statut, setStatut] = useState("");
 	const [rangeValue, setRangeValue] = useState<DateRangePickerValue>([
 		null,
@@ -121,54 +126,54 @@ export default function Demo({ opened }: any) {
 	const [openedModal, setOpenedModal] = useState(false);
 	const [openedArchiveModal, setOpenedArchiveModal] = useState(false);
 	const [openedArchiveAllModal, setOpenedArchiveAllModal] = useState(false);
-	const [forBuyer, setForBuyer] = useState(true);
-	const [forSeller, setForSeller] = useState(true);
 
 	// const router = useRouter();
 
 	const [list, setList] = useState<any>([]);
 
-	const CREATE_TYPE_USER = gql`
-		mutation createTypeUser($createTypeUserInput: CreateTypeUserInput!) {
-			createTypeUser(createTypeUserInput: $createTypeUserInput) {
+	const CREATE_MODE = gql`
+		mutation createModesPaiement(
+			$createModesPaiementInput: CreateModesPaiementInput!
+		) {
+			createModesPaiement(createModesPaiementInput: $createModesPaiementInput) {
 				_id
-				libelle
+				mode_paiement
+				statut
 				created_at
-				for_buyer
-				for_seller
 			}
 		}
 	`;
 
-	const ARCHIVE_TYPE_USER = gql`
-		mutation removeTypeUser($_id: String!) {
-			removeTypeUser(_id: $_id)
+	const ARCHIVE_MODE = gql`
+		mutation removeModesPaiement($_id: String!) {
+			removeModesPaiement(_id: $_id)
 		}
 	`;
 
 	const REMOVE_ALL = gql`
-		mutation removeAllTypes {
-			removeAllTypes
+		mutation removeAllModesPaiement {
+			removeAllModesPaiement
 		}
 	`;
 
-	const [createTypeUser, statutCreatedType] = useMutation(CREATE_TYPE_USER);
-	const [archiveTypeUser, archiveTypeResult] = useMutation(ARCHIVE_TYPE_USER);
-	const [removeAllTypeUsers, removeAllResult] = useMutation(REMOVE_ALL);
+	const [createModePaiement, statutCreatedModePaiement] =
+		useMutation(CREATE_MODE);
+	const [archiveModePaiement, archiveModePaiementResult] =
+		useMutation(ARCHIVE_MODE);
+	const [removeAllmodesPaiement, removeAllResult] = useMutation(REMOVE_ALL);
 
-	const ALL_TYPES = gql`
-		query TypeUsers {
-			typeUsers {
+	const ALL_MODES = gql`
+		query modesPaiement {
+			modesPaiement {
 				_id
-				libelle
+				mode_paiement
+				statut
 				created_at
-				for_buyer
-				for_seller
 			}
 		}
 	`;
 
-	const { error, loading, data } = useQuery(ALL_TYPES, {
+	const { error, loading, data } = useQuery(ALL_MODES, {
 		onCompleted: setList,
 		fetchPolicy: "no-cache",
 	});
@@ -187,22 +192,18 @@ export default function Demo({ opened }: any) {
 		return <div>{error.message}</div>;
 	}
 
-	let typeUsersData = data?.typeUsers;
-	let typeUsers = [];
+	let modesData = data?.modesPaiement;
+	let modesPaiement = [];
 	// if (results.data) {
-	// 	typeUsersData = results.data.typeUsersOcc;
+	// 	modesData = results.data.modesPaiementOcc;
 	// }
 
 	const setSorting = (field: keyof RowData) => {
 		const reversed = field === sortBy ? !reverseSortDirection : false;
 		setReverseSortDirection(reversed);
 		setSortBy(field);
-		typeUsersData = sortData(typeUsersData, {
-			sortBy: field,
-			reversed,
-			search,
-		});
-		setList({ typeUsers: typeUsersData });
+		modesData = sortData(modesData, { sortBy: field, reversed, search });
+		setList({ modesPaiement: modesData });
 	};
 
 	const toggleRow = (id: string) =>
@@ -213,9 +214,9 @@ export default function Demo({ opened }: any) {
 		);
 	const toggleAll = () =>
 		setSelection((current) =>
-			current.length === typeUsersData.length
+			current.length === modesData.length
 				? []
-				: typeUsersData.map((item: any) => item._id)
+				: modesData.map((item: any) => item._id)
 		);
 
 	function filterData(data: RowData[], search: string) {
@@ -235,13 +236,13 @@ export default function Demo({ opened }: any) {
 	const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
 		const { value } = event.currentTarget;
 		setSearch(value);
-		typeUsersData = sortData(typeUsersData, {
+		modesData = sortData(modesData, {
 			sortBy,
 			reversed: reverseSortDirection,
 			search: value,
 		});
-		console.log(typeUsersData);
-		setList({ typeUsers: typeUsersData });
+		console.log(modesData);
+		setList({ modesPaiement: modesData });
 	};
 
 	function sortData(
@@ -288,14 +289,14 @@ export default function Demo({ opened }: any) {
 		return results;
 	}
 
-	console.log("typeUsers", list.typeUsers);
+	console.log("modesPaiement", list.modesPaiement);
 
-	typeUsers = list.typeUsers.map((user: any) => {
+	modesPaiement = list.modesPaiement.map((user: any) => {
 		// console.log("isArchived: ", user);
 		// if (!user.isArchived) {
 		return (
-			<TypesBar
-				key={user.libelle}
+			<ModesPaiementBar
+				key={user._id}
 				user={user}
 				selection={selection}
 				toggleRow={toggleRow}
@@ -320,19 +321,31 @@ export default function Demo({ opened }: any) {
 		e.preventDefault();
 		let arr: string[] = [];
 		try {
-			const typeUserArchived = await removeAllTypeUsers();
-			setList({ typeUsers: [] });
+			const modePaiementArchived = await removeAllmodesPaiement();
+			// console.log("modeArchived: ", modeArchived.data.updatemode._id);
+			// let filtered = list.modesPaiement.filter((m: any) => m._id !== user._id);
+			// filtered.push(modeArchived.data.updatemode);
+			setList({ modesPaiement: [] });
 			showNotification({
-				title: `${"Supression de tout les typeUsers"}`,
-				message: `${"Supression de tout les typeUsers avec success"}`,
+				title: `${"Supression de tout les modesPaiement"}`,
+				message: `${"Supression de tout les modesPaiement avec success"}`,
 				color: "green",
 				autoClose: 5000,
 				bottom: "630px",
 			});
+			// setUpdatedLibelle(() => modeCreated.data.updatemode.libelle);
 			setOpenedArchiveAllModal(false);
 		} catch (e: any) {
+			// if (e.message === "libelle unmodified") {
+			// 	setErr({ type: 1 });
+			// }
+			// if (e.message === "Cette mode existe déjà") {
+			// 	setErr({ type: 2 });
+			// }
+			// setNewLibelle("");
+			// alert(e);
 			showNotification({
-				title: "Supression typeUser impossible",
+				title: "Supression mode impossible",
 				message: "Une erreur s'est produite",
 				color: "red",
 				autoClose: 5000,
@@ -341,45 +354,45 @@ export default function Demo({ opened }: any) {
 		}
 	};
 
-	const typeUserArchive = async (e: any) => {
+	const modeArchive = async (e: any) => {
 		e.preventDefault();
 		let arr: string[] = [];
 		try {
 			for (let s of selection) {
-				const typeUserArchived = await archiveTypeUser({
+				const modeArchived = await archiveModePaiement({
 					variables: {
 						_id: s,
 					},
 				});
 				arr.push(s);
 			}
-			// console.log("typeUserArchived: ", typeUserArchived.data.updatetypeUser._id);
-			let test = list.typeUsers.filter(
-				(typeUser: any) => !arr.includes(typeUser._id)
+			// console.log("modeArchived: ", modeArchived.data.updatemode._id);
+			let test = list.modesPaiement.filter(
+				(mode: any) => !arr.includes(mode._id)
 			);
-			// let filtered = list.typeUsers.filter((m: any) => m._id !== user._id);
-			// filtered.push(typeUserArchived.data.updatetypeUser);
-			setList({ typeUsers: test });
+			// let filtered = list.modesPaiement.filter((m: any) => m._id !== user._id);
+			// filtered.push(modeArchived.data.updatemode);
+			setList({ modesPaiement: test });
 			showNotification({
-				title: `${"Supression typeUser"}`,
-				message: `${"Supression typeUser avec success"}`,
+				title: `${"Supression mode de paiement"}`,
+				message: `${"Supression mode de paiement avec success"}`,
 				color: "green",
 				autoClose: 5000,
 				bottom: "630px",
 			});
-			// setUpdatedLibelle(() => typeUserCreated.data.updatetypeUser.libelle);
+			// setUpdatedLibelle(() => modeCreated.data.updatemode.libelle);
 			setOpenedArchiveModal(false);
 		} catch (e: any) {
 			// if (e.message === "libelle unmodified") {
 			// 	setErr({ type: 1 });
 			// }
-			// if (e.message === "Cette typeUser existe déjà") {
+			// if (e.message === "Cette mode existe déjà") {
 			// 	setErr({ type: 2 });
 			// }
 			// setNewLibelle("");
 			// alert(e);
 			showNotification({
-				title: "Supression typeUser impossible",
+				title: "Supression mode de paiement impossible",
 				message: "Une erreur s'est produite",
 				color: "red",
 				autoClose: 5000,
@@ -388,28 +401,30 @@ export default function Demo({ opened }: any) {
 		}
 	};
 
-	const typeUserCreate = async (e: any) => {
+	const modeCreate = async (e: any) => {
 		e.preventDefault();
 		console.log("From new way: ", newLibelle);
 		try {
-			const typeUserCreated = await createTypeUser({
+			const modeCreated = await createModePaiement({
 				variables: {
-					createTypeUserInput: {
-						libelle: newLibelle,
-						for_buyer: forBuyer,
-						for_seller: forSeller,
+					createModesPaiementInput: {
+						mode_paiement: newLibelle,
 						description: "",
 					},
 				},
 			});
-			console.log("typeUserCreated: ", typeUserCreated);
+			console.log("modeCreated: ", modeCreated);
 			setNewLibelle("");
 			setList({
-				typeUsers: [...list.typeUsers, typeUserCreated.data.createTypeUser],
+				modesPaiement: [
+					...list.modesPaiement,
+					modeCreated.data.createModesPaiement,
+				],
 			});
+			// modesData = list;
 			showNotification({
-				title: `${"Creation typeUser"}`,
-				message: `${"Creation typeUser avec success"}`,
+				title: `${"Creation mode de paiement"}`,
+				message: `${"Creation mode de paiement avec success"}`,
 				color: "green",
 				autoClose: 5000,
 				bottom: "630px",
@@ -419,7 +434,7 @@ export default function Demo({ opened }: any) {
 			setNewLibelle("");
 			alert(e);
 			showNotification({
-				title: "Creation typeUser impossible",
+				title: "Creation mode de paiement impossible",
 				message: "Une erreur s'est produite",
 				color: "red",
 				autoClose: 5000,
@@ -435,8 +450,8 @@ export default function Demo({ opened }: any) {
 			<Modal
 				opened={openedArchiveAllModal}
 				onClose={() => setOpenedArchiveAllModal(false)}
-				// title={`Voulez vous vraimment archiver la typeUser ${user.libelle}?`}
-				title={<p>Voulez vous vraimment archiver ces typeUsers ?</p>}
+				// title={`Voulez vous vraimment archiver la mode ${user.libelle}?`}
+				title={<p>Voulez vous vraimment archiver ces modesPaiement ?</p>}
 				className="shadow-xl"
 			>
 				<div>
@@ -470,12 +485,12 @@ export default function Demo({ opened }: any) {
 			<Modal
 				opened={openedArchiveModal}
 				onClose={() => setOpenedArchiveModal(false)}
-				// title={`Voulez vous vraimment archiver la typeUser ${user.libelle}?`}
-				title={<p>Voulez vous vraimment archiver ces typeUsers ?</p>}
+				// title={`Voulez vous vraimment archiver la mode ${user.libelle}?`}
+				title={<p>Voulez vous vraimment archiver ces modesPaiement ?</p>}
 				className="shadow-xl"
 			>
 				<div>
-					<form onSubmit={(e) => typeUserArchive(e)}>
+					<form onSubmit={(e) => modeArchive(e)}>
 						{/* <TextInput
 							label="Libelle"
 							value={newLibelle}
@@ -505,25 +520,13 @@ export default function Demo({ opened }: any) {
 			<Modal
 				opened={openedModal}
 				onClose={() => setOpenedModal(false)}
-				title="Ajouter une Type d'utilisateur"
+				title="Ajouter un mode de paiement"
 			>
-				<form onSubmit={(e) => typeUserCreate(e)}>
+				<form onSubmit={(e) => modeCreate(e)}>
 					<TextInput
 						label="Libelle"
 						onChange={(e) => setNewLibelle(e.target.value)}
 					/>
-					<div className="mt-1">
-						<Checkbox
-							checked={forSeller}
-							onChange={() => setForSeller(!forSeller)}
-							label={"Pour vendeur"}
-						/>
-						<Checkbox
-							checked={forBuyer}
-							onChange={() => setForBuyer(!forBuyer)}
-							label={"Pour Acheteur"}
-						/>
-					</div>
 
 					<div className="flex gap-3 mt-3 justify-end w-full">
 						<button
@@ -544,12 +547,102 @@ export default function Demo({ opened }: any) {
 			</Modal>
 			{/* <div className="lg:w-[85%] lg:m-auto"> */}
 			<div className="flex gap-3">
-				<p className="text-2xl mb-3 font-semibold">Types d'utilisateurs</p>
-				{/* <button onClick={openCreatetypeUserModal}> */}
+				<p className="text-2xl mb-3 font-semibold">Modes paiement</p>
+				{/* <button onClick={openCreatemodeModal}> */}
 				<button onClick={() => setOpenedModal(true)}>
 					<IconCirclePlus size={35} />
 				</button>
 			</div>
+			{/* <form className="">
+				<div className="flex flex-col px-5 pt-5 py-2 bg-white rounded-2xl shadow-sm mb-2">
+					<div className="flex gap-2">
+						<TextInput
+							classNames={{
+								// input: "w-[250px] rounded-2xl",
+								input: " rounded-2xl lg:w-[250px]",
+							}}
+							placeholder="E-mail"
+							// placeholder="Search by E-mail"
+							mb="md"
+							icon={<IconSearch size={14} stroke={1.5} />}
+							value={emailToSearch}
+							autoComplete="off"
+							onChange={(e) => setEmailToSearch(e.currentTarget.value)}
+						/>
+						<TextInput
+							classNames={{
+								input: " rounded-2xl lg:w-[280px]",
+								// input: "w-[280px] rounded-2xl",
+							}}
+							// placeholder="Search by nom de société"
+							placeholder="Société"
+							mb="md"
+							icon={<IconSearch size={14} stroke={1.5} />}
+							value={nomEntrepriseToSearch}
+							autoComplete="off"
+							onChange={(e) => setNomEntrepriseToSearch(e.currentTarget.value)}
+						/>
+					</div>
+					<div className="flex flex-col lg:flex-row lg:justify-between items-start">
+						<div className="flex gap-2">
+							<TextInput
+								classNames={{
+									// input: "w-[250px] rounded-2xl",
+									root: "basis-3/5",
+									input: "rounded-2xl lg:w-[250px]",
+								}}
+								// placeholder="Search by pseudo"
+								placeholder="Pseudo"
+								mb="md"
+								icon={<IconSearch size={14} stroke={1.5} />}
+								value={pseudoToSearch}
+								onChange={(e) => setPseudoToSearch(e.currentTarget.value)}
+							/>
+							<DateRangePicker
+								// label="Book hotel"
+								classNames={{
+									// input: "w-[350px] rounded-2xl",
+									root: "w-full",
+									input: "rounded-2xl lg:w-[350px]",
+								}}
+								placeholder="Dates"
+								// placeholder="Pick dates range"
+								value={rangeValue}
+								onChange={setRangeValue}
+								maxDate={dayjs(new Date()).toDate()}
+							/>
+						</div>
+						<button
+							type="submit"
+							className="bg-green-600 text-white text-xs hover:bg-green-500 px-[30px] py-3 rounded-2xl"
+							onClick={async (e) => {
+								e.preventDefault();
+								setSearch("");
+								console.log("rangeValue:", rangeValue);
+								let ranges = getStartAndEndFromRange(rangeValue);
+								console.log("ranges", ranges);
+								const datax = await getEmailsBySearch({
+									variables: {
+										email: emailToSearch,
+										nomEntreprise: nomEntrepriseToSearch,
+										pseudo: pseudoToSearch,
+										startDate: ranges[0],
+										endDate: ranges[1],
+									},
+								});
+								// console.log("ranges: ", ranges[0]);
+								// console.log("ranges: ", ranges[1]);
+								// console.log(datax.data.sellersOcc);
+								// setSortedData(datax.data.sellersOcc);
+								// console.log("search by dates data: ", datax.data.sellersOcc);
+								setList({ modesPaiement: datax.data.modesPaiementOcc });
+							}}
+						>
+							Rechercher
+						</button>
+					</div>
+				</div>
+			</form> */}
 			<div className="flex gap-1 lg:justify-between mt-3">
 				<Select
 					classNames={{
@@ -599,18 +692,17 @@ export default function Demo({ opened }: any) {
 							<th style={{ width: 40 }}>
 								<Checkbox
 									onChange={toggleAll}
-									// checked={selection.length === typeUsersData.length}
+									// checked={selection.length === modesData.length}
 									indeterminate={
 										false
 										// selection.length > 0 &&
-										// selection.length !== typeUsersData.length
+										// selection.length !== modesData.length
 									}
 									transitionDuration={0}
 								/>
 							</th>
 							<th className="hidden lg:table-cell">ID</th>
-							<th className="hidden lg:table-cell">Libelle</th>
-							<th className="hidden lg:table-cell"></th>
+							<th className="hidden lg:table-cell">Mode de paiement</th>
 							{/* <Th
 									sorted={sortBy === "nomEntreprise"}
 									reversed={reverseSortDirection}
@@ -642,17 +734,17 @@ export default function Demo({ opened }: any) {
 							{/* <th className="hidden lg:table-cell ">Type du compte</th>
 								<th className="hidden lg:table-cell">Verifié</th>*/}
 							<th className="hidden lg:table-cell ">Enregistré le</th>
-							{/* <th className=" ">Statut</th> */}
+							<th className="w-1/5">Statut</th>
 							<th>Actions</th>
 						</tr>
 					</thead>
 					<tbody className="">
-						{typeUsers.length === 0 ? (
+						{modesPaiement.length === 0 ? (
 							<div className="ml-[25%]">
 								<div>No results found</div>
 							</div>
 						) : (
-							typeUsers.reverse()
+							modesPaiement.reverse()
 						)}
 					</tbody>
 				</Table>
