@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import Link from "next/link";
 import {
 	Table,
@@ -35,6 +35,7 @@ import MarqueBar from "../../components/marqueBar";
 import MarqueModal from "../../components/MarqueModal";
 import ModesPaiementsBar from "../../components/modesPaiementBar";
 import ModesPaiementBar from "../../components/modesPaiementBar";
+import { OpenedContext } from "../../components/Layout";
 
 const useStyles = createStyles((theme) => ({
 	th: {
@@ -122,7 +123,7 @@ export default function Demo({ opened }: any) {
 		null,
 		null,
 	]);
-	const [isOpened, setIsOpened] = useState(opened);
+	const isOpened = useContext(OpenedContext);
 	const [changedByBulkIds, setChangedByBulkIds] = useState<any>([]);
 	const [newLibelle, setNewLibelle] = useState("");
 	const [openedModal, setOpenedModal] = useState(false);
@@ -132,10 +133,6 @@ export default function Demo({ opened }: any) {
 	// const router = useRouter();
 
 	const [list, setList] = useState<any>([]);
-
-	useEffect(() => {
-		setIsOpened(opened);
-	}, [opened]);
 
 	const CREATE_MODE = gql`
 		mutation createModesPaiement(

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import Link from "next/link";
 import {
 	Table,
@@ -32,6 +32,7 @@ import dayjs from "dayjs";
 import { showNotification } from "@mantine/notifications";
 import { openConfirmModal } from "@mantine/modals";
 import TypesBar from "../../components/TypesBar";
+import { OpenedContext } from "../../components/Layout";
 
 const useStyles = createStyles((theme) => ({
 	th: {
@@ -114,7 +115,7 @@ export default function Demo({ opened }: any) {
 		null,
 		null,
 	]);
-	const [isOpened, setIsOpened] = useState(opened);
+	const isOpened = useContext(OpenedContext);
 	const [changedByBulkIds, setChangedByBulkIds] = useState<any>([]);
 	const [newLibelle, setNewLibelle] = useState("");
 	const [openedModal, setOpenedModal] = useState(false);
@@ -126,10 +127,6 @@ export default function Demo({ opened }: any) {
 	// const router = useRouter();
 
 	const [list, setList] = useState<any>([]);
-
-	useEffect(() => {
-		setIsOpened(opened);
-	}, [opened]);
 
 	const CREATE_TYPE_USER = gql`
 		mutation createTypeUser($createTypeUserInput: CreateTypeUserInput!) {
