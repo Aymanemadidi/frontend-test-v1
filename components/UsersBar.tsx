@@ -48,7 +48,7 @@ interface UpdateSellerInput {
 	statut: string;
 }
 
-function BuyersBar({
+function UsersBar({
 	user,
 	selection,
 	toggleRow,
@@ -67,14 +67,18 @@ function BuyersBar({
 		}`
 	);
 
-	console.log("user.statut: ", user.statut);
+	// console.log("user.statut: ", user.statut);
 	// const [statutModeration, setStatutModeration] = useState(
 	// 	user.statut_moderation
 	// );
-	const selected = selection.includes(user.userId);
+	const selected = selection.includes(user._id);
 	const [showInput, setShowInput] = useState(false);
 
 	const router = useRouter();
+
+	if (user.email === "testbug8@Seller.com") {
+		console.log(user);
+	}
 
 	const date = `${
 		user.seller
@@ -102,8 +106,6 @@ function BuyersBar({
 	// 		setSellerStatut("actif");
 	// 	}
 	// }, []);
-
-	// console.log(user);
 
 	function getLabel(statut: string) {
 		if (statut === "new") {
@@ -460,7 +462,7 @@ function BuyersBar({
 					onSubmit={(e) => {
 						e.preventDefault();
 						setShowInput(false);
-						console.log("hey");
+						// console.log("hey");
 					}}
 				>
 					<input
@@ -478,14 +480,12 @@ function BuyersBar({
 			</td>
 			<td className="hidden lg:table-cell text-xs font-light">{user.email}</td>
 			<td className="hidden lg:table-cell text-xs font-light">
-				{user.role === "Seller"
+				{user.seller?.role === "Seller"
 					? user.seller?.isPro === true
 						? "Vendeur Pro"
 						: "Vendeur"
-					: user.role === "Buyer"
+					: user.buyer?.role === "Buyer"
 					? "Acheteur"
-					: user.role === "BuyerSeller"
-					? "Vendeur/Acheteur"
 					: "Admin"}
 			</td>
 			<td className=" hidden lg:table-cell text-xs font-light">
@@ -557,11 +557,11 @@ function BuyersBar({
 				<Link
 					href={{
 						pathname: `${
-							user.role === "Buyer"
-								? `/acheteurs/${user._id}`
-								: user.role === "Seller"
-								? `/vendeurs/${user._id}`
-								: `/admins/${user._id}`
+							user.buyer?.role === "Buyer"
+								? `/utilisateurs/acheteurs/${user._id}`
+								: user.seller?.role === "Seller"
+								? `/utilisateurs/vendeurs/${user._id}`
+								: `/utilisateurs/adminis/${user._id}`
 						}`,
 					}}
 				>
@@ -607,4 +607,4 @@ function BuyersBar({
 	);
 }
 
-export default BuyersBar;
+export default UsersBar;

@@ -107,6 +107,7 @@ export default function Demo({ opened }: any) {
 		null,
 		null,
 	]);
+	const [users4, setUsers4] = useState([]);
 
 	const isOpened = useContext(OpenedContext);
 	const [changedByBulkIds, setChangedByBulkIds] = useState<any>([]);
@@ -231,13 +232,13 @@ export default function Demo({ opened }: any) {
 								!arr.some((element: any) => element.includes(user2._id))
 						);
 
-						console.log("test: ", test);
+						// console.log("test: ", test);
 
 						setList({ usersWithAgregation: test });
 						// setList({ sellers: test });
 					}
 					setChangedByBulkIds(selection);
-					console.log("e", e);
+					// console.log("e", e);
 					if (e !== "archive") setStatut(e);
 					setSelection([]);
 					showNotification({
@@ -271,28 +272,13 @@ export default function Demo({ opened }: any) {
 		});
 	};
 
-	// const ALL_USERS = gql`
-	// 	query users {
-	// 		users {
-	// 			_id
-	// 			email
-	// 			role
-	// 		}
-	// 	}
-	// `;
-
-	// const newData = useQuery(ALL_USERS_NEW, {
-	// 	fetchPolicy: "no-cache",
-	// });
-	// if (newData.data) {
-	// 	console.log("newData: ", newData.data);
-	// }
-
 	const { error, loading, data } = useQuery(ALL_USERS_NEW, {
 		onCompleted: setList,
 		fetchPolicy: "no-cache",
 	});
 	const [getAllUsersByOc, results] = useLazyQuery(GET_USERS_BY_OC);
+
+	// console.log("results: ", results);
 
 	if (loading) {
 		return (
@@ -308,10 +294,10 @@ export default function Demo({ opened }: any) {
 		return <div>{error.message}</div>;
 	}
 
-	console.log("newUsers: ", data);
+	// console.log("newUsers: ", data);
 
 	let usersData = data?.usersWithAgregation;
-	let users = [];
+	let users: any = [];
 	if (results.data) {
 		usersData = results.data.usersOcc;
 	}
@@ -326,7 +312,7 @@ export default function Demo({ opened }: any) {
 
 	const toggleRow = (arr: [id: string, role: string]) => {
 		setSelection((current: any) => {
-			console.log("current selection: ", current);
+			// console.log("current selection: ", current);
 			return current.some((s: any) => s.includes(arr[0]))
 				? current.filter((item: any) => item[0] !== arr[0])
 				: [...current, [arr[0], arr[1]]];
@@ -347,37 +333,48 @@ export default function Demo({ opened }: any) {
 			reversed: reverseSortDirection,
 			search: value,
 		});
-		console.log(usersData);
+		// console.log(usersData);
 		setList({ usersWithAgregation: usersData });
 	};
 
-	console.log("usersghg", list.usersWithAgregation);
+	console.log("list.usersWithAgregation:", list.usersWithAgregation);
 
 	users = list.usersWithAgregation.map((user: any) => {
+		let i = 0;
 		// console.log("isArchived: ", user);
-		// if (
-		// 	user.seller
-		// 		? !user.seller.isArchived
-		// 		: user.buyer
-		// 		? !user.buyer.isArchived
-		// 		: !user.isArchived
-		// )
-		// {
-		return (
-			<UsersBar
-				key={user.email}
-				user={user}
-				selection={selection}
-				toggleRow={toggleRow}
-				statut={statut === "" ? user.statut : statut}
-				ids={changedByBulkIds}
-				setList={setList}
-				list={list}
-			/>
-		);
-		// }
+		// if (user.email === "testbug8@Seller.com") {
+		// 	return;
+		// } else
+		if (
+			user.seller
+				? !user.seller.isArchived
+				: user.buyer
+				? !user.buyer.isArchived
+				: !user.isArchived
+		) {
+			return (
+				<UsersBar
+					// key={user.email}
+					key={
+						user.seller
+							? user.seller._id
+							: user.buyer
+							? user.buyer._id
+							: user._id
+					}
+					user={user}
+					selection={selection}
+					toggleRow={toggleRow}
+					statut={statut === "" ? user.statut : statut}
+					ids={changedByBulkIds}
+					setList={setList}
+					list={list}
+				/>
+			);
+		}
 	});
 
+	console.log("fINAL USERS: ", users);
 	// console.log("opened: ", opened);
 
 	return (
@@ -603,10 +600,10 @@ export default function Demo({ opened }: any) {
 								try {
 									e.preventDefault();
 									setSearch("");
-									console.log("rangeValue:", rangeValue);
+									// console.log("rangeValue:", rangeValue);
 									let ranges = getStartAndEndFromRange(rangeValue);
-									console.log("ranges", ranges);
-									console.log("email to search: ", emailToSearch);
+									// console.log("ranges", ranges);
+									// console.log("email to search: ", emailToSearch);
 									const datax = await getAllUsersByOc({
 										variables: {
 											email: emailToSearch,
@@ -619,7 +616,10 @@ export default function Demo({ opened }: any) {
 										},
 									});
 
-									console.log(datax);
+									// users = [];
+									// console.log("users before filters: ", users);
+									// console.log(datax);
+									// setList({ usersWithAgregation: [] });
 									setList({ usersWithAgregation: datax.data.usersOcc });
 									// console.log("ranges: ", ranges[0]);
 									// console.log("ranges: ", ranges[1]);

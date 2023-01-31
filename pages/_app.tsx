@@ -77,11 +77,11 @@ const App = ({
 				<MantineProvider>
 					<ModalsProvider>
 						<NotificationsProvider>
-							<ThemeProvider theme={theme}>
-								<Layout>
+							<Layout>
+								<ThemeProvider theme={theme}>
 									<Component {...pageProps} />;
-								</Layout>
-							</ThemeProvider>
+								</ThemeProvider>
+							</Layout>
 						</NotificationsProvider>
 					</ModalsProvider>
 				</MantineProvider>

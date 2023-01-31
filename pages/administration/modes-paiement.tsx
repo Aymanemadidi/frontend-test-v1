@@ -31,9 +31,6 @@ import { DateRangePicker, DateRangePickerValue } from "@mantine/dates";
 import dayjs from "dayjs";
 import { showNotification } from "@mantine/notifications";
 import { openConfirmModal } from "@mantine/modals";
-import MarqueBar from "../../components/marqueBar";
-import MarqueModal from "../../components/MarqueModal";
-import ModesPaiementsBar from "../../components/modesPaiementBar";
 import ModesPaiementBar from "../../components/modesPaiementBar";
 import { OpenedContext } from "../../components/Layout";
 
@@ -159,174 +156,11 @@ export default function Demo({ opened }: any) {
 		}
 	`;
 
-	// const openModal = (e: any) => {
-	// 	return openConfirmModal({
-	// 		className: "mt-[200px]",
-	// 		confirmProps: {
-	// 			className: "bg-green-500 hover:bg-green-600 rounded-2xl",
-	// 		},
-	// 		cancelProps: {
-	// 			className: "rounded-2xl",
-	// 		},
-	// 		title: "Veuillez confirmer le changement de statut",
-	// 		children: (
-	// 			<p>
-	// 				{e === "actif" ? (
-	// 					<p>
-	// 						Voulez vous rendre ces utilisateurs{" "}
-	// 						<span className="text-green-500">Actif</span> ?
-	// 					</p>
-	// 				) : e === "inactif" ? (
-	// 					<p>
-	// 						Voulez vous rendre ces utilisateurs{" "}
-	// 						<span className="text-red-400">Inactif</span> ?
-	// 					</p>
-	// 				) : (
-	// 					<p>
-	// 						Voulez vous rendre ces utilisateurs{" "}
-	// 						<span className="text-red-400">Archivé</span> ?
-	// 					</p>
-	// 				)}
-	// 			</p>
-	// 		),
-	// 		labels: { confirm: "Confirmer", cancel: "Abandonner" },
-	// 		onCancel: () => {
-	// 			setStatut(statut);
-	// 		},
-	// 		onConfirm: async () => {
-	// 			try {
-	// 				let s: any;
-	// 				let test: any;
-	// 				let arr: number[] = [];
-	// 				if (e === "actif" || e === "inactif") {
-	// 					for (s of selection) {
-	// 						await updateStatut({
-	// 							variables: {
-	// 								_id: s,
-	// 								updateBuyerInput: {
-	// 									statut: e,
-	// 								},
-	// 							},
-	// 						});
-	// 					}
-	// 				} else {
-	// 					for (s of selection) {
-	// 						await updateStatut({
-	// 							variables: {
-	// 								_id: s,
-	// 								updateBuyerInput: {
-	// 									isArchived: true,
-	// 								},
-	// 							},
-	// 						});
-	// 						arr.push(s);
-	// 						// setList({ sellers: test });
-	// 						// console.log("test: ", test);
-	// 					}
-	// 					// console.log("arr: ", arr);
-	// 					test = list.buyers.filter(
-	// 						(buyer: any) => !arr.includes(buyer.userId)
-	// 					);
-
-	// 					setList({ buyers: test });
-	// 					// setList({ sellers: test });
-	// 				}
-	// 				setChangedByBulkIds(selection);
-	// 				if (e !== "archive") setStatut(() => e);
-	// 				setSelection([]);
-	// 				showNotification({
-	// 					title: `${
-	// 						e !== "archive" ? "Changement de multiple statut" : "Archivage"
-	// 					}`,
-	// 					message: `${
-	// 						e !== "archive"
-	// 							? "Statuts changé avec success"
-	// 							: "Archivage fait avec success"
-	// 					}`,
-	// 					color: "green",
-	// 					autoClose: 5000,
-	// 					bottom: "630px",
-	// 					// top: "0px",
-	// 					// classNames: {
-	// 					// 	root: "translate-y-[-500px]",
-	// 					// },
-	// 				});
-	// 			} catch (e) {
-	// 				alert(e);
-	// 				showNotification({
-	// 					title: "Changement de statut impossible",
-	// 					message: "Une erreur s'est produite",
-	// 					color: "red",
-	// 					autoClose: 5000,
-	// 					bottom: "630px",
-	// 				});
-	// 			}
-	// 		},
-	// 	});
-	// };
-
 	const [createModePaiement, statutCreatedModePaiement] =
 		useMutation(CREATE_MODE);
 	const [archiveModePaiement, archiveModePaiementResult] =
 		useMutation(ARCHIVE_MODE);
 	const [removeAllmodesPaiement, removeAllResult] = useMutation(REMOVE_ALL);
-
-	// const openCreateMarqueModal = (e: any) => {
-	// 	return openConfirmModal({
-	// 		className: "mt-[200px]",
-	// 		confirmProps: {
-	// 			className: "bg-green-500 hover:bg-green-600 rounded-2xl",
-	// 		},
-	// 		cancelProps: {
-	// 			className: "rounded-2xl",
-	// 		},
-	// 		title: "Ajouter une marque",
-	// 		children: (
-	// 			<div className="flex justify-center m-auto w-full">
-	// 				<input
-	// 					className="w-full border"
-	// 					type={"text"}
-	// 					onChange={(e) => setNewLibelle("e.target.value")}
-	// 				/>
-	// 			</div>
-	// 		),
-	// 		labels: { confirm: "Confirmer", cancel: "Abandonner" },
-	// 		onCancel: () => {
-	// 			setStatut(statut);
-	// 		},
-	// 		onConfirm: async () => {
-	// 			console.log(newLibelle);
-	// 			// try {
-	// 			// 	const marqueCreated = await createMarque({
-	// 			// 		variables: {
-	// 			// 			createMarqueInput: {
-	// 			// 				libelle: newLibelle,
-	// 			// 			},
-	// 			// 		},
-	// 			// 	});
-	// 			// 	setNewLibelle("");
-	// 			// 	// setList([...list, marqueCreated.data]);
-	// 			// 	showNotification({
-	// 			// 		title: `${"Creation marque"}`,
-	// 			// 		message: `${"Creation marque avec success"}`,
-	// 			// 		color: "green",
-	// 			// 		autoClose: 5000,
-	// 			// 		bottom: "630px",
-	// 			// 	});
-	// 			// } catch (e) {
-	// 			// 	setNewLibelle("");
-	// 			// 	alert(e);
-	// 			// 	showNotification({
-	// 			// 		title: "Creation marque impossible",
-	// 			// 		message: "Une erreur s'est produite",
-	// 			// 		color: "red",
-	// 			// 		autoClose: 5000,
-	// 			// 		bottom: "630px",
-	// 			// 	});
-	// 			// }
-	// 		},
-	// 	});
-	// };
 
 	const ALL_MODES = gql`
 		query modesPaiement {
@@ -488,9 +322,9 @@ export default function Demo({ opened }: any) {
 		let arr: string[] = [];
 		try {
 			const modePaiementArchived = await removeAllmodesPaiement();
-			// console.log("marqueArchived: ", marqueArchived.data.updateMarque._id);
+			// console.log("modeArchived: ", modeArchived.data.updatemode._id);
 			// let filtered = list.modesPaiement.filter((m: any) => m._id !== user._id);
-			// filtered.push(marqueArchived.data.updateMarque);
+			// filtered.push(modeArchived.data.updatemode);
 			setList({ modesPaiement: [] });
 			showNotification({
 				title: `${"Supression de tout les modesPaiement"}`,
@@ -499,19 +333,19 @@ export default function Demo({ opened }: any) {
 				autoClose: 5000,
 				bottom: "630px",
 			});
-			// setUpdatedLibelle(() => marqueCreated.data.updateMarque.libelle);
+			// setUpdatedLibelle(() => modeCreated.data.updatemode.libelle);
 			setOpenedArchiveAllModal(false);
 		} catch (e: any) {
 			// if (e.message === "libelle unmodified") {
 			// 	setErr({ type: 1 });
 			// }
-			// if (e.message === "Cette marque existe déjà") {
+			// if (e.message === "Cette mode existe déjà") {
 			// 	setErr({ type: 2 });
 			// }
 			// setNewLibelle("");
 			// alert(e);
 			showNotification({
-				title: "Supression marque impossible",
+				title: "Supression mode impossible",
 				message: "Une erreur s'est produite",
 				color: "red",
 				autoClose: 5000,
@@ -520,7 +354,7 @@ export default function Demo({ opened }: any) {
 		}
 	};
 
-	const marqueArchive = async (e: any) => {
+	const modeArchive = async (e: any) => {
 		e.preventDefault();
 		let arr: string[] = [];
 		try {
@@ -532,12 +366,12 @@ export default function Demo({ opened }: any) {
 				});
 				arr.push(s);
 			}
-			// console.log("marqueArchived: ", marqueArchived.data.updateMarque._id);
+			// console.log("modeArchived: ", modeArchived.data.updatemode._id);
 			let test = list.modesPaiement.filter(
 				(mode: any) => !arr.includes(mode._id)
 			);
 			// let filtered = list.modesPaiement.filter((m: any) => m._id !== user._id);
-			// filtered.push(marqueArchived.data.updateMarque);
+			// filtered.push(modeArchived.data.updatemode);
 			setList({ modesPaiement: test });
 			showNotification({
 				title: `${"Supression mode de paiement"}`,
@@ -546,13 +380,13 @@ export default function Demo({ opened }: any) {
 				autoClose: 5000,
 				bottom: "630px",
 			});
-			// setUpdatedLibelle(() => marqueCreated.data.updateMarque.libelle);
+			// setUpdatedLibelle(() => modeCreated.data.updatemode.libelle);
 			setOpenedArchiveModal(false);
 		} catch (e: any) {
 			// if (e.message === "libelle unmodified") {
 			// 	setErr({ type: 1 });
 			// }
-			// if (e.message === "Cette marque existe déjà") {
+			// if (e.message === "Cette mode existe déjà") {
 			// 	setErr({ type: 2 });
 			// }
 			// setNewLibelle("");
@@ -567,7 +401,7 @@ export default function Demo({ opened }: any) {
 		}
 	};
 
-	const marqueCreate = async (e: any) => {
+	const modeCreate = async (e: any) => {
 		e.preventDefault();
 		console.log("From new way: ", newLibelle);
 		try {
@@ -616,7 +450,7 @@ export default function Demo({ opened }: any) {
 			<Modal
 				opened={openedArchiveAllModal}
 				onClose={() => setOpenedArchiveAllModal(false)}
-				// title={`Voulez vous vraimment archiver la marque ${user.libelle}?`}
+				// title={`Voulez vous vraimment archiver la mode ${user.libelle}?`}
 				title={<p>Voulez vous vraimment archiver ces modesPaiement ?</p>}
 				className="shadow-xl"
 			>
@@ -651,12 +485,12 @@ export default function Demo({ opened }: any) {
 			<Modal
 				opened={openedArchiveModal}
 				onClose={() => setOpenedArchiveModal(false)}
-				// title={`Voulez vous vraimment archiver la marque ${user.libelle}?`}
+				// title={`Voulez vous vraimment archiver la mode ${user.libelle}?`}
 				title={<p>Voulez vous vraimment archiver ces modesPaiement ?</p>}
 				className="shadow-xl"
 			>
 				<div>
-					<form onSubmit={(e) => marqueArchive(e)}>
+					<form onSubmit={(e) => modeArchive(e)}>
 						{/* <TextInput
 							label="Libelle"
 							value={newLibelle}
@@ -686,9 +520,9 @@ export default function Demo({ opened }: any) {
 			<Modal
 				opened={openedModal}
 				onClose={() => setOpenedModal(false)}
-				title="Ajouter une marque"
+				title="Ajouter un mode de paiement"
 			>
-				<form onSubmit={(e) => marqueCreate(e)}>
+				<form onSubmit={(e) => modeCreate(e)}>
 					<TextInput
 						label="Libelle"
 						onChange={(e) => setNewLibelle(e.target.value)}
@@ -714,7 +548,7 @@ export default function Demo({ opened }: any) {
 			{/* <div className="lg:w-[85%] lg:m-auto"> */}
 			<div className="flex gap-3">
 				<p className="text-2xl mb-3 font-semibold">Modes paiement</p>
-				{/* <button onClick={openCreateMarqueModal}> */}
+				{/* <button onClick={openCreatemodeModal}> */}
 				<button onClick={() => setOpenedModal(true)}>
 					<IconCirclePlus size={35} />
 				</button>
