@@ -175,7 +175,46 @@ export function FaqSimple() {
 									</div>
 								</Accordion.Control>
 								<Accordion.Panel>
-									<button>test</button>
+									<div className="flex">
+										<button>test</button>
+									</div>
+									<div className="flex">
+										<Accordion>
+											<Accordion.Item value="customization">
+												<Accordion.Control>Customization</Accordion.Control>
+												<Accordion.Panel>
+													Colors, fonts, shadows and many other parts are
+													customizable to fit your design needs
+												</Accordion.Panel>
+											</Accordion.Item>
+
+											<Accordion.Item value="flexibility">
+												<Accordion.Control>Flexibility</Accordion.Control>
+												<Accordion.Panel>
+													<Accordion>
+														<Accordion.Item value="customization1">
+															<Accordion.Control>
+																Customization
+															</Accordion.Control>
+															<Accordion.Panel>
+																Colors, fonts, shadows and many other parts are
+																customizable to fit your design needs
+															</Accordion.Panel>
+														</Accordion.Item>
+
+														<Accordion.Item value="flexibility1">
+															<Accordion.Control>Flexibility</Accordion.Control>
+															<Accordion.Panel>
+																Configure components appearance and behavior
+																with vast amount of settings or overwrite any
+																part of component styles
+															</Accordion.Panel>
+														</Accordion.Item>
+													</Accordion>
+												</Accordion.Panel>
+											</Accordion.Item>
+										</Accordion>
+									</div>
 								</Accordion.Panel>
 							</Accordion.Item>
 							<Accordion.Item

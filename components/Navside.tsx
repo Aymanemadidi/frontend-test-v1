@@ -51,6 +51,7 @@ const mockdata = [
 		links: [
 			{ label: "Marques", link: "/administration/marques" },
 			{ label: "Types utilisateurs", link: "/administration/type-utilisateur" },
+			{ label: "Modes paiement", link: "/administration/modes-paiement" },
 		],
 	},
 	{

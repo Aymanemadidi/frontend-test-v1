@@ -243,9 +243,11 @@ function BuyersBar({
 						});
 					}
 					// console.log("list:", list);
-					let test = list.users2.filter((user2: any) => user2._id !== user._id);
+					let test = list.usersWithAgregation.filter(
+						(user2: any) => user2._id !== user._id
+					);
 					// console.log("test: ", test);
-					setList({ users2: test });
+					setList({ usersWithAgregation: test });
 					showNotification({
 						title: "Archivage",
 						message: "Archivage fait avec success",
@@ -317,9 +319,11 @@ function BuyersBar({
 						});
 					}
 					// console.log("list:", list);
-					let test = list.users2.filter((user2: any) => user2._id !== user._id);
+					let test = list.usersWithAgregation.filter(
+						(user2: any) => user2._id !== user._id
+					);
 					// console.log("test: ", test);
-					setList({ users2: test });
+					setList({ usersWithAgregation: test });
 					showNotification({
 						title: "Restorage",
 						message: "Restorage faite avec success",
@@ -480,6 +484,8 @@ function BuyersBar({
 						: "Vendeur"
 					: user.role === "Buyer"
 					? "Acheteur"
+					: user.role === "BuyerSeller"
+					? "Vendeur/Acheteur"
 					: "Admin"}
 			</td>
 			<td className=" hidden lg:table-cell text-xs font-light">
