@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import Link from "next/link";
 import {
 	Table,
@@ -32,6 +32,7 @@ import dayjs from "dayjs";
 import { showNotification } from "@mantine/notifications";
 import { openConfirmModal } from "@mantine/modals";
 import TypesBar from "../../components/TypesBar";
+import { OpenedContext } from "../../components/Layout";
 
 const useStyles = createStyles((theme) => ({
 	th: {
@@ -114,7 +115,7 @@ export default function Demo({ opened }: any) {
 		null,
 		null,
 	]);
-	const [isOpened, setIsOpened] = useState(opened);
+	const isOpened = useContext(OpenedContext);
 	const [changedByBulkIds, setChangedByBulkIds] = useState<any>([]);
 	const [newLibelle, setNewLibelle] = useState("");
 	const [openedModal, setOpenedModal] = useState(false);
@@ -126,10 +127,6 @@ export default function Demo({ opened }: any) {
 	// const router = useRouter();
 
 	const [list, setList] = useState<any>([]);
-
-	useEffect(() => {
-		setIsOpened(opened);
-	}, [opened]);
 
 	const CREATE_TYPE_USER = gql`
 		mutation createTypeUser($createTypeUserInput: CreateTypeUserInput!) {
@@ -155,172 +152,9 @@ export default function Demo({ opened }: any) {
 		}
 	`;
 
-	// const openModal = (e: any) => {
-	// 	return openConfirmModal({
-	// 		className: "mt-[200px]",
-	// 		confirmProps: {
-	// 			className: "bg-green-500 hover:bg-green-600 rounded-2xl",
-	// 		},
-	// 		cancelProps: {
-	// 			className: "rounded-2xl",
-	// 		},
-	// 		title: "Veuillez confirmer le changement de statut",
-	// 		children: (
-	// 			<p>
-	// 				{e === "actif" ? (
-	// 					<p>
-	// 						Voulez vous rendre ces utilisateurs{" "}
-	// 						<span className="text-green-500">Actif</span> ?
-	// 					</p>
-	// 				) : e === "inactif" ? (
-	// 					<p>
-	// 						Voulez vous rendre ces utilisateurs{" "}
-	// 						<span className="text-red-400">Inactif</span> ?
-	// 					</p>
-	// 				) : (
-	// 					<p>
-	// 						Voulez vous rendre ces utilisateurs{" "}
-	// 						<span className="text-red-400">Archivé</span> ?
-	// 					</p>
-	// 				)}
-	// 			</p>
-	// 		),
-	// 		labels: { confirm: "Confirmer", cancel: "Abandonner" },
-	// 		onCancel: () => {
-	// 			setStatut(statut);
-	// 		},
-	// 		onConfirm: async () => {
-	// 			try {
-	// 				let s: any;
-	// 				let test: any;
-	// 				let arr: number[] = [];
-	// 				if (e === "actif" || e === "inactif") {
-	// 					for (s of selection) {
-	// 						await updateStatut({
-	// 							variables: {
-	// 								_id: s,
-	// 								updateBuyerInput: {
-	// 									statut: e,
-	// 								},
-	// 							},
-	// 						});
-	// 					}
-	// 				} else {
-	// 					for (s of selection) {
-	// 						await updateStatut({
-	// 							variables: {
-	// 								_id: s,
-	// 								updateBuyerInput: {
-	// 									isArchived: true,
-	// 								},
-	// 							},
-	// 						});
-	// 						arr.push(s);
-	// 						// setList({ sellers: test });
-	// 						// console.log("test: ", test);
-	// 					}
-	// 					// console.log("arr: ", arr);
-	// 					test = list.buyers.filter(
-	// 						(buyer: any) => !arr.includes(buyer.userId)
-	// 					);
-
-	// 					setList({ buyers: test });
-	// 					// setList({ sellers: test });
-	// 				}
-	// 				setChangedByBulkIds(selection);
-	// 				if (e !== "archive") setStatut(() => e);
-	// 				setSelection([]);
-	// 				showNotification({
-	// 					title: `${
-	// 						e !== "archive" ? "Changement de multiple statut" : "Archivage"
-	// 					}`,
-	// 					message: `${
-	// 						e !== "archive"
-	// 							? "Statuts changé avec success"
-	// 							: "Archivage fait avec success"
-	// 					}`,
-	// 					color: "green",
-	// 					autoClose: 5000,
-	// 					bottom: "630px",
-	// 					// top: "0px",
-	// 					// classNames: {
-	// 					// 	root: "translate-y-[-500px]",
-	// 					// },
-	// 				});
-	// 			} catch (e) {
-	// 				alert(e);
-	// 				showNotification({
-	// 					title: "Changement de statut impossible",
-	// 					message: "Une erreur s'est produite",
-	// 					color: "red",
-	// 					autoClose: 5000,
-	// 					bottom: "630px",
-	// 				});
-	// 			}
-	// 		},
-	// 	});
-	// };
-
 	const [createTypeUser, statutCreatedType] = useMutation(CREATE_TYPE_USER);
 	const [archiveTypeUser, archiveTypeResult] = useMutation(ARCHIVE_TYPE_USER);
 	const [removeAllTypeUsers, removeAllResult] = useMutation(REMOVE_ALL);
-
-	// const openCreatetypeUserModal = (e: any) => {
-	// 	return openConfirmModal({
-	// 		className: "mt-[200px]",
-	// 		confirmProps: {
-	// 			className: "bg-green-500 hover:bg-green-600 rounded-2xl",
-	// 		},
-	// 		cancelProps: {
-	// 			className: "rounded-2xl",
-	// 		},
-	// 		title: "Ajouter une typeUser",
-	// 		children: (
-	// 			<div className="flex justify-center m-auto w-full">
-	// 				<input
-	// 					className="w-full border"
-	// 					type={"text"}
-	// 					onChange={(e) => setNewLibelle("e.target.value")}
-	// 				/>
-	// 			</div>
-	// 		),
-	// 		labels: { confirm: "Confirmer", cancel: "Abandonner" },
-	// 		onCancel: () => {
-	// 			setStatut(statut);
-	// 		},
-	// 		onConfirm: async () => {
-	// 			console.log(newLibelle);
-	// 			// try {
-	// 			// 	const typeUserCreated = await createtypeUser({
-	// 			// 		variables: {
-	// 			// 			createtypeUserInput: {
-	// 			// 				libelle: newLibelle,
-	// 			// 			},
-	// 			// 		},
-	// 			// 	});
-	// 			// 	setNewLibelle("");
-	// 			// 	// setList([...list, typeUserCreated.data]);
-	// 			// 	showNotification({
-	// 			// 		title: `${"Creation typeUser"}`,
-	// 			// 		message: `${"Creation typeUser avec success"}`,
-	// 			// 		color: "green",
-	// 			// 		autoClose: 5000,
-	// 			// 		bottom: "630px",
-	// 			// 	});
-	// 			// } catch (e) {
-	// 			// 	setNewLibelle("");
-	// 			// 	alert(e);
-	// 			// 	showNotification({
-	// 			// 		title: "Creation typeUser impossible",
-	// 			// 		message: "Une erreur s'est produite",
-	// 			// 		color: "red",
-	// 			// 		autoClose: 5000,
-	// 			// 		bottom: "630px",
-	// 			// 	});
-	// 			// }
-	// 		},
-	// 	});
-	// };
 
 	const ALL_TYPES = gql`
 		query TypeUsers {
@@ -716,96 +550,6 @@ export default function Demo({ opened }: any) {
 					<IconCirclePlus size={35} />
 				</button>
 			</div>
-			{/* <form className="">
-				<div className="flex flex-col px-5 pt-5 py-2 bg-white rounded-2xl shadow-sm mb-2">
-					<div className="flex gap-2">
-						<TextInput
-							classNames={{
-								// input: "w-[250px] rounded-2xl",
-								input: " rounded-2xl lg:w-[250px]",
-							}}
-							placeholder="E-mail"
-							// placeholder="Search by E-mail"
-							mb="md"
-							icon={<IconSearch size={14} stroke={1.5} />}
-							value={emailToSearch}
-							autoComplete="off"
-							onChange={(e) => setEmailToSearch(e.currentTarget.value)}
-						/>
-						<TextInput
-							classNames={{
-								input: " rounded-2xl lg:w-[280px]",
-								// input: "w-[280px] rounded-2xl",
-							}}
-							// placeholder="Search by nom de société"
-							placeholder="Société"
-							mb="md"
-							icon={<IconSearch size={14} stroke={1.5} />}
-							value={nomEntrepriseToSearch}
-							autoComplete="off"
-							onChange={(e) => setNomEntrepriseToSearch(e.currentTarget.value)}
-						/>
-					</div>
-					<div className="flex flex-col lg:flex-row lg:justify-between items-start">
-						<div className="flex gap-2">
-							<TextInput
-								classNames={{
-									// input: "w-[250px] rounded-2xl",
-									root: "basis-3/5",
-									input: "rounded-2xl lg:w-[250px]",
-								}}
-								// placeholder="Search by pseudo"
-								placeholder="Pseudo"
-								mb="md"
-								icon={<IconSearch size={14} stroke={1.5} />}
-								value={pseudoToSearch}
-								onChange={(e) => setPseudoToSearch(e.currentTarget.value)}
-							/>
-							<DateRangePicker
-								// label="Book hotel"
-								classNames={{
-									// input: "w-[350px] rounded-2xl",
-									root: "w-full",
-									input: "rounded-2xl lg:w-[350px]",
-								}}
-								placeholder="Dates"
-								// placeholder="Pick dates range"
-								value={rangeValue}
-								onChange={setRangeValue}
-								maxDate={dayjs(new Date()).toDate()}
-							/>
-						</div>
-						<button
-							type="submit"
-							className="bg-green-600 text-white text-xs hover:bg-green-500 px-[30px] py-3 rounded-2xl"
-							onClick={async (e) => {
-								e.preventDefault();
-								setSearch("");
-								console.log("rangeValue:", rangeValue);
-								let ranges = getStartAndEndFromRange(rangeValue);
-								console.log("ranges", ranges);
-								const datax = await getEmailsBySearch({
-									variables: {
-										email: emailToSearch,
-										nomEntreprise: nomEntrepriseToSearch,
-										pseudo: pseudoToSearch,
-										startDate: ranges[0],
-										endDate: ranges[1],
-									},
-								});
-								// console.log("ranges: ", ranges[0]);
-								// console.log("ranges: ", ranges[1]);
-								// console.log(datax.data.sellersOcc);
-								// setSortedData(datax.data.sellersOcc);
-								// console.log("search by dates data: ", datax.data.sellersOcc);
-								setList({ typeUsers: datax.data.typeUsersOcc });
-							}}
-						>
-							Rechercher
-						</button>
-					</div>
-				</div>
-			</form> */}
 			<div className="flex gap-1 lg:justify-between mt-3">
 				<Select
 					classNames={{

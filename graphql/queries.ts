@@ -196,6 +196,7 @@ export const GET_USERS_BY_OC = gql`
 				statut
 				created_at
 				nomEntreprise
+				role
 				pseudo
 				isPro
 				statut_moderation
@@ -208,6 +209,7 @@ export const GET_USERS_BY_OC = gql`
 				statut
 				created_at
 				nomEntreprise
+				role
 				pseudo
 				isArchived
 				type {
@@ -233,6 +235,7 @@ export const ALL_USERS_NEW = gql`
 				created_at
 				nomEntreprise
 				pseudo
+				role
 				isPro
 				statut_moderation
 				isArchived
@@ -243,6 +246,7 @@ export const ALL_USERS_NEW = gql`
 			buyer {
 				statut
 				created_at
+				role
 				nomEntreprise
 				pseudo
 				isArchived

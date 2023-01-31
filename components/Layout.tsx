@@ -3,6 +3,8 @@ import Link from "next/link";
 import Head from "next/head";
 import Image from "next/image";
 
+import { createContext, useContext } from "react";
+
 import {
 	AppShell,
 	Navbar,
@@ -40,6 +42,8 @@ import { NavbarNested } from "../components/Navside";
 
 import { gql, useMutation, useQuery } from "@apollo/client";
 import { useRouter } from "next/router";
+
+export const OpenedContext = createContext(true);
 
 export default function Layout({ children, access_token }: any) {
 	const theme = useMantineTheme();
@@ -134,6 +138,8 @@ export default function Layout({ children, access_token }: any) {
 	}
 
 	console.log(user);
+
+	console.log("opeeeeneeeed: ", opened);
 	return (
 		<div className="font-Montserrat">
 			<Head>
@@ -631,7 +637,9 @@ export default function Layout({ children, access_token }: any) {
 			>
 				{/* <div className="mt-[20px]">{children}</div> */}
 				<div className="mt-[20px]">
-					{addPropsToChildren(children, { opened })}
+					<OpenedContext.Provider value={opened}>
+						{children}
+					</OpenedContext.Provider>
 				</div>
 			</AppShell>
 		</div>

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import Link from "next/link";
 import {
 	Table,
@@ -39,6 +39,7 @@ import {
 } from "../../../utils/filtersUtils";
 import { ALL_BUYERS, GET_BUYERS_BY_OC } from "../../../graphql/queries";
 import { UPDATE_BUYER_STATUT } from "../../../graphql/mutations";
+import { OpenedContext } from "../../../components/Layout";
 
 const useStyles = createStyles((theme) => ({
 	th: {
@@ -102,15 +103,11 @@ export default function Demo({ opened }: any) {
 		null,
 		null,
 	]);
-	const [isOpened, setIsOpened] = useState(opened);
+	const isOpened = useContext(OpenedContext);
 	const [changedByBulkIds, setChangedByBulkIds] = useState<any>([]);
 	// const router = useRouter();
 
 	const [list, setList] = useState<any>([]);
-
-	useEffect(() => {
-		setIsOpened(opened);
-	}, [opened]);
 
 	const [updateStatut, statutUpdateResult] = useMutation(UPDATE_BUYER_STATUT);
 
