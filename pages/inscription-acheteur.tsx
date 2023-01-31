@@ -151,7 +151,7 @@ export default function Inscription() {
 						numeroSiret: Number(values.numeroSiret),
 						codePostal: values.codePostal,
 						ville: values.ville,
-						role: "Seller",
+						role: "Buyer",
 						dateOfBirth: values.dateOfBirth,
 						nationality: values.nationality,
 						adresse: values.adresse,
