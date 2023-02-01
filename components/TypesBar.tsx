@@ -310,6 +310,7 @@ function TypesBar({
 				<div>
 					<form
 						onSubmit={async (e) => {
+							e.preventDefault();
 							const checkArr: any = await checkType({
 								variables: {
 									type: newLibelle,
