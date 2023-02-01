@@ -303,7 +303,7 @@ export default function Demo({ opened }: any) {
 			{/* <div className="lg:w-[85%] lg:m-auto"> */}
 			<div className="flex gap-3">
 				<p className="text-2xl mb-3 font-semibold">Acheteurs</p>
-				<Link href={"utilisateurs/acheteurs/ajouter-acheteur"}>
+				<Link href={"/utilisateurs/acheteurs/ajouter-acheteur"}>
 					<IconCirclePlus size={35} />
 				</Link>
 			</div>
@@ -500,7 +500,7 @@ export default function Demo({ opened }: any) {
 						<tbody className="">
 							{buyers.length === 0 ? (
 								<div className="ml-[25%]">
-									<div>Aucun résultat trouvé !</div>
+									<div>No results found</div>
 								</div>
 							) : (
 								buyers.reverse()

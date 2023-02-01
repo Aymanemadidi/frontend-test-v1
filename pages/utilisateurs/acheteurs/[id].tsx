@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import type { NextPage } from "next";
 import Head from "next/head";
 import Image from "next/image";
@@ -27,6 +27,7 @@ import {
 import { useRouter } from "next/router";
 import { showNotification } from "@mantine/notifications";
 import { openConfirmModal } from "@mantine/modals";
+import { OpenedContext } from "../../../components/Layout";
 
 const initialValues: CreateBuyerInput = {
 	nomEntreprise: "",
@@ -74,7 +75,7 @@ const schema = z.object({
 	// email: z.string().email({ message: "Invalid email" }),
 });
 
-function UpdatebuyerByAdmin({ buyer, opened }: any) {
+function UpdatebuyerByAdmin({ buyer }: any) {
 	const CountriesData1 = nationalities.map(
 		(item) => `${item.label?.charAt(0).toUpperCase()}${item.label?.slice(1)}`
 	);
@@ -88,6 +89,7 @@ function UpdatebuyerByAdmin({ buyer, opened }: any) {
 	const [updateBuyer] = useUpdateBuyer();
 	const [entName, setEntName] = useState("");
 	const [list, setList] = useState<any>([]);
+	const opened = useContext(OpenedContext);
 	let dataTypes: any[] = [];
 	const [user, setUser] = useState<any>({
 		buyer: {

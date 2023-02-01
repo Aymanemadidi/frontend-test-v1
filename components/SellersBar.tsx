@@ -142,7 +142,7 @@ function SellersBar({
 			title: "Veuillez confirmer l'archivage",
 			children: (
 				<p>
-					<p>Voulez vous archiver cet utilisateur</p>
+					<p>Voulez vous archivé cet utilisateur</p>
 				</p>
 			),
 			labels: { confirm: "Confirmer", cancel: "Abandonner" },
@@ -172,7 +172,7 @@ function SellersBar({
 
 					showNotification({
 						title: "Archivage",
-						message: "Archivage fait avec succès",
+						message: "Archivage fait avec success",
 						color: "green",
 						autoClose: 5000,
 						bottom: "630px",
@@ -183,7 +183,7 @@ function SellersBar({
 					});
 				} catch (error) {
 					showNotification({
-						title: "Archivage impossible",
+						title: "Archivahe impossible",
 						message: "Erreur",
 						color: "red",
 						autoClose: 5000,
@@ -223,28 +223,34 @@ function SellersBar({
 				setSellerStatut(sellerStatut);
 			},
 			onConfirm: async () => {
-				await updateStatut({
-					variables: {
-						_id: user.userId,
-						updateSellerInput: {
-							statut: e,
+				try {
+					await updateStatut({
+						variables: {
+							_id: user.userId,
+							updateSellerInput: {
+								statut: e,
+							},
 						},
-					},
-				});
-				setSellerStatut(() => e);
-				showNotification({
-					title: "Changement de statut",
-					message: "Statut changé avec succès",
-					color: "green",
-					autoClose: 5000,
-					bottom: "630px",
-				});
+					});
+					setSellerStatut(() => e);
+					showNotification({
+						title: "Changement de statut",
+						message: "Statut changé avec success",
+						color: "green",
+						autoClose: 5000,
+						bottom: "630px",
+					});
+				} catch (e: any) {
+					showNotification({
+						title: "Changement de statut impossible",
+						message: e.message,
+						color: "red",
+						autoClose: 5000,
+						bottom: "630px",
+					});
+				}
 			},
 		});
-
-	if (user.email === "aymaneSeller6@gmail.com") {
-		console.log("statutModeration: ", user.statut_moderation);
-	}
 	return (
 		<tr
 			key={user.email}
@@ -361,7 +367,7 @@ function SellersBar({
 			<td className="flex gap-3">
 				<Link
 					href={{
-						pathname: `/vendeurs/${user.userId}`,
+						pathname: `/utilisateurs/vendeurs/${user.userId}`,
 					}}
 				>
 					<button>

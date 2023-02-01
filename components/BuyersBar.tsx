@@ -156,7 +156,7 @@ function BuyersBar({
 			title: "Veuillez confirmer l'archivage",
 			children: (
 				<p>
-					<p>Voulez vous archiver cet utilisateur</p>
+					<p>Voulez vous archivé cet utilisateur</p>
 				</p>
 			),
 			labels: { confirm: "Confirmer", cancel: "Abandonner" },
@@ -179,7 +179,7 @@ function BuyersBar({
 					setList({ buyers: test });
 					showNotification({
 						title: "Archivage",
-						message: "Archivage fait avec succès",
+						message: "Archivage fait avec success",
 						color: "green",
 						autoClose: 5000,
 						bottom: "630px",
@@ -190,7 +190,7 @@ function BuyersBar({
 					});
 				} catch (error) {
 					showNotification({
-						title: "Archivage impossible",
+						title: "Archivahe impossible",
 						message: "Erreur",
 						color: "red",
 						autoClose: 5000,
@@ -241,7 +241,7 @@ function BuyersBar({
 				setBuyerStatut(() => e);
 				showNotification({
 					title: "Changement de statut",
-					message: "Statut changé avec succès",
+					message: "Statut changé avec success",
 					color: "green",
 					autoClose: 5000,
 					bottom: "630px",
@@ -359,7 +359,7 @@ function BuyersBar({
 			<td className="flex gap-3">
 				<Link
 					href={{
-						pathname: `/acheteurs/${user.userId}`,
+						pathname: `/utilisateurs/acheteurs/${user.userId}`,
 					}}
 				>
 					<button>
