@@ -451,7 +451,7 @@ export default function Demo({ opened }: any) {
 				opened={openedArchiveAllModal}
 				onClose={() => setOpenedArchiveAllModal(false)}
 				// title={`Voulez vous vraimment archiver la mode ${user.libelle}?`}
-				title={<p>Voulez vous vraimment archiver ces modesPaiement ?</p>}
+				title={<p>Voulez vous vraiment supprimer ces modes de paiement ?</p>}
 				className="shadow-xl"
 			>
 				<div>
@@ -486,7 +486,7 @@ export default function Demo({ opened }: any) {
 				opened={openedArchiveModal}
 				onClose={() => setOpenedArchiveModal(false)}
 				// title={`Voulez vous vraimment archiver la mode ${user.libelle}?`}
-				title={<p>Voulez vous vraimment archiver ces modesPaiement ?</p>}
+				title={<p>Voulez vous vraiment supprimer ces modes de paiement ?</p>}
 				className="shadow-xl"
 			>
 				<div>
@@ -741,7 +741,7 @@ export default function Demo({ opened }: any) {
 					<tbody className="">
 						{modesPaiement.length === 0 ? (
 							<div className="ml-[25%]">
-								<div>No results found</div>
+								<div>Aucun résultat trouvé !</div>
 							</div>
 						) : (
 							modesPaiement.reverse()

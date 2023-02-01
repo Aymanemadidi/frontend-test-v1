@@ -512,7 +512,7 @@ export default function Demo({ opened }: any) {
 						<tbody className="">
 							{admins.length === 0 ? (
 								<div className="ml-[25%]">
-									<div>No results found</div>
+									<div>Aucun résultat trouvé !</div>
 								</div>
 							) : (
 								admins.reverse()

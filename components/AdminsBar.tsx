@@ -156,7 +156,7 @@ function AdminsBar({
 			title: "Veuillez confirmer l'archivage",
 			children: (
 				<p>
-					<p>Voulez vous archivé cet utilisateur</p>
+					<p>Voulez vous archiver cet utilisateur</p>
 				</p>
 			),
 			labels: { confirm: "Confirmer", cancel: "Abandonner" },

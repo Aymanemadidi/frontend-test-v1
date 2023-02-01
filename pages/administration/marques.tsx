@@ -602,7 +602,7 @@ export default function Demo({ opened }: any) {
 				opened={openedArchiveAllModal}
 				onClose={() => setOpenedArchiveAllModal(false)}
 				// title={`Voulez vous vraimment archiver la marque ${user.libelle}?`}
-				title={<p>Voulez vous vraimment archiver ces marques ?</p>}
+				title={<p>Voulez vous vraiment supprimer ces marques ?</p>}
 				className="shadow-xl"
 			>
 				<div>
@@ -637,7 +637,7 @@ export default function Demo({ opened }: any) {
 				opened={openedArchiveModal}
 				onClose={() => setOpenedArchiveModal(false)}
 				// title={`Voulez vous vraimment archiver la marque ${user.libelle}?`}
-				title={<p>Voulez vous vraimment archiver ces marques ?</p>}
+				title={<p>Voulez vous vraiment supprimer ces marques ?</p>}
 				className="shadow-xl"
 			>
 				<div>
@@ -892,7 +892,7 @@ export default function Demo({ opened }: any) {
 					<tbody className="">
 						{marques.length === 0 ? (
 							<div className="ml-[25%]">
-								<div>No results found</div>
+								<div>Aucun résultat trouvé !</div>
 							</div>
 						) : (
 							marques.reverse()

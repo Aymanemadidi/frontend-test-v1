@@ -72,7 +72,7 @@ export function FaqSimple() {
 								<Accordion.Control>
 									<div className="flex gap-3">
 										<div>
-											<p>Litiges a traiter</p>
+											<p>Litiges à traiter</p>
 										</div>
 										<div>
 											<ThemeIcon
@@ -253,7 +253,7 @@ export function FaqSimple() {
 								<Accordion.Control>
 									<div className="flex gap-3">
 										<div>
-											<p className="text-sm">En cours de moderation</p>
+											<p className="text-sm">En cours de modération</p>
 										</div>
 										<div className="translate-y-[-3px]">
 											<ThemeIcon

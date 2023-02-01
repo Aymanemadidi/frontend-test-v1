@@ -154,7 +154,7 @@ function BuyersBar({
 			title: "Veuillez confirmer l'archivage",
 			children: (
 				<p>
-					<p>Voulez vous archivé cet utilisateur</p>
+					<p>Voulez vous archiver cet utilisateur</p>
 				</p>
 			),
 			labels: { confirm: "Confirmer", cancel: "Abandonner" },
@@ -177,7 +177,7 @@ function BuyersBar({
 					setList({ buyers: test });
 					showNotification({
 						title: "Archivage",
-						message: "Archivage fait avec success",
+						message: "Archivage fait avec succès",
 						color: "green",
 						autoClose: 5000,
 						bottom: "630px",

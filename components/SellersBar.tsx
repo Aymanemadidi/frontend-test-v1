@@ -142,7 +142,7 @@ function SellersBar({
 			title: "Veuillez confirmer l'archivage",
 			children: (
 				<p>
-					<p>Voulez vous archivé cet utilisateur</p>
+					<p>Voulez vous archiver cet utilisateur</p>
 				</p>
 			),
 			labels: { confirm: "Confirmer", cancel: "Abandonner" },
@@ -172,7 +172,7 @@ function SellersBar({
 
 					showNotification({
 						title: "Archivage",
-						message: "Archivage fait avec success",
+						message: "Archivage fait avec succès",
 						color: "green",
 						autoClose: 5000,
 						bottom: "630px",
@@ -183,7 +183,7 @@ function SellersBar({
 					});
 				} catch (error) {
 					showNotification({
-						title: "Archivahe impossible",
+						title: "Archivage impossible",
 						message: "Erreur",
 						color: "red",
 						autoClose: 5000,
@@ -234,7 +234,7 @@ function SellersBar({
 				setSellerStatut(() => e);
 				showNotification({
 					title: "Changement de statut",
-					message: "Statut changé avec success",
+					message: "Statut changé avec succès",
 					color: "green",
 					autoClose: 5000,
 					bottom: "630px",
