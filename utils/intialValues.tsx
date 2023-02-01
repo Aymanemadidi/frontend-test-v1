@@ -91,10 +91,6 @@ const buyerSchema = z.object({
 	ville: z.string().min(1, { message: "Ce champ est requis." }),
 	pays: z.string().min(1, { message: "Ce champ est requis." }),
 	codePostal: z.string().min(1, { message: "Ce champ est requis." }),
-	refundAdresse: z.string().min(1, { message: "Ce champ est requis." }),
-	refundCodePostal: z.string().min(1, { message: "Ce champ est requis." }),
-	refundPays: z.string().min(1, { message: "Ce champ est requis." }),
-	refundVille: z.string().min(1, { message: "Ce champ est requis." }),
 });
 
 const schema = z.object({
